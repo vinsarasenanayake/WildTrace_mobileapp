@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../widgets/bottom_nav_bar.dart';
+
 
 // Cart Screen UI
 class CartScreen extends StatefulWidget {
@@ -39,7 +39,7 @@ class _CartScreenState extends State<CartScreen> {
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      bottomNavigationBar: const WildBottomNavBar(),
+
       body: SafeArea(
         child: _cartItems.isEmpty
             ? Center(

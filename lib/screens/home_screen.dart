@@ -4,9 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/navigation_provider.dart';
-import '../widgets/bottom_nav_bar.dart';
 
-// Home Screen View
+
+// Home Screen
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -107,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: const WildBottomNavBar(),
+
     );
   }
 
@@ -178,7 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   'WILD',
                   style: GoogleFonts.inter(
-                    fontSize: 72,
+                    fontSize: 48, // Reduced font size to fit
                     fontWeight: FontWeight.w900,
                     color: Colors.white,
                     height: 0.9,

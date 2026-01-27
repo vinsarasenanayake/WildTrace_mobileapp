@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'home_screen.dart';
 import 'login_screen.dart';
+import '../widgets/custom_text_field.dart';
 
 // Password Recovery Screen
 class ForgotPasswordScreen extends StatefulWidget {
@@ -92,8 +93,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    _buildLabel('EMAIL ADDRESS', isDarkMode),
-                    _buildTextField(_emailController, 'name@example.com', isDarkMode),
+                    CustomTextField(
+                      label: 'EMAIL ADDRESS',
+                      controller: _emailController,
+                      hintText: 'name@example.com',
+                    ),
                     const SizedBox(height: 32),
                     _buildSubmitButton('SEND RESET LINK', () {}, isDarkMode),
                     const SizedBox(height: 24),
@@ -137,38 +141,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 
-  Widget _buildLabel(String text, bool isDarkMode) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        text,
-        style: GoogleFonts.inter(
-          fontSize: 11,
-          fontWeight: FontWeight.bold,
-          color: isDarkMode ? Colors.white60 : Colors.grey[500],
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTextField(TextEditingController controller, String hint, bool isDarkMode) {
-    return TextField(
-      controller: controller,
-      style: GoogleFonts.inter(color: isDarkMode ? Colors.white : Colors.black87),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: GoogleFonts.inter(color: Colors.grey[400]),
-        filled: true,
-        fillColor: isDarkMode ? const Color(0xFF2C2C2C) : Colors.grey[50],
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      ),
-    );
-  }
 
   Widget _buildSubmitButton(String text, VoidCallback onPressed, bool isDarkMode) {
     return SizedBox(

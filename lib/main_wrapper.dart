@@ -4,8 +4,11 @@ import 'providers/navigation_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/gallery_screen.dart';
 import 'screens/cart_screen.dart';
+import 'screens/profile_screen.dart';
 
-// Main Screen Wrapper for Navigation
+import 'widgets/bottom_nav_bar.dart';
+
+// Main Navigation Wrapper
 class MainWrapper extends StatelessWidget {
   const MainWrapper({super.key});
 
@@ -22,12 +25,15 @@ class MainWrapper extends StatelessWidget {
         case 2:
           return const CartScreen();
         case 3:
-          return const Scaffold(body: Center(child: Text("Profile Screen")));
+          return const ProfileScreen();
         default:
           return const HomeScreen();
       }
     }
 
-    return getBody();
+    return Scaffold(
+      body: getBody(),
+      bottomNavigationBar: const WildTraceBottomNavBar(),
+    );
   }
 }

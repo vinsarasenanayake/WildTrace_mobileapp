@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../widgets/bottom_nav_bar.dart';
+
 import '../widgets/product_card.dart';
 
-// Gallery & Collection View
+// Gallery Screen
 class GalleryScreen extends StatefulWidget {
   const GalleryScreen({super.key});
 
@@ -139,7 +139,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: const WildBottomNavBar(),
+
     );
   }
 

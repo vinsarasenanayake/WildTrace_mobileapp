@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import '../providers/navigation_provider.dart';
 
 // Custom Bottom Navigation Bar
-class WildBottomNavBar extends StatelessWidget {
-  const WildBottomNavBar({super.key});
+class WildTraceBottomNavBar extends StatelessWidget {
+  const WildTraceBottomNavBar({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -38,15 +38,18 @@ class WildBottomNavBar extends StatelessWidget {
       child: SafeArea(
         top: false, 
         child: Theme(
-          data: ThemeData(
+          data: Theme.of(context).copyWith(
             splashColor: Colors.transparent,
             highlightColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            splashFactory: NoSplash.splashFactory,
           ),
           child: BottomNavigationBar(
             currentIndex: navProvider.selectedIndex,
             onTap: (index) => navProvider.setSelectedIndex(index),
             backgroundColor: Colors.transparent,
             elevation: 0,
+            enableFeedback: false, // Remove haptic feedback
             type: BottomNavigationBarType.fixed,
             selectedItemColor: selectedColor,
             unselectedItemColor: unselectedColor,

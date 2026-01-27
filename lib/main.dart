@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'providers/navigation_provider.dart';
 import 'screens/splash_screen.dart';
 
-// Main Application Entry Point
+// Main Entry Point
 void main() {
   runApp(
     MultiProvider(
