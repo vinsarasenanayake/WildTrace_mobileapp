@@ -53,7 +53,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF1B4332), // Deep green to match your theme
+      backgroundColor: const Color(0xFF1B4332),
       body: Center(
         child: AnimatedBuilder(
           animation: _controller,
@@ -65,7 +65,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Logo Image
                     Image.asset(
                       'assets/images/logo.png',
                       height: 120,
@@ -76,7 +75,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       ),
                     ),
                     const SizedBox(height: 24),
-                    // App Name
                     const Text(
                       'WILD TRACE',
                       style: TextStyle(
@@ -96,7 +94,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       ),
                     ),
                     const SizedBox(height: 48),
-                    // Loading indicator
                     const SizedBox(
                       width: 40,
                       height: 40,

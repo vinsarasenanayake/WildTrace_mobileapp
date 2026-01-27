@@ -1,40 +1,101 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/navigation_provider.dart';
 
-// --- Shared Bottom Navigation ---
 class WildBottomNavBar extends StatelessWidget {
   const WildBottomNavBar({super.key});
 
   @override
   Widget build(BuildContext context) {
     final navProvider = Provider.of<NavigationProvider>(context);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    final List<BottomNavigationBarItem> allItems = [
-      const BottomNavigationBarItem(icon: Icon(Icons.home_rounded), label: 'HOME'),
-      const BottomNavigationBarItem(icon: Icon(Icons.explore_rounded), label: 'JOURNEY'),
-      const BottomNavigationBarItem(icon: Icon(Icons.photo_library_rounded), label: 'GALLERY'),
-      const BottomNavigationBarItem(icon: Icon(Icons.shopping_cart_rounded), label: 'CART'),
-      const BottomNavigationBarItem(icon: Icon(Icons.person_rounded), label: 'PROFILE'),
-    ];
+    final Color backgroundColor = isDarkMode 
+        ? Colors.black 
+        : const Color(0xFFBFBFBF);
+
+    final Color selectedColor = isDarkMode 
+        ? const Color(0xFF2ECC71) 
+        : const Color(0xFF1B4332);
+
+    final Color unselectedColor = isDarkMode 
+        ? Colors.white.withOpacity(0.5) 
+        : Colors.grey.shade600;
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF1B4332),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, -2))],
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
+        ],
       ),
       child: SafeArea(
-        child: BottomNavigationBar(
-          currentIndex: navProvider.selectedIndex,
-          onTap: (index) => navProvider.setSelectedIndex(index),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          selectedItemColor: Colors.greenAccent,
-          unselectedItemColor: Colors.white70,
-          type: BottomNavigationBarType.fixed,
-          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-          unselectedLabelStyle: const TextStyle(fontSize: 10),
-          items: allItems,
+        top: false, 
+        child: Theme(
+          data: ThemeData(
+            splashColor: Colors.transparent,
+            highlightColor: Colors.transparent,
+          ),
+          child: BottomNavigationBar(
+            currentIndex: navProvider.selectedIndex,
+            onTap: (index) => navProvider.setSelectedIndex(index),
+            
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            type: BottomNavigationBarType.fixed,
+            
+            selectedItemColor: selectedColor,
+            unselectedItemColor: unselectedColor,
+            
+            showUnselectedLabels: true,
+            
+            selectedLabelStyle: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              height: 2.0, 
+            ),
+            unselectedLabelStyle: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+              height: 2.0,
+            ),
+            
+            items: const [
+               BottomNavigationBarItem(
+                 icon: Padding(
+                   padding: EdgeInsets.only(top: 6),
+                   child: Icon(Icons.home_rounded, size: 24),
+                 ), 
+                 label: 'Home'
+               ),
+               BottomNavigationBarItem(
+                 icon: Padding(
+                   padding: EdgeInsets.only(top: 6),
+                   child: Icon(Icons.photo_library_rounded, size: 24),
+                 ), 
+                 label: 'Gallery'
+               ),
+               BottomNavigationBarItem(
+                 icon: Padding(
+                   padding: EdgeInsets.only(top: 6),
+                   child: Icon(Icons.shopping_cart_rounded, size: 24),
+                 ), 
+                 label: 'Cart'
+               ),
+               BottomNavigationBarItem(
+                 icon: Padding(
+                   padding: EdgeInsets.only(top: 6),
+                   child: Icon(Icons.person_rounded, size: 24),
+                 ), 
+                 label: 'Profile'
+               ),
+            ],
+          ),
         ),
       ),
     );

@@ -47,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              // Title
+
               Text(
                 'Welcome Back',
                 style: GoogleFonts.playfairDisplay(
@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 48),
-              // Login Card
+
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -84,7 +84,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Email Field
                     Text(
                       'EMAIL ADDRESS',
                       style: GoogleFonts.inter(
@@ -111,7 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    // Password Field
+
                     Text(
                       'PASSWORD',
                       style: GoogleFonts.inter(
@@ -147,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    // Sign In Button
+
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -172,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    // Links
+
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -220,7 +219,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 48),
-              // Footer
+
               Text(
                 'WILDTRACE © 2026',
                 style: GoogleFonts.inter(

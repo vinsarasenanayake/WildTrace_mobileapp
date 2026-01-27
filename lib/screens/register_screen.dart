@@ -49,7 +49,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              // Title
+
               Text(
                 'Join WildTrace',
                 style: GoogleFonts.playfairDisplay(
@@ -69,7 +69,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               const SizedBox(height: 40),
-              // Register Card
+
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -86,17 +86,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Full Name
                     _buildLabel('FULL NAME', isDarkMode),
                     _buildTextField(_nameController, 'Enter your full name', isDarkMode),
                     const SizedBox(height: 20),
 
-                    // Email Address
                     _buildLabel('EMAIL ADDRESS', isDarkMode),
                     _buildTextField(_emailController, 'name@example.com', isDarkMode),
                     const SizedBox(height: 20),
                     
-                    // Password & Confirm Password
                     Row(
                       children: [
                         Expanded(
@@ -126,7 +123,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Contact Number
                     _buildLabel('CONTACT NUMBER', isDarkMode),
                     Row(
                       children: [
@@ -158,12 +154,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Address
                     _buildLabel('ADDRESS', isDarkMode),
                     _buildTextField(TextEditingController(), 'Street address, building name, etc.', isDarkMode),
                     const SizedBox(height: 20),
 
-                    // City & Postal Code
                     Row(
                       children: [
                         Expanded(
@@ -189,7 +183,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 20),
 
-                    // Country
                     _buildLabel('COUNTRY', isDarkMode),
                     Container(
                       width: double.infinity,
@@ -210,12 +203,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     
                     const SizedBox(height: 32),
                     
-                    // Register Button
                     _buildSubmitButton('COMPLETE REGISTRATION', () {}, isDarkMode),
                     
                     const SizedBox(height: 24),
                     
-                    // Link to Login
                     Center(
                       child: TextButton(
                         onPressed: () {

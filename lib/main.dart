@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'providers/navigation_provider.dart';
 import 'screens/splash_screen.dart';
 
-// --- App Entry ---
 void main() {
   runApp(
     MultiProvider(
@@ -17,7 +16,6 @@ void main() {
   );
 }
 
-// --- Main App Config ---
 class WildTraceApp extends StatelessWidget {
   const WildTraceApp({super.key});
 
@@ -26,9 +24,8 @@ class WildTraceApp extends StatelessWidget {
     return MaterialApp(
       title: 'Wild Trace',
       debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.system, // Auto dark/light mode
+      themeMode: ThemeMode.system,
       
-      // Light Theme
       theme: ThemeData(
         useMaterial3: true,
         primaryColor: const Color(0xFF1B4332),
@@ -39,7 +36,6 @@ class WildTraceApp extends StatelessWidget {
         textTheme: GoogleFonts.interTextTheme(),
       ),
 
-      // Dark Theme
       darkTheme: ThemeData(
         useMaterial3: true,
         primaryColor: const Color(0xFF1B4332),
