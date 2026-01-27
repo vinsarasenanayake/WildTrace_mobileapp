@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'home_screen.dart';
 import 'login_screen.dart';
 
-// --- Register Screen ---
+// User Registration Screen
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -32,7 +32,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 40),
-              // Logo
               GestureDetector(
                 onTap: () {
                   Navigator.pushAndRemoveUntil(
@@ -49,7 +48,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-
               Text(
                 'Join WildTrace',
                 style: GoogleFonts.playfairDisplay(
@@ -69,7 +67,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               const SizedBox(height: 40),
-
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -89,11 +86,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     _buildLabel('FULL NAME', isDarkMode),
                     _buildTextField(_nameController, 'Enter your full name', isDarkMode),
                     const SizedBox(height: 20),
-
                     _buildLabel('EMAIL ADDRESS', isDarkMode),
                     _buildTextField(_emailController, 'name@example.com', isDarkMode),
                     const SizedBox(height: 20),
-                    
                     Row(
                       children: [
                         Expanded(
@@ -122,7 +117,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ],
                     ),
                     const SizedBox(height: 20),
-
                     _buildLabel('CONTACT NUMBER', isDarkMode),
                     Row(
                       children: [
@@ -153,11 +147,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ],
                     ),
                     const SizedBox(height: 20),
-
                     _buildLabel('ADDRESS', isDarkMode),
                     _buildTextField(TextEditingController(), 'Street address, building name, etc.', isDarkMode),
                     const SizedBox(height: 20),
-
                     Row(
                       children: [
                         Expanded(
@@ -182,7 +174,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ],
                     ),
                     const SizedBox(height: 20),
-
                     _buildLabel('COUNTRY', isDarkMode),
                     Container(
                       width: double.infinity,
@@ -200,13 +191,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ],
                       ),
                     ),
-                    
                     const SizedBox(height: 32),
-                    
                     _buildSubmitButton('COMPLETE REGISTRATION', () {}, isDarkMode),
-                    
                     const SizedBox(height: 24),
-                    
                     Center(
                       child: TextButton(
                         onPressed: () {
@@ -230,7 +217,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
               const SizedBox(height: 40),
-              // Footer
               Text(
                 'WILDTRACE © 2026',
                 style: GoogleFonts.inter(

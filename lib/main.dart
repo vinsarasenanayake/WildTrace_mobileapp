@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'providers/navigation_provider.dart';
 import 'screens/splash_screen.dart';
 
+// Main Application Entry Point
 void main() {
   runApp(
     MultiProvider(
@@ -25,7 +25,6 @@ class WildTraceApp extends StatelessWidget {
       title: 'Wild Trace',
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.system,
-      
       theme: ThemeData(
         useMaterial3: true,
         primaryColor: const Color(0xFF1B4332),
@@ -35,7 +34,6 @@ class WildTraceApp extends StatelessWidget {
         ),
         textTheme: GoogleFonts.interTextTheme(),
       ),
-
       darkTheme: ThemeData(
         useMaterial3: true,
         primaryColor: const Color(0xFF1B4332),
@@ -47,7 +45,6 @@ class WildTraceApp extends StatelessWidget {
           ThemeData(brightness: Brightness.dark).textTheme,
         ),
       ),
-      
       home: const SplashScreen(),
     );
   }

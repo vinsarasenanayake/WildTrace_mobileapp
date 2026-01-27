@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'home_screen.dart';
 import 'login_screen.dart';
 
-// --- Forgot Password Screen ---
+// Password Recovery Screen
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
@@ -27,7 +27,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 60),
-              // Logo
               GestureDetector(
                 onTap: () {
                   Navigator.pushAndRemoveUntil(
@@ -44,7 +43,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              // Title
               Text(
                 'Reset Password',
                 style: GoogleFonts.playfairDisplay(
@@ -64,7 +62,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
               ),
               const SizedBox(height: 48),
-              // Reset Card
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -95,19 +92,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    
-                    // Email Field
                     _buildLabel('EMAIL ADDRESS', isDarkMode),
                     _buildTextField(_emailController, 'name@example.com', isDarkMode),
-                    
                     const SizedBox(height: 32),
-                    
-                    // Reset Button
                     _buildSubmitButton('SEND RESET LINK', () {}, isDarkMode),
-                    
                     const SizedBox(height: 24),
-                    
-                    // Link to Login
                     Center(
                       child: TextButton(
                         onPressed: () {
@@ -131,7 +120,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
               ),
               const SizedBox(height: 60),
-              // Footer
               Text(
                 'WILDTRACE © 2026',
                 style: GoogleFonts.inter(

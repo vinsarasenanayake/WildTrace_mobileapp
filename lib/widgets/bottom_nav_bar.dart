@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/navigation_provider.dart';
 
+// Custom Bottom Navigation Bar
 class WildBottomNavBar extends StatelessWidget {
   const WildBottomNavBar({super.key});
 
@@ -44,16 +45,12 @@ class WildBottomNavBar extends StatelessWidget {
           child: BottomNavigationBar(
             currentIndex: navProvider.selectedIndex,
             onTap: (index) => navProvider.setSelectedIndex(index),
-            
             backgroundColor: Colors.transparent,
             elevation: 0,
             type: BottomNavigationBarType.fixed,
-            
             selectedItemColor: selectedColor,
             unselectedItemColor: unselectedColor,
-            
             showUnselectedLabels: true,
-            
             selectedLabelStyle: GoogleFonts.inter(
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -64,7 +61,6 @@ class WildBottomNavBar extends StatelessWidget {
               fontWeight: FontWeight.w500,
               height: 2.0,
             ),
-            
             items: const [
                BottomNavigationBarItem(
                  icon: Padding(

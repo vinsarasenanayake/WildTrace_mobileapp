@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Navigation State Management
 class NavigationProvider with ChangeNotifier {
   int _selectedIndex = 0;
 

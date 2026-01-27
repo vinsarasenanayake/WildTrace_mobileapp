@@ -4,7 +4,7 @@ import 'home_screen.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 
-// --- Login Screen ---
+// User Authentication Screen
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -30,7 +30,6 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 40),
-              // Logo
               GestureDetector(
                 onTap: () {
                   Navigator.pushAndRemoveUntil(
@@ -47,7 +46,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-
               Text(
                 'Welcome Back',
                 style: GoogleFonts.playfairDisplay(
@@ -67,7 +65,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 48),
-
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
@@ -110,7 +107,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-
                     Text(
                       'PASSWORD',
                       style: GoogleFonts.inter(
@@ -146,7 +142,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 32),
-
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -171,7 +166,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -219,7 +213,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 48),
-
               Text(
                 'WILDTRACE © 2026',
                 style: GoogleFonts.inter(

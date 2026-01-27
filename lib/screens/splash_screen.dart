@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
+import '../main_wrapper.dart';
 
+// App Splash Screen
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -30,7 +31,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     );
 
     _controller.forward();
-
     _navigateToHome();
   }
 
@@ -39,7 +39,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     if (mounted) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(builder: (context) => const MainWrapper()),
       );
     }
   }

@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../providers/navigation_provider.dart';
 import '../widgets/bottom_nav_bar.dart';
 
+// Home Screen View
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -14,7 +15,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // Collection State
   late final PageController _pageController;
   int _currentIndex = 0;
   Timer? _timer;
@@ -92,11 +92,6 @@ class _HomeScreenState extends State<HomeScreen> {
     _timer?.cancel();
   }
 
-  void _restartAutoPlay() {
-    _stopAutoPlay();
-    _startAutoPlay();
-  }
-  
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -116,7 +111,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Hero Section
   Widget _buildHomeHero(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
@@ -256,26 +250,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 const Spacer(), 
 
-                Column(
-                  children: [
-                    Text(
-                      'SCROLL TO EXPLORE',
-                      style: GoogleFonts.inter(
-                        fontSize: 10,
-                        color: Colors.white.withOpacity(0.7),
-                        letterSpacing: 2.0,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Icon(
-                      Icons.keyboard_arrow_down,
-                      color: Colors.white.withOpacity(0.7),
-                      size: 24,
-                    ),
-                    const SizedBox(height: 110),
-                  ],
-                ),
               ],
             ),
           ),
@@ -284,7 +258,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Featured Collection Section
   Widget _buildFeaturedCollection(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
@@ -451,7 +424,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // Behind The Lens Section
   Widget _buildBehindTheLens(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color backgroundColor = isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9);
@@ -612,4 +584,3 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
-
