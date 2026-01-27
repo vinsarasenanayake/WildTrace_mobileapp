@@ -16,7 +16,7 @@ class HomeScreen extends StatelessWidget {
       extendBodyBehindAppBar: true,
       extendBody: true,
       appBar: const WildAppBar(),
-      body: const Placeholder(), 
+      body: const SizedBox.expand(), 
       bottomNavigationBar: const WildBottomNavBar(),
     );
   }

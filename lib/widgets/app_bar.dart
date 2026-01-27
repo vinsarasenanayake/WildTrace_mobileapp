@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../screens/home_screen.dart';
+import '../screens/login_screen.dart';
 
 // --- Shared App Bar ---
 class WildAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -15,14 +17,28 @@ class WildAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Image.asset(
-                'assets/images/logo.png',
-                height: 32,
-                errorBuilder: (context, error, stackTrace) => 
-                  const Icon(Icons.pets, color: Colors.white, size: 24),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HomeScreen()),
+                    (route) => false,
+                  );
+                },
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  height: 32,
+                  errorBuilder: (context, error, stackTrace) => 
+                    const Icon(Icons.pets, color: Colors.white, size: 24),
+                ),
               ),
               ElevatedButton(
-                onPressed: () {}, // No logic yet
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  );
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF2D8C5B),
                   foregroundColor: Colors.white,
