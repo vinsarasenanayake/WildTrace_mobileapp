@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'quantity_selector.dart';
-
-// Reusable Cart Item Display
 class CartItemCard extends StatelessWidget {
   final String image;
   final String category;
@@ -33,7 +31,6 @@ class CartItemCard extends StatelessWidget {
     final Color cardBg = isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     const Color accentGreen = Color(0xFF2ECC71);
-
     return Dismissible(
       key: Key(title + image),
       direction: DismissDirection.endToStart,
@@ -62,7 +59,6 @@ class CartItemCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Product Image
             AspectRatio(
               aspectRatio: 1.0,
               child: ClipRRect(
@@ -77,8 +73,6 @@ class CartItemCard extends StatelessWidget {
                 ),
               ),
             ),
-            
-            // Product Details
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(16),

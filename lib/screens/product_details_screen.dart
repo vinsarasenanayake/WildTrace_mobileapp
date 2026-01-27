@@ -4,16 +4,22 @@ import '../widgets/quantity_selector.dart';
 import '../widgets/photographer_card.dart';
 import '../widgets/product_card.dart';
 import '../widgets/bottom_nav_bar.dart';
-
+import '../widgets/wildtrace_back_button.dart';
 class ProductDetailsScreen extends StatefulWidget {
   final String title, category, author, price, imageUrl;
 
-  const ProductDetailsScreen({super.key, required this.title, required this.category, required this.author, required this.price, required this.imageUrl});
+  const ProductDetailsScreen({
+    super.key, 
+    required this.title, 
+    required this.category, 
+    required this.author, 
+    required this.price, 
+    required this.imageUrl
+  });
 
   @override
   State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
 }
-
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   String _selectedSize = '12 x 18 in';
   int _quantity = 1;
@@ -24,32 +30,45 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
-
     return Scaffold(
       backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
-      appBar: AppBar(backgroundColor: Colors.transparent, elevation: 0, leading: IconButton(icon: Icon(Icons.arrow_back_ios_new_rounded, color: textColor), onPressed: () => Navigator.pop(context))),
-      extendBodyBehindAppBar: true, bottomNavigationBar: const WildTraceBottomNavBar(),
+      appBar: AppBar(
+        backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
+        elevation: 0, 
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: const WildTraceBackButton(),
+        title: Text(
+          widget.title,
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: textColor,
+          ),
+          overflow: TextOverflow.ellipsis,
+        ),
+      ), 
+      bottomNavigationBar: const WildTraceBottomNavBar(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(24, 100, 24, 40),
         child: Column(
           children: [
-            _buildHeading(textColor), // Title and Category
+            _buildHeading(textColor),
             const SizedBox(height: 48),
-            _buildMainImage(), // Artwork Preview
+            _buildMainImage(),
             const SizedBox(height: 48),
-            _buildPurchaseOptions(isDarkMode, textColor), // Price and Cart
+            _buildPurchaseOptions(isDarkMode, textColor),
             const SizedBox(height: 48),
-            _buildStory(textColor), // Behind the scene
+            _buildStory(textColor),
             const SizedBox(height: 48),
-            _buildPhotographerProfile(), // Author Info
+            _buildPhotographerProfile(),
             const SizedBox(height: 60),
-            _buildSimilarWorks(textColor), // Related Items
+            _buildSimilarWorks(textColor),
           ],
         ),
       ),
     );
   }
-
   Widget _buildHeading(Color textColor) {
     return Column(
       children: [
@@ -70,9 +89,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       ],
     );
   }
-
   Widget _meta(String text) => Text(text, style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: Colors.grey.shade500));
-
   Widget _buildMainImage() {
     return Container(
       height: 400,
@@ -80,7 +97,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       child: ClipRRect(borderRadius: BorderRadius.circular(32), child: Image.asset(widget.imageUrl, fit: BoxFit.cover, errorBuilder: (_,__,___) => Container(color: Colors.grey[900]))),
     );
   }
-
   Widget _buildPurchaseOptions(bool isDarkMode, Color textColor) {
     return Container(
       padding: const EdgeInsets.all(32),
@@ -117,7 +133,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       ),
     );
   }
-
   Widget _sizeBtn(String size, bool isDarkMode) {
     final bool sel = size == _selectedSize;
     return InkWell(
@@ -129,7 +144,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       ),
     );
   }
-
   Widget _actionBtn(String label, VoidCallback onTap) {
     return ElevatedButton(
       onPressed: onTap,
@@ -137,14 +151,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       child: Text(label, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold)),
     );
   }
-
   Widget _favBtn() {
     return InkWell(
       onTap: () => setState(() => _isLiked = !_isLiked),
       child: Container(width: 56, height: 56, decoration: BoxDecoration(border: Border.all(color: Colors.grey.withOpacity(0.2)), borderRadius: BorderRadius.circular(16)), child: Icon(_isLiked ? Icons.favorite : Icons.favorite_border, color: _isLiked ? const Color(0xFFE11D48) : Colors.grey.shade400)),
     );
   }
-
   Widget _buildStory(Color textColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,11 +172,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       ],
     );
   }
-
   Widget _stat(String l, String v, Color c) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(l, style: GoogleFonts.inter(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.grey.shade400)), Text(v, style: GoogleFonts.playfairDisplay(fontSize: 20, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic, color: c))]);
-
   Widget _buildPhotographerProfile() => PhotographerCard(imagePath: 'assets/images/teammember1.jpg', name: widget.author, role: 'FOUNDER & LEAD', quote: 'Nature doesn\'t need a filter, it just needs a witness.');
-
   Widget _buildSimilarWorks(Color textColor) {
     final list = [
       {'title': 'Owl in Twilight', 'category': 'BIRDS', 'price': '\$140.00', 'image': 'assets/images/owl.jpg'},

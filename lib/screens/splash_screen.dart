@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import '../main_wrapper.dart';
-
-// App Splash Screen
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
-
 class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
@@ -33,7 +30,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     _controller.forward();
     _navigateToHome();
   }
-
   void _navigateToHome() async {
     await Future.delayed(const Duration(seconds: 3));
     if (mounted) {

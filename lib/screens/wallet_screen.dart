@@ -3,21 +3,19 @@ import 'package:google_fonts/google_fonts.dart';
 import '../widgets/payment_form.dart';
 import '../widgets/payment_method_card.dart';
 import '../widgets/bottom_nav_bar.dart';
-
+import '../widgets/custom_button.dart';
+import '../widgets/section_header.dart';
+import '../widgets/wildtrace_back_button.dart';
 class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key});
 
   @override
   State<WalletScreen> createState() => _WalletScreenState();
 }
-
 class _WalletScreenState extends State<WalletScreen> {
-  // Saved Payment Methods
   final List<Map<String, String>> _savedCards = [
     {'type': 'Visa', 'number': '**** **** **** 4242', 'holder': 'VINSARA SENANAYAKE', 'expiry': '12/28'}
   ];
-
-  // Card Inputs
   final TextEditingController _numCtrl = TextEditingController();
   final TextEditingController _expCtrl = TextEditingController();
   final TextEditingController _cvvCtrl = TextEditingController();
@@ -29,12 +27,14 @@ class _WalletScreenState extends State<WalletScreen> {
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
-
     return Scaffold(
       backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
       appBar: AppBar(
-        backgroundColor: Colors.transparent, elevation: 0,
-        leading: IconButton(icon: Icon(Icons.arrow_back_ios_new_rounded, color: textColor, size: 20), onPressed: () => Navigator.pop(context)),
+        backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9), 
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: const WildTraceBackButton(),
         centerTitle: true,
         title: Text('Wallet', style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.bold, letterSpacing: 1.0, color: textColor)),
       ),
@@ -44,30 +44,19 @@ class _WalletScreenState extends State<WalletScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSectionHeader(), // Title and Add Button
+            SectionHeader(
+              title: 'PAYMENT METHODS',
+              actionLabel: _isAddingCard ? null : 'ADD NEW',
+              onActionPressed: () => setState(() => _isAddingCard = true),
+            ),
             const SizedBox(height: 16),
-            if (_isAddingCard) _buildAddCardForm(isDarkMode, textColor) // Inline Form
-            else _buildCardList(), // Saved Cards View
+            if (_isAddingCard) _buildAddCardForm(isDarkMode, textColor)
+            else _buildCardList(),
           ],
         ),
       ),
     );
   }
-
-  Widget _buildSectionHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text('PAYMENT METHODS', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2.0, color: Colors.grey.shade500)),
-        if (!_isAddingCard) TextButton.icon(
-          onPressed: () => setState(() => _isAddingCard = true),
-          icon: const Icon(Icons.add, size: 16, color: Color(0xFF2ECC71)),
-          label: Text('ADD NEW', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: const Color(0xFF2ECC71))),
-        ),
-      ],
-    );
-  }
-
   Widget _buildAddCardForm(bool isDarkMode, Color textColor) {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -85,16 +74,15 @@ class _WalletScreenState extends State<WalletScreen> {
           const SizedBox(height: 24),
           Row(
             children: [
-              Expanded(child: _buildButton('CANCEL', Colors.transparent, textColor, () => setState(() => _isAddingCard = false), isOutlined: true)),
+              Expanded(child: CustomButton(text: 'CANCEL', type: CustomButtonType.ghost, onPressed: () => setState(() => _isAddingCard = false))),
               const SizedBox(width: 16),
-              Expanded(child: _buildButton('SAVE CARD', const Color(0xFF2ECC71), Colors.white, _saveCard)),
+              Expanded(child: CustomButton(text: 'SAVE CARD', type: CustomButtonType.secondary, onPressed: _saveCard)),
             ],
           ),
         ],
       ),
     );
   }
-
   void _saveCard() {
     setState(() {
       _savedCards.add({
@@ -107,7 +95,6 @@ class _WalletScreenState extends State<WalletScreen> {
       _isAddingCard = false;
     });
   }
-
   Widget _buildCardList() {
     return ListView.separated(
       physics: const NeverScrollableScrollPhysics(), shrinkWrap: true,
@@ -118,15 +105,5 @@ class _WalletScreenState extends State<WalletScreen> {
         return PaymentMethodCard(type: card['type']!, number: card['number']!, expiry: card['expiry']!, onDelete: () => setState(() => _savedCards.removeAt(index)));
       },
     );
-  }
-
-  Widget _buildButton(String text, Color bg, Color fg, VoidCallback onTap, {bool isOutlined = false}) {
-    final style = isOutlined 
-      ? OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), side: BorderSide(color: Colors.grey.shade300), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)))
-      : ElevatedButton.styleFrom(backgroundColor: bg, foregroundColor: fg, padding: const EdgeInsets.symmetric(vertical: 16), elevation: 0, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)));
-    
-    return isOutlined 
-      ? OutlinedButton(onPressed: onTap, style: style, child: Text(text, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: fg)))
-      : ElevatedButton(onPressed: onTap, style: style, child: Text(text, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold)));
   }
 }

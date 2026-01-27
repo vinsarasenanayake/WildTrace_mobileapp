@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'custom_text_field.dart';
-
-// Reusable Payment Method Form
 class PaymentForm extends StatelessWidget {
   final TextEditingController cardNumberController;
   final TextEditingController expiryController;

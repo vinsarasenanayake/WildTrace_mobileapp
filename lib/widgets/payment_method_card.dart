@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-// Reusable Payment Method Display Card
 class PaymentMethodCard extends StatelessWidget {
-  final String type; // 'Visa' or 'Mastercard'
-  final String number; // Masked number
+  final String type;
+  final String number;
   final String expiry;
   final VoidCallback? onDelete;
 
@@ -21,7 +19,6 @@ class PaymentMethodCard extends StatelessWidget {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color cardColor = isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
-
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -44,7 +41,7 @@ class PaymentMethodCard extends StatelessWidget {
             width: 50,
             height: 34,
             decoration: BoxDecoration(
-              color: const Color(0xFF1B4332), // Dark green bg for card icon
+              color: const Color(0xFF1B4332), 
               borderRadius: BorderRadius.circular(6),
             ),
             alignment: Alignment.center,

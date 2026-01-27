@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-// Card For Profile Navigation
 class ProfileMenuCard extends StatelessWidget {
-  final IconData icon; // Card Icon
-  final String title; // Main Title
-  final String subtitle; // Description
-  final VoidCallback onTap; // Tap Action
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
 
   const ProfileMenuCard({
     super.key,
@@ -21,7 +19,6 @@ class ProfileMenuCard extends StatelessWidget {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     final Color cardColor = isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
-
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
@@ -40,7 +37,7 @@ class ProfileMenuCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container( // Icon Container
+            Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: isDarkMode ? Colors.black26 : Colors.grey.shade100,
@@ -49,7 +46,7 @@ class ProfileMenuCard extends StatelessWidget {
               child: Icon(icon, color: textColor, size: 22),
             ),
             const SizedBox(width: 16),
-            Expanded( // Text Details
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -72,7 +69,7 @@ class ProfileMenuCard extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: Colors.grey.shade500), // Arrow Icon
+            Icon(Icons.chevron_right_rounded, color: Colors.grey.shade500),
           ],
         ),
       ),

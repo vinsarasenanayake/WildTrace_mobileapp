@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 class PhotographerCard extends StatelessWidget {
   final String imagePath;
   final String name;
@@ -40,7 +39,6 @@ class PhotographerCard extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         child: Stack(
           children: [
-            // Award Badge Header
             Positioned(
               top: 0,
               right: 0,
@@ -61,8 +59,6 @@ class PhotographerCard extends StatelessWidget {
                 ),
               ),
             ),
-            
-            // Main Profile Details
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,7 +66,7 @@ class PhotographerCard extends StatelessWidget {
                 Text(
                   name,
                   style: GoogleFonts.playfairDisplay(
-                    fontSize: 36, // Slightly larger to match image
+                    fontSize: 36, 
                     fontWeight: FontWeight.w400,
                     fontStyle: FontStyle.italic,
                     color: Colors.white,
@@ -88,8 +84,6 @@ class PhotographerCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                
-                // Photographer Inspiration
                 Container(
                   padding: const EdgeInsets.only(left: 16),
                   decoration: const BoxDecoration(
@@ -106,7 +100,6 @@ class PhotographerCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 32),
-                
                 Text(
                   'CANON AMBASSADOR',
                   style: GoogleFonts.inter(

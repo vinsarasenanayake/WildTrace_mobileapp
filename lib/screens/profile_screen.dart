@@ -6,7 +6,6 @@ import 'order_history_screen.dart';
 import 'favourites_screen.dart';
 import 'edit_profile_screen.dart';
 import 'wallet_screen.dart';
-
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
@@ -16,22 +15,36 @@ class ProfileScreen extends StatelessWidget {
     final Color backgroundColor = isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9);
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     const Color accentGreen = Color(0xFF2ECC71);
-
     return Scaffold(
       backgroundColor: backgroundColor,
+      appBar: AppBar(
+        backgroundColor: backgroundColor,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        title: Text(
+          'Profile',
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: textColor,
+          ),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(textColor, accentGreen), // Profile Header
+              _buildHeader(textColor, accentGreen),
               const SizedBox(height: 40),
-              _buildDashboard(context), // Account Options
+              _buildDashboard(context),
               const SizedBox(height: 40),
-              _buildLogoutButton(context), // Actions
+              _buildLogoutButton(context),
               const SizedBox(height: 30),
-              _buildFooter(), // Copyrights
+              _buildFooter(),
               const SizedBox(height: 20),
             ],
           ),
@@ -39,12 +52,11 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildHeader(Color textColor, Color accentGreen) {
     return Center(
       child: Column(
         children: [
-          Container( // Avatar Border
+          Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: accentGreen, width: 2)),
             child: CircleAvatar(
@@ -61,7 +73,6 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildDashboard(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,7 +109,6 @@ class ProfileScreen extends StatelessWidget {
       ],
     );
   }
-
   Widget _buildLogoutButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
@@ -121,7 +131,6 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildFooter() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,

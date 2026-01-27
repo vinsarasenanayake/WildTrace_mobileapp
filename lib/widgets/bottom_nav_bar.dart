@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/navigation_provider.dart';
-
-// Custom Bottom Navigation Bar
 class WildTraceBottomNavBar extends StatelessWidget {
   const WildTraceBottomNavBar({super.key});
 
@@ -11,19 +9,9 @@ class WildTraceBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final navProvider = Provider.of<NavigationProvider>(context);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
-    final Color backgroundColor = isDarkMode 
-        ? Colors.black 
-        : const Color(0xFFBFBFBF);
-
-    final Color selectedColor = isDarkMode 
-        ? const Color(0xFF2ECC71) 
-        : const Color(0xFF1B4332);
-
-    final Color unselectedColor = isDarkMode 
-        ? Colors.white.withOpacity(0.5) 
-        : Colors.grey.shade600;
-
+    final Color backgroundColor = isDarkMode ? Colors.black : const Color(0xFFBFBFBF);
+    final Color selectedColor = isDarkMode ? const Color(0xFF2ECC71) : const Color(0xFF1B4332);
+    final Color unselectedColor = isDarkMode ? Colors.white.withOpacity(0.5) : Colors.grey.shade600;
     return Container(
       decoration: BoxDecoration(
         color: backgroundColor,
@@ -48,14 +36,13 @@ class WildTraceBottomNavBar extends StatelessWidget {
             currentIndex: navProvider.selectedIndex,
             onTap: (index) {
               navProvider.setSelectedIndex(index);
-              // If we are on a screen pushed via Navigator (sub-page), go back to MainWrapper
               if (Navigator.of(context).canPop()) {
                 Navigator.of(context).popUntil((route) => route.isFirst);
               }
             },
             backgroundColor: Colors.transparent,
             elevation: 0,
-            enableFeedback: false, // Remove haptic feedback
+            enableFeedback: false,
             type: BottomNavigationBarType.fixed,
             selectedItemColor: selectedColor,
             unselectedItemColor: unselectedColor,

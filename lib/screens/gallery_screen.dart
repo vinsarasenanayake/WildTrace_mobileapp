@@ -2,21 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/product_card.dart';
 import 'product_details_screen.dart';
-
 class GalleryScreen extends StatefulWidget {
   const GalleryScreen({super.key});
 
   @override
   State<GalleryScreen> createState() => _GalleryScreenState();
 }
-
 class _GalleryScreenState extends State<GalleryScreen> {
-  // Discovery State
   String _author = 'All Photographers', _category = 'All Collections', _sort = 'Latest Arrivals';
   int _currentPage = 1;
   final int _pageSize = 9;
-  
-  // Gallery Collection
   final List<Map<String, String>> _items = [
     {'id': '2', 'image': 'assets/images/product2.jpg', 'category': 'MARINE', 'title': 'Clownfish Haven', 'author': 'Vinsara Senanayake', 'price': '\$80.00'},
     {'id': '3', 'image': 'assets/images/product3.jpg', 'category': 'MAMMALS', 'title': 'Lion Portrait', 'author': 'Vinsara Senanayake', 'price': '\$120.00'},
@@ -44,22 +39,37 @@ class _GalleryScreenState extends State<GalleryScreen> {
     final int end = (start + _pageSize < _items.length) ? start + _pageSize : _items.length;
     final List<Map<String, String>> pageItems = _items.sublist(start, end);
 
+    final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     return Scaffold(
       backgroundColor: isDarkMode ? Colors.black : const Color(0xFFF9FBF9),
+      appBar: AppBar(
+        backgroundColor: isDarkMode ? Colors.black : const Color(0xFFF9FBF9),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        title: Text(
+          'Gallery',
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: textColor,
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _buildHero(), // Full Screen Intro
-            _buildFilters(isDarkMode), // Refine Search
-            _buildGrid(pageItems), // Photography Display
-            _buildPagination(isDarkMode, end < _items.length), // List Controls
+            _buildHero(),
+            _buildFilters(isDarkMode),
+            _buildGrid(pageItems),
+            _buildPagination(isDarkMode, end < _items.length),
             const SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
-
   Widget _buildHero() {
     return SizedBox(
       height: MediaQuery.of(context).size.height, width: double.infinity,
@@ -86,7 +96,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
       ),
     );
   }
-
   Widget _buildFilters(bool isDarkMode) {
     final Color barBg = isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
     final Color txtColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
@@ -115,7 +124,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
       ),
     );
   }
-
   Widget _filterRow(String label, String value, Color color, {bool isCompact = false}) {
     return InkWell(
       onTap: () {},
@@ -132,7 +140,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
       ),
     );
   }
-
   Widget _buildGrid(List<Map<String, String>> pageItems) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -150,7 +157,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
       ),
     );
   }
-
   Widget _buildPagination(bool isDarkMode, bool hasNext) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 40),
@@ -166,7 +172,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
       ),
     );
   }
-
   Widget _pageBtn(String label, bool active, VoidCallback onTap) {
     final Color color = Theme.of(context).brightness == Brightness.dark ? Colors.white : const Color(0xFF1B4332);
     return InkWell(

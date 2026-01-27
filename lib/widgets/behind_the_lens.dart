@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
-
-// Section Introducing The Ethics & Team
+import '../screens/journey_screen.dart';
 class BehindTheLens extends StatelessWidget {
   const BehindTheLens({super.key});
 
@@ -12,31 +11,29 @@ class BehindTheLens extends StatelessWidget {
     final Color backgroundColor = isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9);
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     const Color accentGreen = Color(0xFF2ECC71);
-
     return Container(
       color: backgroundColor,
       padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
       child: Column(
         children: [
-          _buildSmallHeader(accentGreen), // Section Title
+          _buildSmallHeader(accentGreen),
           const SizedBox(height: 24),
-          _buildMainHeading(textColor), // Large Quote
+          _buildMainHeading(textColor),
           const SizedBox(height: 24),
-          _buildDescription(textColor, accentGreen), // Text Content
+          _buildDescription(textColor, accentGreen),
           const SizedBox(height: 40),
-          _buildTeamImage(), // visual
+          _buildTeamImage(),
           const SizedBox(height: 60),
-          _buildFeaturedBanner(textColor), // Partners Title
+          _buildFeaturedBanner(textColor),
           const SizedBox(height: 40),
-          _buildLogos(), // Partners Logos
+          _buildLogos(),
           const SizedBox(height: 60),
-          _buildJourneyButton(context, textColor), // Navigation to about
+          _buildJourneyButton(context, textColor),
           const SizedBox(height: 40),
         ],
       ),
     );
   }
-
   Widget _buildSmallHeader(Color accentGreen) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -53,7 +50,6 @@ class BehindTheLens extends StatelessWidget {
       ],
     );
   }
-
   Widget _buildMainHeading(Color textColor) {
     return Text(
       'Capturing the\nUntamed Spirit.',
@@ -61,7 +57,6 @@ class BehindTheLens extends StatelessWidget {
       style: GoogleFonts.playfairDisplay(fontSize: 42, fontWeight: FontWeight.w400, fontStyle: FontStyle.italic, color: textColor, height: 1.1),
     );
   }
-
   Widget _buildDescription(Color textColor, Color accentGreen) {
     return RichText(
       textAlign: TextAlign.center,
@@ -74,7 +69,6 @@ class BehindTheLens extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildTeamImage() {
     return Container(
       decoration: BoxDecoration(
@@ -84,14 +78,12 @@ class BehindTheLens extends StatelessWidget {
       child: ClipRRect(borderRadius: BorderRadius.circular(24), child: Image.asset('assets/images/team.jpg', fit: BoxFit.cover)),
     );
   }
-
   Widget _buildFeaturedBanner(Color textColor) {
     return Text(
       'OUR PHOTOGRAPHERS ARE FEATURED IN',
       style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 2.0, color: textColor.withOpacity(0.5)),
     );
   }
-
   Widget _buildLogos() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -102,7 +94,6 @@ class BehindTheLens extends StatelessWidget {
       ],
     );
   }
-
   Widget _buildLogo(String assetPath, double width, String url) {
     return GestureDetector(
       onTap: () async {
@@ -117,10 +108,11 @@ class BehindTheLens extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildJourneyButton(BuildContext context, Color textColor) {
     return OutlinedButton(
-      onPressed: () {}, // Journey Action
+      onPressed: () {
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const JourneyScreen()));
+      },
       style: OutlinedButton.styleFrom(
         side: BorderSide(color: textColor.withOpacity(0.3)),
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),

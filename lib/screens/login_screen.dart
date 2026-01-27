@@ -4,15 +4,14 @@ import 'home_screen.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 import '../widgets/custom_text_field.dart';
-
-// Authentication Screen
+import '../widgets/wildtrace_logo.dart';
+import '../widgets/custom_button.dart';
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
-
 class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   final TextEditingController _emailController = TextEditingController();
@@ -21,7 +20,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
     return Scaffold(
       backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
       body: SafeArea(
@@ -32,19 +30,8 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               const SizedBox(height: 40),
               GestureDetector(
-                onTap: () {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
-                    (route) => false,
-                  );
-                },
-                child: Image.asset(
-                  'assets/images/logo.png',
-                  height: 80,
-                  errorBuilder: (context, error, stackTrace) => 
-                    Icon(Icons.pets, color: isDarkMode ? Colors.white : const Color(0xFF1B4332), size: 60),
-                ),
+                onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const HomeScreen()), (route) => false),
+                child: const WildTraceLogo(),
               ),
               const SizedBox(height: 24),
               Text(
@@ -58,12 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 8),
               Text(
                 'SIGN IN TO WILDTRACE',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  letterSpacing: 1.5,
-                  fontWeight: FontWeight.w600,
-                  color: isDarkMode ? Colors.white70 : Colors.grey[600],
-                ),
+                style: GoogleFonts.inter(fontSize: 12, letterSpacing: 1.5, fontWeight: FontWeight.w600, color: isDarkMode ? Colors.white70 : Colors.grey[600]),
               ),
               const SizedBox(height: 48),
               Container(
@@ -71,96 +53,30 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: BoxDecoration(
                   color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
                   borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10))],
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomTextField(
-                      label: 'EMAIL ADDRESS',
-                      controller: _emailController,
-                      hintText: 'name@example.com',
-                    ),
+                    CustomTextField(label: 'EMAIL ADDRESS', controller: _emailController, hintText: 'name@example.com'),
                     const SizedBox(height: 24),
-                    CustomTextField(
-                      label: 'PASSWORD',
-                      controller: _passwordController,
-                      hintText: '........',
-                      isObscure: _obscurePassword,
-                      hasToggle: true,
-                      onToggleVisibility: () => setState(() => _obscurePassword = !_obscurePassword),
-                    ),
+                    CustomTextField(label: 'PASSWORD', controller: _passwordController, hintText: '........', isObscure: _obscurePassword, hasToggle: true, onToggleVisibility: () => setState(() => _obscurePassword = !_obscurePassword)),
                     const SizedBox(height: 32),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {},
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: isDarkMode ? Colors.white : const Color(0xFF1B1B1B),
-                          foregroundColor: isDarkMode ? Colors.black : Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 18),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: Text(
-                          'SIGN IN',
-                          style: GoogleFonts.inter(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.0,
-                          ),
-                        ),
-                      ),
-                    ),
+                    CustomButton(text: 'SIGN IN', onPressed: () {}),
                     const SizedBox(height: 24),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const ForgotPasswordScreen()),
-                            );
-                          },
-                          child: Text(
-                            'FORGOT PASSWORD?',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[500],
-                            ),
-                          ),
+                          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ForgotPasswordScreen())),
+                          child: Text('FORGOT PASSWORD?', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey[500])),
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          '|',
-                          style: TextStyle(color: Colors.grey[300]),
-                        ),
+                        Text('|', style: TextStyle(color: Colors.grey[300])),
                         const SizedBox(width: 8),
                         TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const RegisterScreen()),
-                            );
-                          },
-                          child: Text(
-                            'REGISTER NOW',
-                            style: GoogleFonts.inter(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[500],
-                            ),
-                          ),
+                          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())),
+                          child: Text('REGISTER NOW', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey[500])),
                         ),
                       ],
                     ),
@@ -168,15 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 48),
-              Text(
-                'WILDTRACE © 2026',
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  letterSpacing: 2.0,
-                  color: Colors.grey[400],
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
+              Text('WILDTRACE © 2026', style: GoogleFonts.inter(fontSize: 10, letterSpacing: 2.0, color: Colors.grey[400], fontWeight: FontWeight.w500)),
               const SizedBox(height: 24),
             ],
           ),

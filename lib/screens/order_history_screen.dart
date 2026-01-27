@@ -3,8 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../widgets/order_card.dart';
 import '../widgets/order_item.dart';
 import '../widgets/bottom_nav_bar.dart';
-
-// Past and Pending Orders
+import '../widgets/wildtrace_back_button.dart';
 class OrderHistoryScreen extends StatelessWidget {
   const OrderHistoryScreen({super.key});
 
@@ -13,19 +12,17 @@ class OrderHistoryScreen extends StatelessWidget {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color backgroundColor = isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9);
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
-
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: textColor, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: const WildTraceBackButton(),
         centerTitle: true,
         title: Text(
-          'ORDER HISTORY',
+          'Order History',
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.bold,
@@ -50,6 +47,7 @@ class OrderHistoryScreen extends StatelessWidget {
                 OrderItem(
                   image: 'assets/images/product4.jpg', 
                   title: 'Clownfish in Anemone',
+                  subtitle: '12 x 18 in',
                   quantity: 2,
                   price: 420.0,
                 ),

@@ -3,8 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'providers/navigation_provider.dart';
 import 'screens/splash_screen.dart';
-
-// Main Entry Point
 void main() {
   runApp(
     MultiProvider(
@@ -15,7 +13,6 @@ void main() {
     ),
   );
 }
-
 class WildTraceApp extends StatelessWidget {
   const WildTraceApp({super.key});
 

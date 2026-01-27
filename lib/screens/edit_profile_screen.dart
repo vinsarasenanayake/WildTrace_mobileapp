@@ -4,24 +4,22 @@ import '../widgets/custom_text_field.dart';
 import '../widgets/user_form.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../widgets/section_container.dart';
-
+import '../widgets/custom_button.dart';
+import '../widgets/wildtrace_logo.dart';
+import '../widgets/wildtrace_back_button.dart';
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
-
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  // Profile Input Controllers
   final TextEditingController _nameController = TextEditingController(text: 'Vinsara Senanayake');
   final TextEditingController _emailController = TextEditingController(text: 'vinsara@example.com');
   final TextEditingController _contactController = TextEditingController(text: '+94 77 123 4567');
   final TextEditingController _addressController = TextEditingController(text: '123 Wild Lane');
   final TextEditingController _cityController = TextEditingController(text: 'Colombo');
   final TextEditingController _postalCodeController = TextEditingController(text: '10110');
-
-  // Password Toggle States
   final TextEditingController _currPass = TextEditingController();
   final TextEditingController _newPass = TextEditingController();
   final TextEditingController _confPass = TextEditingController();
@@ -31,48 +29,47 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
-
     return Scaffold(
       backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
       appBar: AppBar(
-        backgroundColor: Colors.transparent, elevation: 0,
-        leading: IconButton(icon: Icon(Icons.arrow_back_ios_new_rounded, color: textColor, size: 20), onPressed: () => Navigator.pop(context)),
+        backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9), 
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: const WildTraceBackButton(),
         centerTitle: true,
-        title: Image.asset('assets/images/logo.png', height: 24, errorBuilder: (_,__,___) => const Icon(Icons.pets, size: 24, color: Colors.orange)),
+        title: const WildTraceLogo(height: 24, iconColor: Colors.orange),
       ),
       bottomNavigationBar: const WildTraceBottomNavBar(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            _buildBreadcrumb(), // Top Hint
+            _buildBreadcrumb(),
             const SizedBox(height: 16),
-            _buildTitle(textColor), // Main Heading
+            _buildTitle(textColor),
             const SizedBox(height: 48),
-            _buildProfileSection(isDarkMode), // Account Details
+            _buildProfileSection(isDarkMode),
             const SizedBox(height: 40),
-            _buildPasswordSection(isDarkMode), // Security
+            _buildPasswordSection(isDarkMode),
             const SizedBox(height: 40),
-            _buildTwoFactorSection(textColor), // Multi-factor Auth
+            _buildTwoFactorSection(textColor),
             const SizedBox(height: 40),
-            _buildSessionsSection(textColor), // Device Logs
+            _buildSessionsSection(textColor),
             const SizedBox(height: 40),
-            _buildDestructiveSection(), // Delete account
+            _buildDestructiveSection(),
             const SizedBox(height: 40),
           ],
         ),
       ),
     );
   }
-
   Widget _buildBreadcrumb() {
     return Text('BACK TO DASHBOARD', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 2.0, color: Colors.grey.shade500));
   }
-
   Widget _buildTitle(Color textColor) {
     return Text('Edit Profile', style: GoogleFonts.playfairDisplay(fontSize: 32, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic, color: textColor));
   }
-
   Widget _buildProfileSection(bool isDarkMode) {
     return SectionContainer(
       title: 'Profile Information',
@@ -85,12 +82,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             cityController: _cityController, postalCodeController: _postalCodeController,
           ),
           const SizedBox(height: 24),
-          _buildActionButton('SAVE', () {}),
+          CustomButton(text: 'SAVE', onPressed: () {}),
         ],
       ),
     );
   }
-
   Widget _buildPasswordSection(bool isDarkMode) {
     return SectionContainer(
       title: 'Update Password',
@@ -103,12 +99,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           const SizedBox(height: 20),
           CustomTextField(label: 'Confirm Password', controller: _confPass, hintText: '', isObscure: _obscureConfirm, hasToggle: true, onToggleVisibility: () => setState(() => _obscureConfirm = !_obscureConfirm)),
           const SizedBox(height: 24),
-          _buildActionButton('SAVE', () {}),
+          CustomButton(text: 'SAVE', onPressed: () {}),
         ],
       ),
     );
   }
-
   Widget _buildTwoFactorSection(Color textColor) {
     return SectionContainer(
       title: 'Two Factor Authentication',
@@ -120,12 +115,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           const SizedBox(height: 12),
           Text("When two factor authentication is enabled, you will be prompted for a secure, random token during authentication.", style: GoogleFonts.inter(fontSize: 12, height: 1.5, color: Colors.grey.shade600)),
           const SizedBox(height: 24),
-          _buildActionButton('ENABLE', () {}),
+          CustomButton(text: 'ENABLE', onPressed: () {}),
         ],
       ),
     );
   }
-
   Widget _buildSessionsSection(Color textColor) {
     return SectionContainer(
       title: 'Browser Sessions',
@@ -150,12 +144,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ],
           ),
           const SizedBox(height: 24),
-          _buildActionButton('LOG OUT OTHER BROWSER SESSIONS', () {}),
+          CustomButton(text: 'LOG OUT OTHER BROWSER SESSIONS', onPressed: () {}),
         ],
       ),
     );
   }
-
   Widget _buildDestructiveSection() {
     return SectionContainer(
       title: 'Delete Account',
@@ -165,21 +158,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         children: [
           Text('Once your account is deleted, all of its resources and data will be permanently deleted.', style: GoogleFonts.inter(fontSize: 12, height: 1.5, color: Colors.grey.shade600)),
           const SizedBox(height: 24),
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFE11D48), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 20), minimumSize: const Size(double.infinity, 55), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), elevation: 0),
-            child: Text('DELETE ACCOUNT', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
-          ),
+          CustomButton(text: 'DELETE ACCOUNT', type: CustomButtonType.destructive, onPressed: () {}),
         ],
       ),
-    );
-  }
-
-  Widget _buildActionButton(String text, VoidCallback onPressed) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF1F2937), foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20), minimumSize: const Size(double.infinity, 55), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)), elevation: 0),
-      child: Text(text, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.0)),
     );
   }
 }

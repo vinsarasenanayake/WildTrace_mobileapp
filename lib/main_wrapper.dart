@@ -5,17 +5,13 @@ import 'screens/home_screen.dart';
 import 'screens/gallery_screen.dart';
 import 'screens/cart_screen.dart';
 import 'screens/profile_screen.dart';
-
 import 'widgets/bottom_nav_bar.dart';
-
-// Main Navigation Wrapper
 class MainWrapper extends StatelessWidget {
   const MainWrapper({super.key});
 
   @override
   Widget build(BuildContext context) {
     final navProvider = Provider.of<NavigationProvider>(context);
-    
     Widget getBody() {
       switch (navProvider.selectedIndex) {
         case 0:
@@ -30,7 +26,6 @@ class MainWrapper extends StatelessWidget {
           return const HomeScreen();
       }
     }
-
     return Scaffold(
       body: getBody(),
       bottomNavigationBar: const WildTraceBottomNavBar(),

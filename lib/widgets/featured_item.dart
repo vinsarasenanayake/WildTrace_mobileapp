@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-// Reusable Featured Collection Item for PageView
 class FeaturedItem extends StatelessWidget {
   final String imageUrl;
   final String category;
@@ -27,7 +25,6 @@ class FeaturedItem extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // Background Image
           Image.asset(
             imageUrl,
             fit: BoxFit.cover,
@@ -36,14 +33,11 @@ class FeaturedItem extends StatelessWidget {
               child: const Icon(Icons.image, color: Colors.white24, size: 50),
             ),
           ),
-          
-          // Content Overlay
           Padding(
             padding: const EdgeInsets.all(32.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Category Tag
                 Row(
                   children: [
                     Container(width: 24, height: 2, color: const Color(0xFF2ECC71)),
@@ -60,8 +54,6 @@ class FeaturedItem extends StatelessWidget {
                   ],
                 ),
                 const Spacer(),
-                
-                // Title and Meta
                 Text(
                   title,
                   style: GoogleFonts.playfairDisplay(
@@ -83,8 +75,6 @@ class FeaturedItem extends StatelessWidget {
                 ),
                 
                 const SizedBox(height: 24),
-                
-                // View Action
                 IntrinsicWidth(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-// Reusable Custom Text Field Widget
 class CustomTextField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
@@ -9,6 +7,7 @@ class CustomTextField extends StatelessWidget {
   final bool isObscure;
   final VoidCallback? onToggleVisibility;
   final bool hasToggle;
+  final Widget? prefix;
 
   const CustomTextField({
     super.key,
@@ -18,12 +17,12 @@ class CustomTextField extends StatelessWidget {
     this.isObscure = false,
     this.onToggleVisibility,
     this.hasToggle = false,
+    this.prefix,
   });
 
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -53,6 +52,7 @@ class CustomTextField extends StatelessWidget {
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            prefixIcon: prefix,
             suffixIcon: hasToggle 
               ? IconButton(
                   icon: Icon(

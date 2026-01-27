@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/product_card.dart';
 import '../widgets/bottom_nav_bar.dart';
-
-// Favourites Screen
+import '../widgets/wildtrace_back_button.dart';
 class FavouritesScreen extends StatelessWidget {
   const FavouritesScreen({super.key});
 
@@ -12,23 +11,21 @@ class FavouritesScreen extends StatelessWidget {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color backgroundColor = isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9);
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
-
     final List<Map<String, dynamic>> favouriteItems = [
       {
-        'image': 'assets/images/product1.jpg', // Blue Morpho
+        'image': 'assets/images/product1.jpg',
         'category': 'Butterflies',
         'title': 'Blue Morpho Flight',
         'author': 'Kumara Senanayake',
         'price': '\$110.00',
       },
       {
-        'image': 'assets/images/product2.jpg', // Parrot/Macaw
+        'image': 'assets/images/product2.jpg',
         'category': 'Birds',
         'title': 'Scarlet Macaw Portrait',
         'author': 'Ravi Shanker',
         'price': '\$135.00',
       },
-      // Duplicate for demo
       {
         'image': 'assets/images/product3.jpg',
         'category': 'Mammals',
@@ -44,19 +41,17 @@ class FavouritesScreen extends StatelessWidget {
         'price': '\$95.00',
       },
     ];
-
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: textColor, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: const WildTraceBackButton(),
         centerTitle: true,
         title: Text(
-          'FAVOURITES',
+          'Favourites',
           style: GoogleFonts.inter(
             fontSize: 12,
             fontWeight: FontWeight.bold,
@@ -70,7 +65,7 @@ class FavouritesScreen extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 0.55, // Adjusted to prevent overflow
+          childAspectRatio: 0.55,
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
         ),
@@ -84,9 +79,9 @@ class FavouritesScreen extends StatelessWidget {
             title: item['title'],
             author: item['author'],
             price: item['price'],
-            isLiked: true, // It's favourite screen
-            onLikeToggle: () {}, // Handle unlike logic
-            onTap: () {}, // Handle view product
+            isLiked: true,
+            onLikeToggle: () {},
+            onTap: () {},
           );
         },
       ),

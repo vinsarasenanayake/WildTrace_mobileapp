@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 enum ProductCardType { overlay, standard, minimal }
-
-// Reusable Product Display Card
 class ProductCard extends StatelessWidget {
   final String imageUrl;
   final String category;
@@ -37,7 +34,6 @@ class ProductCard extends StatelessWidget {
     }
     return _buildOverlayLayout(context);
   }
-
   Widget _buildStandardLayout(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color cardColor = isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
@@ -58,7 +54,6 @@ class ProductCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Product Visual
           Stack(
             children: [
               ClipRRect(
@@ -96,8 +91,6 @@ class ProductCard extends StatelessWidget {
               ),
             ],
           ),
-          
-          // Textual Details
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -160,8 +153,6 @@ class ProductCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  
-                  // View Product Button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -194,7 +185,6 @@ class ProductCard extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildOverlayLayout(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
@@ -324,7 +314,6 @@ class ProductCard extends StatelessWidget {
       ),
     );
   }
-  
   Widget _buildMinimalLayout(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
@@ -336,7 +325,6 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Image
             Expanded(
               child: Container(
                 decoration: BoxDecoration(
@@ -364,8 +352,6 @@ class ProductCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            
-            // Details
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -378,7 +364,7 @@ class ProductCard extends StatelessWidget {
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       fontStyle: FontStyle.italic,
-                      color: const Color(0xFF2ECC71), // Green per reference
+                      color: const Color(0xFF2ECC71),
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

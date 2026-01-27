@@ -2,22 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../providers/navigation_provider.dart';
-
-// Hero Section for HomeScreen
 class HomeHero extends StatelessWidget {
   const HomeHero({super.key});
 
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-
     return SizedBox(
       height: size.height,
       width: double.infinity,
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Image.asset( // Hero Background
+          Image.asset(
             'assets/images/heroimageh1.jpg',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) => Container(
@@ -26,20 +23,20 @@ class HomeHero extends StatelessWidget {
               child: const Icon(Icons.broken_image, color: Colors.white54),
             ),
           ),
-          Container(color: Colors.black.withOpacity(0.35)), // Overlay
+          Container(color: Colors.black.withOpacity(0.35)),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 150),
-                _buildBadge(), // Top Badge
+                _buildBadge(),
                 const SizedBox(height: 50),
-                _buildTitle(), // Main Landing Text
+                _buildTitle(),
                 const SizedBox(height: 30),
-                _buildSubtitle(), // Taglines
+                _buildSubtitle(),
                 const SizedBox(height: 50),
-                _buildCTA(context), // Call to Action
+                _buildCTA(context),
                 const Spacer(), 
               ],
             ),
@@ -48,7 +45,6 @@ class HomeHero extends StatelessWidget {
       ),
     );
   }
-
   Widget _buildBadge() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -97,7 +93,6 @@ class HomeHero extends StatelessWidget {
       ],
     );
   }
-
   Widget _buildCTA(BuildContext context) {
     return ElevatedButton(
       onPressed: () => context.read<NavigationProvider>().setSelectedIndex(1),
