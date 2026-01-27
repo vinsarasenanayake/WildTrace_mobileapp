@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'providers/navigation_provider.dart';
 import 'screens/home_screen.dart';
 import 'screens/gallery_screen.dart';
+import 'screens/cart_screen.dart';
 
 // Main Screen Wrapper for Navigation
 class MainWrapper extends StatelessWidget {
@@ -19,7 +20,7 @@ class MainWrapper extends StatelessWidget {
         case 1:
           return const GalleryScreen();
         case 2:
-          return const Scaffold(body: Center(child: Text("Cart Screen")));
+          return const CartScreen();
         case 3:
           return const Scaffold(body: Center(child: Text("Profile Screen")));
         default:
