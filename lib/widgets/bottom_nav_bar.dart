@@ -46,7 +46,13 @@ class WildTraceBottomNavBar extends StatelessWidget {
           ),
           child: BottomNavigationBar(
             currentIndex: navProvider.selectedIndex,
-            onTap: (index) => navProvider.setSelectedIndex(index),
+            onTap: (index) {
+              navProvider.setSelectedIndex(index);
+              // If we are on a screen pushed via Navigator (sub-page), go back to MainWrapper
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              }
+            },
             backgroundColor: Colors.transparent,
             elevation: 0,
             enableFeedback: false, // Remove haptic feedback

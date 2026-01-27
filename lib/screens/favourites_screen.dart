@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/product_card.dart';
+import '../widgets/bottom_nav_bar.dart';
 
 // Favourites Screen
 class FavouritesScreen extends StatelessWidget {
@@ -64,6 +65,7 @@ class FavouritesScreen extends StatelessWidget {
           ),
         ),
       ),
+      bottomNavigationBar: const WildTraceBottomNavBar(),
       body: GridView.builder(
         padding: const EdgeInsets.all(24),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

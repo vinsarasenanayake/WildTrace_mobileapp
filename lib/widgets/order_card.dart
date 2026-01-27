@@ -43,7 +43,7 @@ class OrderCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header Row: Status & Actions
+          // Top Metadata
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -82,7 +82,7 @@ class OrderCard extends StatelessWidget {
                 ],
               ),
               
-              // Actions Column (Pay Now / Cancel)
+              // Order Summary
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -110,7 +110,7 @@ class OrderCard extends StatelessWidget {
 
           const SizedBox(height: 24),
           
-          // Action Buttons Row
+          // Control Options
           Row(
             children: [
               Expanded(
@@ -171,7 +171,7 @@ class OrderCard extends StatelessWidget {
           Divider(color: Colors.grey.withOpacity(0.1)),
           const SizedBox(height: 24),
 
-          // Order Items List
+          // Itemized Manifest
           ...items,
         ],
       ),

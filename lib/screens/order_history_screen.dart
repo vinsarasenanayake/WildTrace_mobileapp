@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/order_card.dart';
 import '../widgets/order_item.dart';
+import '../widgets/bottom_nav_bar.dart';
 
-// Order History Screen showing past and pending orders
+// Past and Pending Orders
 class OrderHistoryScreen extends StatelessWidget {
   const OrderHistoryScreen({super.key});
 
@@ -33,6 +34,7 @@ class OrderHistoryScreen extends StatelessWidget {
           ),
         ),
       ),
+      bottomNavigationBar: const WildTraceBottomNavBar(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
