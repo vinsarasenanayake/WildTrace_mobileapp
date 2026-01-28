@@ -1,5 +1,12 @@
+// ============================================================================
+// IMPORTS
+// ============================================================================
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+// ============================================================================
+// CUSTOM TEXT FIELD WIDGET
+// ============================================================================
 class CustomTextField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
@@ -20,6 +27,7 @@ class CustomTextField extends StatelessWidget {
     this.prefix,
   });
 
+  // --- Build Method ---
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;

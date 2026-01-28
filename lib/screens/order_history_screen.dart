@@ -1,12 +1,14 @@
+// --- Imports ---
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../widgets/custom_button.dart';
 import '../widgets/order_card.dart';
-import '../widgets/order_item.dart';
-import '../widgets/bottom_nav_bar.dart';
-import '../widgets/wildtrace_back_button.dart';
+
+// --- Screen ---
 class OrderHistoryScreen extends StatelessWidget {
   const OrderHistoryScreen({super.key});
 
+  // --- Build Method ---
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -19,7 +21,18 @@ class OrderHistoryScreen extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
-        leading: const WildTraceBackButton(),
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            color: Colors.transparent,
+            child: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: textColor,
+              size: 20,
+            ),
+          ),
+        ),
         centerTitle: true,
         title: Text(
           'Order History',
@@ -31,7 +44,6 @@ class OrderHistoryScreen extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: const WildTraceBottomNavBar(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -59,3 +71,6 @@ class OrderHistoryScreen extends StatelessWidget {
     );
   }
 }
+
+// --- Widgets ---
+

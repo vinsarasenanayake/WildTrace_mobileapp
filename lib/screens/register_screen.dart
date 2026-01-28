@@ -1,3 +1,4 @@
+// --- Imports ---
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/user_form.dart';
@@ -5,12 +6,16 @@ import '../widgets/wildtrace_logo.dart';
 import '../widgets/custom_button.dart';
 import 'home_screen.dart';
 import 'login_screen.dart';
+
+// --- Screen ---
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
+
+// --- State ---
 class _RegisterScreenState extends State<RegisterScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -23,6 +28,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _postalCodeController = TextEditingController();
 
+  // --- Build Method ---
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;

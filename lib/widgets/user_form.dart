@@ -1,7 +1,14 @@
+// ============================================================================
+// IMPORTS
+// ============================================================================
 import 'package:flutter/material.dart';
 import 'custom_text_field.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+// ============================================================================
+// USER FORM WIDGET - Reusable Form for User Data
+// ============================================================================
 class UserForm extends StatefulWidget {
   final TextEditingController nameController;
   final TextEditingController emailController;
@@ -40,9 +47,14 @@ class UserForm extends StatefulWidget {
   @override
   State<UserForm> createState() => _UserFormState();
 }
+
+// ============================================================================
+// USER FORM STATE
+// ============================================================================
 class _UserFormState extends State<UserForm> {
   Country _selectedCountry = Country.parse('LK');
 
+  // --- Build Method ---
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;

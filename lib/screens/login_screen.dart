@@ -1,3 +1,4 @@
+// --- Imports ---
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'home_screen.dart';
@@ -6,17 +7,22 @@ import 'forgot_password_screen.dart';
 import '../widgets/custom_text_field.dart';
 import '../widgets/wildtrace_logo.dart';
 import '../widgets/custom_button.dart';
+
+// --- Screen ---
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
 }
+
+// --- State ---
 class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  // --- Build Method ---
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;

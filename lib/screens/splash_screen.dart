@@ -1,11 +1,16 @@
+// --- Imports ---
 import 'package:flutter/material.dart';
 import '../main_wrapper.dart';
+
+// --- Screen ---
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
+
+// --- State ---
 class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
@@ -30,6 +35,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     _controller.forward();
     _navigateToHome();
   }
+
   void _navigateToHome() async {
     await Future.delayed(const Duration(seconds: 3));
     if (mounted) {
@@ -46,6 +52,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     super.dispose();
   }
 
+  // --- Build Method ---
   @override
   Widget build(BuildContext context) {
     return Scaffold(

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 class PhotographerCard extends StatelessWidget {
   final String imagePath;
   final String name;
   final String role;
   final String quote;
+  final String achievement;
+  final String? badgeText;
 
   const PhotographerCard({
     super.key,
@@ -12,12 +15,14 @@ class PhotographerCard extends StatelessWidget {
     required this.name,
     required this.role,
     required this.quote,
+    required this.achievement,
+    this.badgeText,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 450,
+      height: 520,
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
@@ -39,26 +44,27 @@ class PhotographerCard extends StatelessWidget {
         padding: const EdgeInsets.all(24),
         child: Stack(
           children: [
-            Positioned(
-              top: 0,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2ECC71),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  'NWPY WINNER',
-                  style: GoogleFonts.inter(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.0,
-                    color: Colors.white,
+            if (badgeText != null)
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF2ECC71),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    badgeText!,
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.0,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
-            ),
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,7 +81,7 @@ class PhotographerCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  role.toUpperCase(),
+                    role.toUpperCase(),
                   style: GoogleFonts.inter(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
@@ -101,7 +107,7 @@ class PhotographerCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
                 Text(
-                  'CANON AMBASSADOR',
+                  achievement.toUpperCase(),
                   style: GoogleFonts.inter(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,

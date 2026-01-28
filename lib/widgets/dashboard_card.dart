@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-class ProfileMenuCard extends StatelessWidget {
+
+class DashboardCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
   final VoidCallback onTap;
 
-  const ProfileMenuCard({
+  const DashboardCard({
     super.key,
     required this.icon,
     required this.title,

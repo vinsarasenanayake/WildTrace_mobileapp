@@ -1,14 +1,18 @@
+// --- Imports ---
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../widgets/profile_menu_card.dart';
 import 'login_screen.dart';
 import 'order_history_screen.dart';
 import 'favourites_screen.dart';
 import 'edit_profile_screen.dart';
 import 'wallet_screen.dart';
+import '../widgets/dashboard_card.dart';
+
+// --- Screen ---
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  // --- Build Method ---
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -17,41 +21,45 @@ class ProfileScreen extends StatelessWidget {
     const Color accentGreen = Color(0xFF2ECC71);
     return Scaffold(
       backgroundColor: backgroundColor,
-      appBar: AppBar(
-        backgroundColor: backgroundColor,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        surfaceTintColor: Colors.transparent,
-        automaticallyImplyLeading: false,
-        title: Text(
-          'Profile',
-          style: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-            color: textColor,
-          ),
-        ),
-      ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(textColor, accentGreen),
-              const SizedBox(height: 40),
-              _buildDashboard(context),
-              const SizedBox(height: 40),
-              _buildLogoutButton(context),
-              const SizedBox(height: 30),
-              _buildFooter(),
-              const SizedBox(height: 20),
-            ],
-          ),
+        child: CustomScrollView(
+          slivers: [
+            const SliverAppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              scrolledUnderElevation: 0,
+              surfaceTintColor: Colors.transparent,
+              floating: true,
+              snap: true,
+              pinned: false,
+              toolbarHeight: 40,
+              automaticallyImplyLeading: false,
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(textColor, accentGreen),
+                    const SizedBox(height: 40),
+                    _buildDashboard(context),
+                    const SizedBox(height: 40),
+                    _buildLogoutButton(context),
+                    const SizedBox(height: 30),
+                    _buildFooter(),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
+
+  // --- Helper Methods ---
   Widget _buildHeader(Color textColor, Color accentGreen) {
     return Center(
       child: Column(
@@ -73,34 +81,35 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildDashboard(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text('DASHBOARD', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 2.0, color: Colors.grey.shade500)),
         const SizedBox(height: 16),
-        ProfileMenuCard(
+        DashboardCard(
           icon: Icons.shopping_bag_outlined,
           title: 'Order History',
           subtitle: 'View your past purchases',
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const OrderHistoryScreen())),
         ),
         const SizedBox(height: 16),
-        ProfileMenuCard(
+        DashboardCard(
           icon: Icons.favorite_border,
           title: 'Favourites',
           subtitle: 'Your curated wishlist',
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const FavouritesScreen())),
         ),
         const SizedBox(height: 16),
-        ProfileMenuCard(
+        DashboardCard(
           icon: Icons.account_balance_wallet_outlined,
           title: 'Wallet',
           subtitle: 'Payment methods & balance',
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const WalletScreen())),
         ),
         const SizedBox(height: 16),
-        ProfileMenuCard(
+        DashboardCard(
           icon: Icons.person_outline,
           title: 'Edit Profile',
           subtitle: 'Update your personal info',
@@ -109,6 +118,7 @@ class ProfileScreen extends StatelessWidget {
       ],
     );
   }
+
   Widget _buildLogoutButton(BuildContext context) {
     return SizedBox(
       width: double.infinity,
@@ -131,14 +141,17 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
   }
+
   Widget _buildFooter() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text('Copyright © 2026 ', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
-        Text('WILDTRACE', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFFEAB308))),
+        Text('WILDTRACE', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF2ECC71))),
         Text('. All Rights Reserved.', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
       ],
     );
   }
 }
+
+

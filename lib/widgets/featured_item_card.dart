@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-class FeaturedItem extends StatelessWidget {
+
+class FeaturedItemCard extends StatelessWidget {
   final String imageUrl;
   final String category;
   final String title;
@@ -8,7 +9,7 @@ class FeaturedItem extends StatelessWidget {
   final String price;
   final VoidCallback onTap;
 
-  const FeaturedItem({
+  const FeaturedItemCard({
     super.key,
     required this.imageUrl,
     required this.category,

@@ -1,6 +1,17 @@
+// ============================================================================
+// IMPORTS
+// ============================================================================
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+// ============================================================================
+// BUTTON TYPES
+// ============================================================================
 enum CustomButtonType { primary, secondary, ghost, destructive }
+
+// ============================================================================
+// CUSTOM BUTTON WIDGET
+// ============================================================================
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
@@ -23,6 +34,7 @@ class CustomButton extends StatelessWidget {
     this.fontSize = 14,
   });
 
+  // --- Build Method ---
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
