@@ -1,0 +1,87 @@
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../common/quantity_selector.dart';
+
+class CartItemCard extends StatelessWidget {
+  final String image;
+  final String category;
+  final String title;
+  final double price;
+  final int quantity;
+  final VoidCallback onIncrement;
+  final VoidCallback onDecrement;
+  final VoidCallback onDelete;
+  final VoidCallback onDismissed;
+
+  const CartItemCard({
+    super.key,
+    required this.image,
+    required this.category,
+    required this.title,
+    required this.price,
+    required this.quantity,
+    required this.onIncrement,
+    required this.onDecrement,
+    required this.onDelete,
+    required this.onDismissed,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
+    final Color cardBg = isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
+
+    return Dismissible(
+      key: Key(title),
+      direction: DismissDirection.endToStart,
+      onDismissed: (_) => onDismissed(),
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        decoration: BoxDecoration(color: const Color(0xFFE11D48), borderRadius: BorderRadius.circular(24)),
+        child: const Icon(Icons.delete_outline, color: Colors.white),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: cardBg,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 8))],
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.asset(image, width: 100, height: 100, fit: BoxFit.cover),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(category.toUpperCase(), style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: const Color(0xFF2ECC71))),
+                  const SizedBox(height: 4),
+                  Text(title, style: GoogleFonts.playfairDisplay(fontSize: 18, fontWeight: FontWeight.w600, fontStyle: FontStyle.italic, color: textColor)),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('\$${price.toInt()}', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: textColor)),
+                      QuantitySelector(
+                        quantity: quantity,
+                        onIncrement: onIncrement,
+                        onDecrement: onDecrement,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
