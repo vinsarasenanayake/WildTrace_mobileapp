@@ -1,29 +1,48 @@
-// ============================================================================
-// IMPORTS
-// ============================================================================
+// Imports
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'providers/navigation_provider.dart';
-import 'screens/splash_screen.dart';
+import 'providers/auth_provider.dart';
+import 'providers/cart_provider.dart';
+import 'providers/favorites_provider.dart';
+import 'providers/products_provider.dart';
+import 'providers/orders_provider.dart';
+import 'providers/content_provider.dart';
+import 'views/screens/splash_screen.dart';
 
-// ============================================================================
-// MAIN ENTRY POINT
-// ============================================================================
+// Main Entry Point
 void main() {
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProxyProvider<AuthProvider, FavoritesProvider>(
+          create: (_) => FavoritesProvider(),
+          update: (_, auth, favorites) => favorites!..updateToken(auth.token),
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, CartProvider>(
+          create: (_) => CartProvider(),
+          update: (_, auth, cart) => cart!..updateToken(auth.token),
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, ProductsProvider>(
+          create: (_) => ProductsProvider(),
+          update: (_, auth, products) => products!..updateToken(auth.token),
+        ),
+        ChangeNotifierProxyProvider<AuthProvider, OrdersProvider>(
+          create: (_) => OrdersProvider(),
+          update: (_, auth, orders) => orders!..updateToken(auth.token, auth.currentUser?.id),
+        ),
+        ChangeNotifierProvider(create: (_) => ContentProvider()..fetchContent()),
       ],
       child: const WildTraceApp(),
     ),
   );
 }
 
-// ============================================================================
-// WILD TRACE APP
-// ============================================================================
+// App Widget
 class WildTraceApp extends StatelessWidget {
   const WildTraceApp({super.key});
 
@@ -59,9 +78,7 @@ class WildTraceApp extends StatelessWidget {
   }
 }
 
-// ============================================================================
-// CUSTOM SCROLL BEHAVIOR
-// ============================================================================
+// Custom Scroll Behavior
 class NoGlowScrollBehavior extends ScrollBehavior {
   const NoGlowScrollBehavior();
   

@@ -1,18 +1,14 @@
-// ============================================================================
-// IMPORTS
-// ============================================================================
+// Imports
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/navigation_provider.dart';
-import 'screens/home_screen.dart';
-import 'screens/gallery_screen.dart';
-import 'screens/cart_screen.dart';
-import 'screens/profile_screen.dart';
-import 'widgets/bottom_nav_bar.dart';
+import 'views/screens/home_screen.dart';
+import 'views/screens/gallery_screen.dart';
+import 'views/screens/cart_screen.dart';
+import 'views/screens/profile_screen.dart';
+import 'views/widgets/common/bottom_nav_bar.dart';
 
-// ============================================================================
-// MAIN WRAPPER - Navigation Container
-// ============================================================================
+// Main Wrapper
 class MainWrapper extends StatelessWidget {
   const MainWrapper({super.key});
 
