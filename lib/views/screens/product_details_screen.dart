@@ -82,7 +82,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         });
       }
     } catch (e) {
-      debugPrint('Error fetching full details: $e');
       if (mounted) setState(() => _isLoadingDetails = false);
     }
   }
@@ -125,7 +124,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         });
       }
     } catch (e) {
-      debugPrint('Error fetching price: $e');
       if (mounted) setState(() => _isPriceLoading = false);
     }
   }

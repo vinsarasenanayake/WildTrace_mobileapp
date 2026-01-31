@@ -2,7 +2,7 @@
 import 'cart_item.dart';
 
 // Order Status Enum
-enum OrderStatus { pending, processing, shipped, delivered, cancelled, declined }
+enum OrderStatus { pending, paid, processing, shipped, delivered, cancelled, declined }
 
 // Order Model
 class Order {
@@ -86,7 +86,7 @@ class Order {
       shipping: (json['shipping'] as num).toDouble(),
       total: (json['total'] as num).toDouble(),
       status: OrderStatus.values.firstWhere(
-        (e) => e.toString() == json['status'],
+        (e) => e.toString().split('.').last == json['status'],
         orElse: () => OrderStatus.pending,
       ),
       orderDate: DateTime.parse(json['orderDate'] as String),

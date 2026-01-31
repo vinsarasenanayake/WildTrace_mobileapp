@@ -35,7 +35,7 @@ class FavoritesProvider with ChangeNotifier {
       _favorites.clear();
       _favorites.addAll(fetchedFavorites.map((p) => p.copyWith(isFavorite: true)));
     } catch (e) {
-      debugPrint('Error fetching favorites: $e');
+
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -60,7 +60,6 @@ class FavoritesProvider with ChangeNotifier {
       
       await fetchFavorites(tokenToUse);
     } catch (e) {
-      debugPrint('Error toggling favorite on API: $e');
       await fetchFavorites(tokenToUse);
     }
   }

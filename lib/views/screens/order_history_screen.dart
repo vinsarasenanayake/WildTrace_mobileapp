@@ -37,30 +37,28 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     }
   }
 
-  Future<void> _launchPaymentUrl(String orderId) async {
-    final String baseUrl = ApiService.baseHostUrl; 
-    final String urlString = '${baseUrl}order/$orderId/repay';
+  Future<void> _payWithStripe(Order order) async {
+    final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
     
-    final Uri url = Uri.parse(urlString);
-    
-    try {
-      if (await canLaunchUrl(url)) {
-        await launchUrl(url, mode: LaunchMode.externalApplication);
-      } else {
+    await StripeService.instance.makePayment(
+      amount: order.total,
+      currency: 'USD',
+      context: context,
+      onSuccess: () async {
+        final success = await ordersProvider.updatePaymentStatus(order.id, 'paid');
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Could not launch payment page: $urlString')),
-          );
+          if (success) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Payment successful! Order is now being processed.'))
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Payment recorded by Stripe, but backend update failed. Please contact support.'))
+            );
+          }
         }
-      }
-    } catch (e) {
-      if (mounted) {
-        debugPrint('Error launching URL: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error launching payment page')),
-        );
-      }
-    }
+      },
+    );
   }
 
   @override
@@ -156,7 +154,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                     orderId: 'ORDER #${order.id}',
                     date: DateFormat('MMMM d, y').format(order.orderDate),
                     total: '\$${order.total.toStringAsFixed(2)}',
-                    onPayNow: () => _launchPaymentUrl(order.id),
+                    onPayNow: () => _payWithStripe(order),
                     onCancel: () async {
                       if (order.status == OrderStatus.pending) {
                         final success = await ordersProvider.cancelOrder(order.id);
@@ -197,11 +195,11 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   String _statusToString(OrderStatus status) {
     switch (status) {
       case OrderStatus.pending: return 'PENDING';
+      case OrderStatus.paid: return 'PAID';
       case OrderStatus.processing: return 'PROCESSING';
       case OrderStatus.shipped: return 'SHIPPED';
       case OrderStatus.delivered: return 'DELIVERED';
       case OrderStatus.cancelled: return 'CANCELLED';
-      case OrderStatus.declined: return 'DECLINED';
       case OrderStatus.declined: return 'DECLINED';
     }
   }

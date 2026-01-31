@@ -104,8 +104,8 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
     
     return Consumer<ProductsProvider>(
       builder: (context, productsProvider, child) {
-        // Get featured items (first 5 for now)
-        final featuredItems = productsProvider.products.take(5).toList();
+        // Get featured items (sorted by highest price)
+        final featuredItems = productsProvider.topProductsByPrice;
         
         // Start autoplay if not started and we have items
         if (_timer == null && featuredItems.isNotEmpty) {

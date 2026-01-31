@@ -44,6 +44,7 @@ class OrdersProvider with ChangeNotifier {
     required double shipping,
     String? token,
     String? shippingAddress,
+    String paymentStatus = 'pending',
   }) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return false;
@@ -61,7 +62,7 @@ class OrdersProvider with ChangeNotifier {
         }).toList(),
         'total_price': totalPrice,
         'shipping_address': shippingAddress ?? 'No address provided',
-        'payment_status': 'pending',
+        'payment_status': paymentStatus,
       };
 
       final response = await _apiService.placeOrder(orderData, tokenToUse);
@@ -106,6 +107,27 @@ class OrdersProvider with ChangeNotifier {
       final index = _orders.indexWhere((o) => o.id == orderId);
       if (index >= 0) {
         _orders[index] = _orders[index].copyWith(status: OrderStatus.declined);
+        notifyListeners();
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // Update Payment Status
+  Future<bool> updatePaymentStatus(String orderId, String status) async {
+    if (_token == null) return false;
+    
+    try {
+      await _apiService.updateOrderPaymentStatus(orderId, status, _token!);
+      
+      final index = _orders.indexWhere((o) => o.id == orderId);
+      if (index >= 0) {
+        _orders[index] = _orders[index].copyWith(
+          status: status == 'paid' ? OrderStatus.paid : _orders[index].status,
+        );
         notifyListeners();
         return true;
       }
@@ -183,6 +205,7 @@ class OrdersProvider with ChangeNotifier {
   OrderStatus _parseOrderStatus(String? status, String? paymentStatus) {
     switch (status?.toLowerCase()) {
       case 'pending': return OrderStatus.pending;
+      case 'paid': return OrderStatus.paid;
       case 'processing': return OrderStatus.processing;
       case 'shipped': return OrderStatus.shipped;
       case 'delivered': return OrderStatus.delivered;

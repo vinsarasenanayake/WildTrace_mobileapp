@@ -52,7 +52,7 @@ class CartProvider with ChangeNotifier {
          }
       }
     } catch (e) {
-      debugPrint('Error fetching cart: $e');
+
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -69,7 +69,7 @@ class CartProvider with ChangeNotifier {
       
       await fetchCart(tokenToUse);
     } catch (e) {
-      debugPrint('Error adding to cart: $e');
+
     }
   }
 
@@ -83,7 +83,6 @@ class CartProvider with ChangeNotifier {
       
       await fetchCart(tokenToUse);
     } catch (e) {
-      debugPrint('Error removing from cart: $e');
       await fetchCart(tokenToUse);
     }
   }
@@ -102,7 +101,6 @@ class CartProvider with ChangeNotifier {
         await fetchCart(tokenToUse);
       }
     } catch (e) {
-      debugPrint('Error updating quantity: $e');
       await fetchCart(tokenToUse);
     }
   }
@@ -138,7 +136,6 @@ class CartProvider with ChangeNotifier {
       
       await fetchCart(tokenToUse);
     } catch (e) {
-      debugPrint('Error clearing cart: $e');
       await fetchCart(tokenToUse);
     }
   }

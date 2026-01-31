@@ -10,9 +10,15 @@ import 'providers/products_provider.dart';
 import 'providers/orders_provider.dart';
 import 'providers/content_provider.dart';
 import 'views/screens/splash_screen.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
 // Main Entry Point
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Stripe
+  Stripe.publishableKey = 'pk_test_51Sp4ekPH3UjynfHKyIhbatqRFtMU47avVRND1LmMcapWyKiYNyJWDoEdZslYi8TgbaBUlG77MyX0BuzcYXOUtbvB00OecbWUpq';
+  await Stripe.instance.applySettings();
 
   runApp(
     MultiProvider(

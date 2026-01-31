@@ -46,7 +46,6 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      debugPrint('AuthProvider: Login Error: $e');
       _isLoading = false;
       notifyListeners();
       rethrow;
@@ -93,7 +92,6 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      debugPrint('Registration Error: $e');
       _isLoading = false;
       notifyListeners();
       return false;
@@ -139,7 +137,6 @@ class AuthProvider with ChangeNotifier {
       notifyListeners();
       return true;
     } catch (e) {
-      debugPrint('Profile Update Error: $e');
       _isLoading = false;
       notifyListeners();
       return false;
@@ -160,10 +157,10 @@ class AuthProvider with ChangeNotifier {
         _token = savedToken;
         _currentUser = UserModel.fromJson(json.decode(savedUserJson));
         _isAuthenticated = true;
-        debugPrint('AuthProvider: Restored session for ${_currentUser?.name}');
+
       }
     } catch (e) {
-      debugPrint('Error restoring auth status: $e');
+
     } finally {
       _isLoading = false;
       notifyListeners();

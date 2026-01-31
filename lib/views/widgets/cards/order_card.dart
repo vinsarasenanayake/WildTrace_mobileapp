@@ -63,10 +63,10 @@ class OrderCard extends StatelessWidget {
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 1.5,
-                        color: status.toUpperCase() == 'DECLINED' || status.toUpperCase() == 'CANCELLED' 
+                        color: ['DECLINED', 'CANCELLED', 'FAILED'].contains(status.trim().toUpperCase()) 
                             ? const Color(0xFFE11D48) // Red
-                            : (status.toUpperCase() == 'DELIVERED' 
-                                ? const Color(0xFF2ECC71) // Green
+                            : (['DELIVERED', 'PAID', 'CONFIRMED', 'SUCCESS'].contains(status.trim().toUpperCase())
+                                ? const Color(0xFF16A34A) // Green (Tailwind green-600)
                                 : const Color(0xFFF59E0B)), // Amber
                       ),
                     ),

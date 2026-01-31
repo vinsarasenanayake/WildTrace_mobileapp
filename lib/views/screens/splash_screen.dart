@@ -59,21 +59,20 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       // Wait for both, but we can set a timeout for fetching if needed
       await Future.wait([
         fetchFuture.timeout(const Duration(seconds: 5), onTimeout: () {
-          debugPrint('SplashScreen: API fetch timed out, proceeding to home');
           return;
         }), 
         waitFuture
       ]);
 
       if (mounted) {
-        debugPrint('SplashScreen: Fetch complete or timed out, navigating to MainWrapper');
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const MainWrapper()),
         );
       }
     } catch (e) {
-      debugPrint('SplashScreen: Error during startup: $e');
+
       if (mounted) {
         Navigator.pushReplacement(
           context,

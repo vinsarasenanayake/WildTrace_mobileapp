@@ -11,6 +11,7 @@ import 'order_history_screen.dart';
 import '../widgets/forms/user_form.dart';
 import '../widgets/cards/order_summary_card.dart';
 import '../widgets/common/section_title.dart';
+import '../../services/api_service.dart';
 
 // Checkout Screen
 class CheckoutScreen extends StatefulWidget {
@@ -158,7 +159,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   totalValue: '\$${totalAmount.toStringAsFixed(2)}',
                   primaryButtonLabel: 'PROCEED TO PAYMENT',
                   primaryButtonOnTap: () async {
-                    // Place Order
                     final authProvider = Provider.of<AuthProvider>(context, listen: false);
                     final user = authProvider.currentUser;
                     final token = authProvider.token;
@@ -170,34 +170,44 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       return;
                     }
 
-                    final success = await ordersProvider.placeOrder(
-                      userId: user.id,
-                      items: List.from(cartItems),
-                      subtotal: cartProvider.subtotal,
-                      tax: cartProvider.tax,
-                      shipping: cartProvider.shipping,
-                      shippingAddress: '${_addressController.text}, ${_cityController.text}, ${_postalCodeController.text}',
-                      token: token,
+                    // Start Stripe Payment
+                    await StripeService.instance.makePayment(
+                      amount: totalAmount,
+                      currency: 'USD',
+                      context: context,
+                      onSuccess: () async {
+                        // If payment success, place the order
+                        final success = await ordersProvider.placeOrder(
+                          userId: user.id,
+                          items: List.from(cartItems),
+                          subtotal: cartProvider.subtotal,
+                          tax: cartProvider.tax,
+                          shipping: cartProvider.shipping,
+                          shippingAddress: '${_addressController.text}, ${_cityController.text}, ${_postalCodeController.text}',
+                          token: token,
+                          paymentStatus: 'paid',
+                        );
+                        
+                        if (success) {
+                            await cartProvider.resetAfterOrder(token: token);
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Order placed and paid successfully!'))
+                              );
+                              Navigator.pushReplacement(
+                                context, 
+                                MaterialPageRoute(builder: (context) => const OrderHistoryScreen())
+                              );
+                            }
+                        } else {
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Payment was successful, but failed to record order. Please contact support.'))
+                              );
+                            }
+                        }
+                      },
                     );
-                    
-                    if (success) {
-                        await cartProvider.resetAfterOrder(token: token);
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Order placed successfully!'))
-                          );
-                          Navigator.pushReplacement(
-                            context, 
-                            MaterialPageRoute(builder: (context) => const OrderHistoryScreen())
-                          );
-                        }
-                    } else {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Failed to place order. Please try again.'))
-                          );
-                        }
-                    }
                   },
                   secondaryButtonLabel: 'CANCEL ORDER',
                   secondaryButtonOnTap: () => Navigator.pop(context),

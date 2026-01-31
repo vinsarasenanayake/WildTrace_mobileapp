@@ -1,4 +1,3 @@
-// Imports
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../services/api_service.dart';
@@ -21,6 +20,13 @@ class ProductsProvider with ChangeNotifier {
 
   List<Product> get products => List.unmodifiable(_products);
   
+  // Get top 5 highest priced products for Featured Collection
+  List<Product> get topProductsByPrice {
+    final list = List<Product>.from(_products);
+    list.sort((a, b) => b.price.compareTo(a.price));
+    return list.take(5).toList();
+  }
+  
   // Update Token
   void updateToken(String? newToken) {
     if (_token != newToken) {
@@ -42,7 +48,7 @@ class ProductsProvider with ChangeNotifier {
       _products.addAll(fetchedProducts);
     } catch (e) {
       _error = e.toString();
-      debugPrint('Error fetching products: $_error');
+
     } finally {
       _isLoading = false;
       notifyListeners();

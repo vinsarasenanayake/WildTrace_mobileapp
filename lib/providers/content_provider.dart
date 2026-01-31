@@ -1,4 +1,3 @@
-// Imports
 import 'package:flutter/material.dart';
 import '../models/photographer.dart';
 import '../models/milestone.dart';
@@ -29,7 +28,7 @@ class ContentProvider with ChangeNotifier {
       _milestones = milestonesData.map((data) => Milestone.fromJson(data)).toList();
       
     } catch (e) {
-      debugPrint('Error fetching content: $e');
+
     } finally {
       _isLoading = false;
       notifyListeners();

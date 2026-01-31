@@ -1,8 +1,11 @@
-// Imports
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
 import '../models/product.dart';
+import '../models/photographer.dart';
+import '../models/milestone.dart';
 
 // Api Service
 class ApiService {
@@ -82,13 +85,11 @@ class ApiService {
       if (response.statusCode == 200) {
         return _parseProductList(json.decode(response.body));
       } else if (response.statusCode == 401) {
-        debugPrint('ApiService: Unauthorized access to products. Token might be missing or expired.');
         return [];
       } else {
         throw Exception('Failed to load products (Status: ${response.statusCode})');
       }
     } catch (e) {
-      debugPrint('ApiService: Error fetching products: $e');
       rethrow;
     }
   }
@@ -111,7 +112,6 @@ class ApiService {
       }
       return null;
     } catch (e) {
-      debugPrint('ApiService: Error fetching product price: $e');
       return null;
     }
   }
@@ -142,7 +142,6 @@ class ApiService {
       }
       return null;
     } catch (e) {
-      debugPrint('ApiService: Error fetching product details: $e');
       return null;
     }
   }
@@ -349,6 +348,28 @@ class ApiService {
         throw Exception(error['message'] ?? 'Failed to cancel order');
       } catch (_) {
         throw Exception('Failed to cancel order');
+      }
+    }
+  }
+
+  // Update Order Payment Status
+  Future<void> updateOrderPaymentStatus(String orderId, String status, String token) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/orders/$orderId/payment-status'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: json.encode({'payment_status': status}),
+    ).timeout(const Duration(seconds: 10));
+
+    if (response.statusCode != 200) {
+      try {
+        final error = json.decode(response.body);
+        throw Exception(error['message'] ?? 'Failed to update payment status');
+      } catch (_) {
+        throw Exception('Failed to update payment status');
       }
     }
   }
@@ -569,5 +590,91 @@ class ApiService {
       },
       body: json.encode({'items': cartData}),
     ).timeout(const Duration(seconds: 10));
+  }
+}
+
+// Stripe Service
+class StripeService {
+  StripeService._();
+
+  static final StripeService instance = StripeService._();
+
+  // Replace with your real Stripe Secret Key from Dashboard
+  final String _secretKey = "YOUR_STRIPE_SECRET_KEY";
+
+  Future<void> makePayment({
+    required double amount,
+    required String currency,
+    required BuildContext context,
+    required Function() onSuccess,
+  }) async {
+    try {
+      // Create Payment Intent
+      Map<String, dynamic>? paymentIntentData = await _createPaymentIntent(
+        (amount * 100).toInt().toString(),
+        currency,
+      );
+
+      if (paymentIntentData == null) return;
+
+      // Initialize Payment Sheet
+      await Stripe.instance.initPaymentSheet(
+        paymentSheetParameters: SetupPaymentSheetParameters(
+          paymentIntentClientSecret: paymentIntentData['client_secret'],
+          style: ThemeMode.dark,
+          merchantDisplayName: 'Wild Trace',
+        ),
+      );
+
+      // Display Payment Sheet
+      await _displayPaymentSheet(onSuccess, context);
+    } catch (e) {
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Payment Error: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _displayPaymentSheet(Function() onSuccess, BuildContext context) async {
+    try {
+      await Stripe.instance.presentPaymentSheet();
+      onSuccess();
+    } on StripeException catch (e) {
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Payment Cancelled')),
+        );
+      }
+    } catch (e) {
+
+    }
+  }
+
+  Future<Map<String, dynamic>?> _createPaymentIntent(String amount, String currency) async {
+    try {
+      Map<String, dynamic> body = {
+        'amount': amount,
+        'currency': currency,
+        'payment_method_types[]': 'card',
+      };
+
+      var response = await http.post(
+        Uri.parse('https://api.stripe.com/v1/payment_intents'),
+        body: body,
+        headers: {
+          'Authorization': 'Bearer $_secretKey',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      );
+      
+      return jsonDecode(response.body);
+    } catch (err) {
+
+      rethrow;
+    }
   }
 }
