@@ -11,13 +11,17 @@ import 'providers/orders_provider.dart';
 import 'providers/content_provider.dart';
 import 'views/screens/splash_screen.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // Main Entry Point
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
+  
   // Initialize Stripe
-  Stripe.publishableKey = 'pk_test_51Sp4ekPH3UjynfHKyIhbatqRFtMU47avVRND1LmMcapWyKiYNyJWDoEdZslYi8TgbaBUlG77MyX0BuzcYXOUtbvB00OecbWUpq';
+  Stripe.publishableKey = dotenv.get('STRIPE_PUBLISHABLE_KEY');
   await Stripe.instance.applySettings();
 
   runApp(

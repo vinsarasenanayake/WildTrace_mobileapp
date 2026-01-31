@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/product.dart';
 import '../models/photographer.dart';
 import '../models/milestone.dart';
@@ -600,7 +601,8 @@ class StripeService {
   static final StripeService instance = StripeService._();
 
   // Replace with your real Stripe Secret Key from Dashboard
-  final String _secretKey = "YOUR_STRIPE_SECRET_KEY";
+  // Stripe Secret Key from .env
+  final String _secretKey = dotenv.get('STRIPE_SECRET_KEY');
 
   Future<void> makePayment({
     required double amount,
@@ -615,7 +617,9 @@ class StripeService {
         currency,
       );
 
-      if (paymentIntentData == null) return;
+      if (paymentIntentData == null || paymentIntentData['client_secret'] == null) {
+        throw Exception('Failed to create Payment Intent: ${paymentIntentData?['error']?['message'] ?? 'Unknown Error'}');
+      }
 
       // Initialize Payment Sheet
       await Stripe.instance.initPaymentSheet(
