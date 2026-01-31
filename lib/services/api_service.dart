@@ -600,8 +600,6 @@ class StripeService {
 
   static final StripeService instance = StripeService._();
 
-  // Replace with your real Stripe Secret Key from Dashboard
-  // Stripe Secret Key from .env
   final String _secretKey = dotenv.get('STRIPE_SECRET_KEY');
 
   Future<void> makePayment({
