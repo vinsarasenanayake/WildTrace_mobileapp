@@ -10,6 +10,7 @@ import '../../models/order.dart';
 import 'order_history_screen.dart';
 import '../widgets/forms/user_form.dart';
 import '../widgets/cards/order_summary_card.dart';
+import '../widgets/cards/order_item_card.dart';
 import '../widgets/common/section_title.dart';
 import '../../services/api_service.dart';
 
