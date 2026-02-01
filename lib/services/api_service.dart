@@ -12,9 +12,7 @@ import '../models/milestone.dart';
 class ApiService {
   // Base Host
   static String get baseHost {
-    if (kIsWeb) return 'http://localhost:8000';
-    if (defaultTargetPlatform == TargetPlatform.android) return 'http://10.0.2.2:8000';
-    return 'http://localhost:8000'; 
+    return 'https://wildtrace-production.up.railway.app';
   }
 
   // Paths
@@ -33,13 +31,6 @@ class ApiService {
     
     String resolvedPath = path;
     if (resolvedPath.startsWith('http')) {
-      if (defaultTargetPlatform == TargetPlatform.android) {
-        if (resolvedPath.contains('localhost')) {
-          resolvedPath = resolvedPath.replaceFirst('localhost', '10.0.2.2');
-        } else if (resolvedPath.contains('127.0.0.1')) {
-          resolvedPath = resolvedPath.replaceFirst('127.0.0.1', '10.0.2.2');
-        }
-      }
       return resolvedPath;
     }
     
