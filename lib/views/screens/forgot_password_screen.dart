@@ -6,6 +6,7 @@ import 'login_screen.dart';
 import '../widgets/common/custom_text_field.dart';
 import '../widgets/common/wildtrace_logo.dart';
 import '../widgets/common/custom_button.dart';
+import 'package:quickalert/quickalert.dart';
 
 // Forgot Password Screen
 class ForgotPasswordScreen extends StatefulWidget {
@@ -35,7 +36,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               const SizedBox(height: 60),
               GestureDetector(
                 onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainWrapper()), (route) => false),
-                child: const WildTraceLogo(),
+                child: const WildTraceLogo()
               ),
               const SizedBox(height: 24),
               Text(
@@ -76,21 +77,57 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       text: 'SEND RESET LINK', 
                       onPressed: () {
                         if (_emailController.text.isEmpty) {
-                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Please enter your email'))
+                           final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                           QuickAlert.show(
+                             context: context,
+                             type: QuickAlertType.warning,
+                             title: 'Required Field',
+                             widget: Text(
+                               'Please enter your email',
+                               textAlign: TextAlign.center,
+                               style: GoogleFonts.inter(
+                                 fontSize: 12,
+                                 color: isDarkMode ? Colors.white70 : Colors.black87,
+                               ),
+                             ),
+                             backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                             titleColor: isDarkMode ? Colors.white : Colors.black,
+                             confirmBtnText: 'Okay',
+                             confirmBtnTextStyle: GoogleFonts.inter(
+                               fontSize: 12,
+                               color: Colors.white,
+                               fontWeight: FontWeight.bold,
+                             ),
                            );
                            return;
                         }
                         // Simulate sending email
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Reset link sent to ${_emailController.text}'))
-                        );
-                        // Optional: Go back to login
-                        Future.delayed(const Duration(seconds: 2), () {
-                          if (mounted) {
+                        final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                        QuickAlert.show(
+                          context: context,
+                          type: QuickAlertType.success,
+                          title: 'Link Sent',
+                          widget: Text(
+                            'Reset link sent to ${_emailController.text}',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: isDarkMode ? Colors.white70 : Colors.black87,
+                            ),
+                          ),
+                          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                          titleColor: isDarkMode ? Colors.white : Colors.black,
+                          confirmBtnText: 'Okay',
+                          confirmBtnTextStyle: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          onConfirmBtnTap: () {
+                            Navigator.pop(context); // Close alert
                             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
                           }
-                        });
+                        );
                       }
                     ),
                     const SizedBox(height: 24),
@@ -104,7 +141,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
               ),
               const SizedBox(height: 60),
-              Text('WILDTRACE © 2026', style: GoogleFonts.inter(fontSize: 10, letterSpacing: 2.0, color: Colors.grey[400], fontWeight: FontWeight.w500)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Copyright © 2026 ', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
+                  InkWell(
+                    onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainWrapper()), (route) => false),
+                    child: Text('WILDTRACE', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF27AE60)))
+                  ),
+                  Text('. All Rights Reserved.', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
+                ],
+              ),
               const SizedBox(height: 24),
             ],
           ),

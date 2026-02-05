@@ -13,6 +13,7 @@ import '../widgets/cards/order_summary_card.dart';
 import '../widgets/cards/order_item_card.dart';
 import '../widgets/common/section_title.dart';
 import '../../services/api_service.dart';
+import 'package:quickalert/quickalert.dart';
 
 // Checkout Screen
 class CheckoutScreen extends StatefulWidget {
@@ -30,7 +31,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   late TextEditingController _addressController;
   late TextEditingController _cityController;
   late TextEditingController _postalCodeController;
+  late TextEditingController _countryController;
 
+  // Initialize controllers with user data
   @override
   void initState() {
     super.initState();
@@ -41,8 +44,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     _addressController = TextEditingController(text: user?.address ?? '');
     _cityController = TextEditingController(text: user?.city ?? '');
     _postalCodeController = TextEditingController(text: user?.postalCode ?? '');
+    _countryController = TextEditingController(text: user?.country ?? '');
   }
 
+  // Clean up resources when screen is closed
   @override
   void dispose() {
     _nameController.dispose();
@@ -51,10 +56,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     _addressController.dispose();
     _cityController.dispose();
     _postalCodeController.dispose();
+    _countryController.dispose();
     super.dispose();
   }
 
   // Build Method
+  // Main build method for checkout flow
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -118,11 +125,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SectionTitle(title: 'Shipping Details', showLine: false),
-                    const SizedBox(height: 8),
-                    Text(
-                      '',
-                      style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade600, height: 1.5),
-                    ),
                     const SizedBox(height: 24),
                     Container(
                       width: double.infinity,
@@ -139,6 +141,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         addressController: _addressController,
                         cityController: _cityController,
                         postalCodeController: _postalCodeController,
+                        countryController: _countryController,
                         addressLabel: 'SHIPPING ADDRESS',
                       ),
                     ),
@@ -165,8 +168,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     final token = authProvider.token;
 
                     if (user == null || token == null) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Please login to complete your purchase.'))
+                      final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                      QuickAlert.show(
+                        context: context,
+                        type: QuickAlertType.warning,
+                        title: 'Authentication Required',
+                        text: 'Please login to complete your purchase.',
+                        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                        titleColor: isDarkMode ? Colors.white : Colors.black,
+                        textColor: isDarkMode ? Colors.white70 : Colors.black87,
                       );
                       return;
                     }
@@ -192,18 +202,41 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         if (success) {
                             await cartProvider.resetAfterOrder(token: token);
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Order placed and paid successfully!'))
-                              );
-                              Navigator.pushReplacement(
-                                context, 
-                                MaterialPageRoute(builder: (context) => const OrderHistoryScreen())
+                              final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                              QuickAlert.show(
+                                context: context,
+                                type: QuickAlertType.success,
+                                title: 'Order Placed!',
+                                text: 'Order placed and paid successfully!',
+                                backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                                titleColor: isDarkMode ? Colors.white : Colors.black,
+                                textColor: isDarkMode ? Colors.white70 : Colors.black87,
+                                confirmBtnText: 'Okay',
+                                confirmBtnTextStyle: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                onConfirmBtnTap: () {
+                                  Navigator.pop(context); // Close alert
+                                  Navigator.pushReplacement(
+                                    context, 
+                                    MaterialPageRoute(builder: (context) => const OrderHistoryScreen())
+                                  );
+                                },
                               );
                             }
                         } else {
                             if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Payment was successful, but failed to record order. Please contact support.'))
+                              final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                              QuickAlert.show(
+                                context: context,
+                                type: QuickAlertType.error,
+                                title: 'Order Error',
+                                text: 'Payment was successful, but failed to record order. Please contact support.',
+                                backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                                titleColor: isDarkMode ? Colors.white : Colors.black,
+                                textColor: isDarkMode ? Colors.white70 : Colors.black87,
                               );
                             }
                         }

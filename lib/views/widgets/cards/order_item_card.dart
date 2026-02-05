@@ -68,7 +68,7 @@ class OrderItem extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 14,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF2ECC71),
+              color: const Color(0xFF27AE60),
             ),
           ),
         ],

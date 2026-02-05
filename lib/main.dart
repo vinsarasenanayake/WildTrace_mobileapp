@@ -56,6 +56,7 @@ void main() async {
 class WildTraceApp extends StatelessWidget {
   const WildTraceApp({super.key});
 
+  // Build Method
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -64,15 +65,52 @@ class WildTraceApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       theme: ThemeData(
         useMaterial3: true,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        splashFactory: NoSplash.splashFactory,
         primaryColor: const Color(0xFF1B4332),
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF1B4332),
           brightness: Brightness.light,
         ),
         textTheme: GoogleFonts.interTextTheme(),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            splashFactory: NoSplash.splashFactory,
+            elevation: 0,
+          ).copyWith(
+            overlayColor: MaterialStateProperty.all(Colors.transparent),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            splashFactory: NoSplash.splashFactory,
+          ).copyWith(
+            overlayColor: MaterialStateProperty.all(Colors.transparent),
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            splashFactory: NoSplash.splashFactory,
+          ).copyWith(
+            overlayColor: MaterialStateProperty.all(Colors.transparent),
+          ),
+        ),
+        iconButtonTheme: IconButtonThemeData(
+          style: IconButton.styleFrom(
+            splashFactory: NoSplash.splashFactory,
+          ).copyWith(
+            overlayColor: MaterialStateProperty.all(Colors.transparent),
+          ),
+        ),
       ),
       darkTheme: ThemeData(
         useMaterial3: true,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        splashFactory: NoSplash.splashFactory,
         primaryColor: const Color(0xFF1B4332),
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF1B4332),
@@ -80,6 +118,35 @@ class WildTraceApp extends StatelessWidget {
         ),
         textTheme: GoogleFonts.interTextTheme(
           ThemeData(brightness: Brightness.dark).textTheme,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            splashFactory: NoSplash.splashFactory,
+            elevation: 0,
+          ).copyWith(
+            overlayColor: MaterialStateProperty.all(Colors.transparent),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            splashFactory: NoSplash.splashFactory,
+          ).copyWith(
+            overlayColor: MaterialStateProperty.all(Colors.transparent),
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            splashFactory: NoSplash.splashFactory,
+          ).copyWith(
+            overlayColor: MaterialStateProperty.all(Colors.transparent),
+          ),
+        ),
+        iconButtonTheme: IconButtonThemeData(
+          style: IconButton.styleFrom(
+            splashFactory: NoSplash.splashFactory,
+          ).copyWith(
+            overlayColor: MaterialStateProperty.all(Colors.transparent),
+          ),
         ),
       ),
       home: const SplashScreen(),
@@ -92,6 +159,7 @@ class WildTraceApp extends StatelessWidget {
 class NoGlowScrollBehavior extends ScrollBehavior {
   const NoGlowScrollBehavior();
   
+  // Build Overscroll Indicator
   @override
   Widget buildOverscrollIndicator(BuildContext context, Widget child, ScrollableDetails details) {
     return child;

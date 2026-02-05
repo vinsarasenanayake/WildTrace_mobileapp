@@ -9,6 +9,7 @@ import '../services/api_service.dart';
 // Auth Provider
 class AuthProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
+  // State variables for authentication
   UserModel? _currentUser;
   String? _token;
   bool _isAuthenticated = false;
@@ -19,6 +20,7 @@ class AuthProvider with ChangeNotifier {
   bool get isAuthenticated => _isAuthenticated;
   bool get isLoading => _isLoading;
 
+  // Initialization
   AuthProvider() {
     checkAuthStatus();
   }
@@ -27,7 +29,7 @@ class AuthProvider with ChangeNotifier {
   static const String _tokenKey = 'auth_token';
   static const String _userKey = 'user_data';
 
-  // Login
+  // Sign in with email and password
   Future<bool> login(String email, String password) async {
     _isLoading = true;
     notifyListeners();
@@ -52,7 +54,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Register
+  // Create a new user account
   Future<bool> register({
     required String name,
     required String email,
@@ -109,7 +111,7 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Update Profile
+  // Update user details in the database
   Future<bool> updateProfile(UserModel updatedUser) async {
     if (_token == null) return false;
     _isLoading = true;
@@ -143,7 +145,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Check Auth Status
+  // Local storage management for persistent login
   Future<void> checkAuthStatus() async {
     _isLoading = true;
     notifyListeners();

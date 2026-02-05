@@ -30,7 +30,7 @@ class Order {
     this.shippingAddress,
   });
 
-  // Copy With
+  // Factory Method for creating a modified copy of the order
   Order copyWith({
     String? id,
     String? userId,
@@ -57,7 +57,7 @@ class Order {
     );
   }
 
-  // To Json
+  // Convert order object to JSON format
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -73,7 +73,7 @@ class Order {
     };
   }
 
-  // From Json
+  // Create an order object from JSON data
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
       id: json['id'] as String,

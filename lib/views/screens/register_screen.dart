@@ -8,6 +8,7 @@ import '../widgets/forms/user_form.dart';
 import '../widgets/common/wildtrace_logo.dart';
 import '../widgets/common/custom_button.dart';
 import 'login_screen.dart';
+import 'package:quickalert/quickalert.dart';
 
 // Register Screen
 class RegisterScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class RegisterScreen extends StatefulWidget {
 
 // Register State
 class _RegisterScreenState extends State<RegisterScreen> {
+  // State management for user registration inputs
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   final TextEditingController _nameController = TextEditingController();
@@ -29,8 +31,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
   final TextEditingController _postalCodeController = TextEditingController();
+  final TextEditingController _countryController = TextEditingController();
 
   // Build Method
+  // Main build method for the registration screen
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -48,7 +52,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 40),
                   GestureDetector(
                     onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainWrapper()), (route) => false),
-                    child: const WildTraceLogo(),
+                    child: const WildTraceLogo()
                   ),
                   const SizedBox(height: 24),
                   Text(
@@ -79,6 +83,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           nameController: _nameController, emailController: _emailController,
                           contactController: _contactController, addressController: _addressController,
                           cityController: _cityController, postalCodeController: _postalCodeController,
+                          countryController: _countryController,
                           passwordController: _passwordController, confirmPasswordController: _confirmPasswordController,
                           isPasswordObscure: _obscurePassword, isConfirmPasswordObscure: _obscureConfirmPassword,
                           onPasswordToggle: () => setState(() => _obscurePassword = !_obscurePassword),
@@ -89,8 +94,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           text: authProvider.isLoading ? 'CREATING ACCOUNT...' : 'COMPLETE REGISTRATION', 
                           onPressed: authProvider.isLoading ? () {} : () async {
                             if (_passwordController.text != _confirmPasswordController.text) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Passwords do not match'))
+                              QuickAlert.show(
+                                context: context,
+                                type: QuickAlertType.warning,
+                                title: 'Mismatch',
+                                widget: Text(
+                                  'Passwords do not match',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    color: isDarkMode ? Colors.white70 : Colors.black87,
+                                  ),
+                                ),
+                                backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                                titleColor: isDarkMode ? Colors.white : Colors.black,
+                                confirmBtnText: 'Okay',
+                                confirmBtnTextStyle: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               );
                               return;
                             }
@@ -103,6 +126,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               address: _addressController.text,
                               city: _cityController.text,
                               postalCode: _postalCodeController.text,
+                              // Country might need to be added to register method if supported, 
+                              // but for now we ensure it is collected.
                             );
                             
                             if (success && mounted) {
@@ -112,8 +137,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 (route) => false
                               );
                             } else if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Registration failed. Please try again.'))
+                              QuickAlert.show(
+                                context: context,
+                                type: QuickAlertType.error,
+                                title: 'Registration Failed',
+                                widget: Text(
+                                  'Please check your details and try again.',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    color: isDarkMode ? Colors.white70 : Colors.black87,
+                                  ),
+                                ),
+                                backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                                titleColor: isDarkMode ? Colors.white : Colors.black,
+                                confirmBtnText: 'Okay',
+                                confirmBtnTextStyle: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               );
                             }
                           }
@@ -132,7 +175,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  Text('WILDTRACE © 2026', style: GoogleFonts.inter(fontSize: 10, letterSpacing: 2.0, color: Colors.grey[400], fontWeight: FontWeight.w500)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Copyright © 2026 ', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
+                      InkWell(
+                        onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainWrapper()), (route) => false),
+                        child: Text('WILDTRACE', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF27AE60)))
+                      ),
+                      Text('. All Rights Reserved.', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
+                    ],
+                  ),
                   const SizedBox(height: 24),
                 ],
               );

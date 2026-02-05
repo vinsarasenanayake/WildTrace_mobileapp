@@ -53,7 +53,7 @@ class PhotographerCard extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF2ECC71),
+                    color: const Color(0xFF27AE60),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -88,14 +88,14 @@ class PhotographerCard extends StatelessWidget {
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 2.0,
-                    color: const Color(0xFF2ECC71),
+                    color: const Color(0xFF27AE60),
                   ),
                 ),
                 const SizedBox(height: 24),
                 Container(
                   padding: const EdgeInsets.only(left: 16),
                   decoration: const BoxDecoration(
-                    border: Border(left: BorderSide(color: Color(0xFF2ECC71), width: 2)),
+                    border: Border(left: BorderSide(color: Color(0xFF27AE60), width: 2)),
                   ),
                   child: Text(
                     '"$quote"',

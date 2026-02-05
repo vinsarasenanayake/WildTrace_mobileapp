@@ -17,10 +17,10 @@ class CartItem {
     this.price,
   });
 
-  // Get Total Price
+  // Calculate total price for this cart item
   double get totalPrice => (price ?? product.price) * quantity;
 
-  // Copy With
+  // Factory Method for creating a modified copy of the cart item
   CartItem copyWith({
     String? id,
     Product? product,
@@ -37,7 +37,7 @@ class CartItem {
     );
   }
 
-  // To Json
+  // Convert cart item to JSON format
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -48,7 +48,7 @@ class CartItem {
     };
   }
 
-  // From Json
+  // Create a cart item from JSON data
   factory CartItem.fromJson(Map<String, dynamic> json) {
     return CartItem(
       id: json['id']?.toString(),

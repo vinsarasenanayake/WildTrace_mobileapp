@@ -19,7 +19,7 @@ class WildTraceBottomNavBar extends StatelessWidget {
     final navProvider = Provider.of<NavigationProvider>(context);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color backgroundColor = isDarkMode ? Colors.black : const Color(0xFFBFBFBF);
-    final Color selectedColor = isDarkMode ? const Color(0xFF2ECC71) : const Color(0xFF1B4332);
+    final Color selectedColor = isDarkMode ? const Color(0xFF27AE60) : const Color(0xFF1B4332);
     final Color unselectedColor = isDarkMode ? Colors.white.withOpacity(0.5) : Colors.grey.shade600;
 
     return Consumer<CartProvider>(

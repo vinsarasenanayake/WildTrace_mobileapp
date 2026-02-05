@@ -7,6 +7,8 @@ import '../../models/user.dart';
 import '../widgets/common/custom_text_field.dart';
 import '../widgets/forms/user_form.dart';
 import '../widgets/common/custom_button.dart';
+import '../widgets/common/wildtrace_logo.dart';
+import 'package:quickalert/quickalert.dart';
 
 // Edit Profile Screen
 class EditProfileScreen extends StatefulWidget {
@@ -72,6 +74,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        title: const WildTraceLogo(height: 40),
+        centerTitle: true,
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(
@@ -170,8 +175,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     
                     final success = await authProvider.updateProfile(updatedUser);
                     if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(success ? 'Profile updated successfully' : 'Failed to update profile'))
+                      final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                      QuickAlert.show(
+                        context: context,
+                        type: success ? QuickAlertType.success : QuickAlertType.error,
+                        title: success ? 'Profile Updated' : 'Update Failed',
+                        text: success ? 'Profile updated successfully' : 'Failed to update profile',
+                        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                        titleColor: isDarkMode ? Colors.white : Colors.black,
+                        textColor: isDarkMode ? Colors.white70 : Colors.black87,
                       );
                     }
                   }
@@ -215,8 +227,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               CustomTextField(label: 'Confirm Password', controller: _confPass, hintText: '', isObscure: _obscureConfirm, hasToggle: true, onToggleVisibility: () => setState(() => _obscureConfirm = !_obscureConfirm)),
               const SizedBox(height: 24),
               CustomButton(text: 'SAVE', onPressed: () {
-                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Password update simulated'))
+                final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                QuickAlert.show(
+                  context: context,
+                  type: QuickAlertType.info,
+                  title: 'Info',
+                  text: 'Password update simulated',
+                  backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                  titleColor: isDarkMode ? Colors.white : Colors.black,
+                  textColor: isDarkMode ? Colors.white70 : Colors.black87,
                 );
               }),
             ],
@@ -297,7 +316,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     children: [
                       Text('Windows - Edge', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: textColor)),
                       const SizedBox(height: 2),
-                      Text('127.0.0.1, This device', style: GoogleFonts.inter(fontSize: 10, color: const Color(0xFF2ECC71), fontWeight: FontWeight.bold)),
+                      Text('127.0.0.1, This device', style: GoogleFonts.inter(fontSize: 10, color: const Color(0xFF27AE60), fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ],

@@ -18,7 +18,7 @@ class Photographer {
     required this.imageUrl,
   });
 
-  // From Json
+  // Create a photographer object from JSON data
   factory Photographer.fromJson(Map<String, dynamic> json) {
     return Photographer(
       id: json['id'].toString(),

@@ -118,7 +118,7 @@ class OrderCard extends StatelessWidget {
                               style: GoogleFonts.inter(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: const Color(0xFF2ECC71),
+                                color: const Color(0xFF27AE60),
                               ),
                             ),
                           ],

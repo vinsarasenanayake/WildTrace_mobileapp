@@ -18,7 +18,7 @@ class SectionTitle extends StatelessWidget {
   const SectionTitle({
     super.key,
     required this.title,
-    this.color = const Color(0xFF2ECC71),
+    this.color = const Color(0xFF27AE60),
     this.showLine = true,
     this.fontSize = 11,
     this.letterSpacing = 3.0,

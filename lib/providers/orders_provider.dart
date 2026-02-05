@@ -15,6 +15,7 @@ class OrdersProvider with ChangeNotifier {
   int get count => _orders.length;
   bool get isEmpty => _orders.isEmpty;
 
+  // Refresh the auth token and reload user orders
   void updateToken(String? newToken, String? userId) {
     if (newToken != _token) {
       _token = newToken;
@@ -35,7 +36,7 @@ class OrdersProvider with ChangeNotifier {
     }
   }
 
-  // Place Order
+  // Submit a new order to the backend
   Future<bool> placeOrder({
     required String userId,
     required List<CartItem> items,
@@ -97,7 +98,7 @@ class OrdersProvider with ChangeNotifier {
     }
   }
 
-  // Cancel Order
+  // Send a cancellation request for a pending order
   Future<bool> cancelOrder(String orderId) async {
     if (_token == null) return false;
     
@@ -116,7 +117,7 @@ class OrdersProvider with ChangeNotifier {
     }
   }
 
-  // Update Payment Status
+  // Sync payment status after a successful Stripe transaction
   Future<bool> updatePaymentStatus(String orderId, String status) async {
     if (_token == null) return false;
     
@@ -145,7 +146,7 @@ class OrdersProvider with ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  // Load Orders
+  // Retrieve all orders for the current user
   Future<void> loadOrders(String userId, String token) async {
     _isLoading = true;
     notifyListeners();

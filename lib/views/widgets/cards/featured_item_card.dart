@@ -50,12 +50,12 @@ class FeaturedItemCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Container(width: 24, height: 2, color: const Color(0xFF2ECC71)),
+                    Container(width: 24, height: 2, color: const Color(0xFF27AE60)),
                     const SizedBox(width: 12),
                     Text(
                       category.toUpperCase(),
                       style: GoogleFonts.inter(
-                        color: const Color(0xFF2ECC71),
+                        color: const Color(0xFF27AE60),
                         fontWeight: FontWeight.bold,
                         fontSize: 11,
                         letterSpacing: 2.0,
@@ -99,7 +99,7 @@ class FeaturedItemCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 6),
-                      Container(height: 3, color: const Color(0xFF2ECC71)),
+                      Container(height: 3, color: const Color(0xFF27AE60)),
                     ],
                   ),
                 ),

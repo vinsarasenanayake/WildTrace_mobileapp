@@ -11,11 +11,12 @@ import '../widgets/common/section_title.dart';
 import '../widgets/common/quantity_selector.dart';
 import '../widgets/cards/photographer_card.dart';
 import '../widgets/cards/product_card.dart';
+import '../widgets/common/wildtrace_logo.dart';
 import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
 import '../screens/login_screen.dart';
 import 'cart_screen.dart';
-import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:quickalert/quickalert.dart';
 
 // Product Details Screen
 class ProductDetailsScreen extends StatefulWidget {
@@ -41,6 +42,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   final List<String> _sizes = [];
   final ApiService _apiService = ApiService();
 
+  // Initial setup for product details
   @override
   void initState() {
     super.initState();
@@ -86,21 +88,56 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   Future<void> _showLoginRequiredAlert() async {
-    final result = await showOkCancelAlertDialog(
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    QuickAlert.show(
       context: context,
+      type: QuickAlertType.warning,
       title: 'Authentication Required',
-      message: 'Please login to add items to your cart or favorites.',
-      okLabel: 'LOGIN',
-      cancelLabel: 'LATER',
-      isDestructiveAction: false,
+      text: 'Please login to add items to your cart or favorites.',
+      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+      titleColor: isDarkMode ? Colors.white : Colors.black,
+      textColor: isDarkMode ? Colors.white70 : Colors.black87,
+      showConfirmBtn: false,
+      showCancelBtn: false,
+      widget: Column(
+        children: [
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: CustomButton(
+                  text: 'LATER',
+                  fontSize: 10,
+                  verticalPadding: 12,
+                  backgroundColor: isDarkMode ? Colors.grey.withOpacity(0.2) : Colors.grey.shade200,
+                  foregroundColor: isDarkMode ? Colors.white : Colors.grey.shade800,
+                  onPressed: () {
+                    Navigator.pop(context); // Close alert
+                  },
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: CustomButton(
+                  text: 'LOGIN',
+                  fontSize: 10,
+                  verticalPadding: 12,
+                  backgroundColor: const Color(0xFF3498DB), // Match QuickAlert blue
+                  foregroundColor: Colors.white,
+                  onPressed: () {
+                    Navigator.pop(context); // Close alert
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
-
-    if (result == OkCancelResult.ok && mounted) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
-      );
-    }
   }
 
   Future<void> _fetchPrice(String size) async {
@@ -127,6 +164,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     }
   }
 
+  // Main build method for the product details page
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -210,7 +248,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 width: 4, 
                 height: 4, 
                 decoration: const BoxDecoration(
-                  color: Color(0xFF2ECC71), 
+                  color: Color(0xFF27AE60), 
                   shape: BoxShape.circle
                 )
               ),
@@ -233,6 +271,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     )
   );
 
+  // Display the main product image
   Widget _buildMainImage() {
     return Container(
       height: 400,
@@ -254,6 +293,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
+  // Size selection and quantity selection controls
   Widget _buildPurchaseOptions(bool isDarkMode, Color textColor) {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
 
@@ -284,7 +324,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 width: 44,
                 child: Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF2ECC71)),
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF27AE60)),
                 ),
               )
             : Text(
@@ -343,18 +383,56 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     size: _selectedSize, 
                     price: _currentPrice
                   );
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('${widget.product.title} added to cart'),
-                      action: SnackBarAction(
-                        label: 'VIEW CART', 
-                        onPressed: () {
-                          // Close product details and switch to Cart tab to keep bottom nav visible
-                          Navigator.pop(context);
-                          Provider.of<NavigationProvider>(context, listen: false).setSelectedIndex(2);
-                        }
-                      ),
-                    )
+                  final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                  QuickAlert.show(
+                    context: context,
+                    type: QuickAlertType.success,
+                    title: 'Added to Cart',
+                    text: '${widget.product.title} has been added to your cart.',
+                    backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                    titleColor: isDarkMode ? Colors.white : Colors.black,
+                    textColor: isDarkMode ? Colors.white70 : Colors.black87,
+                    showConfirmBtn: false,
+                    showCancelBtn: false,
+                    widget: Column(
+                      children: [
+                        const SizedBox(height: 24),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: CustomButton(
+                                text: 'CONTINUE',
+                                fontSize: 10,
+                                verticalPadding: 12,
+                                backgroundColor: isDarkMode ? Colors.grey.withOpacity(0.2) : Colors.grey.shade200,
+                                foregroundColor: isDarkMode ? Colors.white : Colors.grey.shade800,
+                                onPressed: () {
+                                  Navigator.pop(context); // Close alert
+                                  Navigator.pop(context); // Close details screen
+                                  // Continue shopping implies going back to list, which we usually are at
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: CustomButton(
+                                text: 'VIEW CART',
+                                fontSize: 10,
+                                verticalPadding: 12,
+                                backgroundColor: Colors.blue, // Match QuickAlert blue
+                                foregroundColor: Colors.white,
+                                onPressed: () {
+                                  Navigator.pop(context); // Close alert
+                                  Navigator.pop(context); // Close details screen
+                                  Provider.of<NavigationProvider>(context, listen: false).setSelectedIndex(2);
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    onConfirmBtnTap: () {}, // Not used but required if showConfirmBtn is true
                   );
                 }, 
                 type: CustomButtonType.secondary
@@ -380,9 +458,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       child: Container(
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: sel ? const Color(0xFF2ECC71).withOpacity(0.1) : Colors.transparent, 
+          color: sel ? const Color(0xFF27AE60).withOpacity(0.1) : Colors.transparent, 
           border: Border.all(
-            color: sel ? const Color(0xFF2ECC71) : Colors.grey.withOpacity(0.2)
+            color: sel ? const Color(0xFF27AE60) : Colors.grey.withOpacity(0.2)
           ), 
           borderRadius: BorderRadius.circular(12)
         ),
@@ -391,7 +469,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           style: GoogleFonts.inter(
             fontSize: 12, 
             fontWeight: FontWeight.bold, 
-            color: sel ? const Color(0xFF2ECC71) : (isDarkMode ? Colors.white : Colors.black)
+            color: sel ? const Color(0xFF27AE60) : (isDarkMode ? Colors.white : Colors.black)
           )
         ),
       ),
@@ -427,6 +505,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
+  // Detailed description and technical stats
   Widget _buildStory(Color textColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -463,6 +542,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     ]
   );
 
+  // Profile of the photographer who captured the shot
   Widget _buildPhotographerProfile() {
     final product = _fullProduct ?? widget.product;
     return PhotographerCard(

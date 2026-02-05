@@ -15,6 +15,7 @@ class CustomTextField extends StatelessWidget {
   final VoidCallback? onToggleVisibility;
   final bool hasToggle;
   final Widget? prefix;
+  final Widget? suffix;
 
   const CustomTextField({
     super.key,
@@ -25,6 +26,7 @@ class CustomTextField extends StatelessWidget {
     this.onToggleVisibility,
     this.hasToggle = false,
     this.prefix,
+    this.suffix,
   });
 
   // --- Build Method ---
@@ -70,7 +72,7 @@ class CustomTextField extends StatelessWidget {
                   ),
                   onPressed: onToggleVisibility,
                 )
-              : null,
+              : suffix,
           ),
         ),
       ],

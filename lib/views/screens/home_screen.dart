@@ -18,7 +18,7 @@ import '../widgets/common/wild_trace_hero.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
   
-  // Build Method
+  // Build method for the main layout
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,16 +40,15 @@ class HomeScreen extends StatelessWidget {
   Widget _buildHero(BuildContext context) {
     return WildTraceHero(
       imagePath: 'assets/images/heroimageh1.jpg',
+      title: 'THE HOME',
       mainText1: 'WILD',
       mainText2: 'TRACE',
       mainFontSize: 72,
-      mainLetterSpacing1: 14.0,
-      mainLetterSpacing2: -1.5,
-      subtitleQuote: '“WILDLIFE. UNTAMED. TIMELESS.”',
-      description: 'Fine-art wildlife photographs captured in the wild, available as prints.',
+      description: 'Fine-art wildlife photography',
+      descriptionFontSize: 16,
       height: MediaQuery.of(context).size.height * 0.9,
       footer: CustomButton(
-        text: 'VIEW GALLERY',
+        text: 'EXPLORE COLLECTION',
         onPressed: () => context.read<NavigationProvider>().setSelectedIndex(1),
         type: CustomButtonType.secondary,
         isFullWidth: false,
@@ -69,6 +68,7 @@ class FeaturedCollection extends StatefulWidget {
   State<FeaturedCollection> createState() => _FeaturedCollectionState();
 }
 
+// Featured Collection Logic
 class _FeaturedCollectionState extends State<FeaturedCollection> {
   late final PageController _pageController;
   int _currentIndex = 0;
@@ -123,7 +123,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
             children: [
               Text(
                 'FEATURED COLLECTION', 
-                style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2.0, color: const Color(0xFF2ECC71))
+                style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2.0, color: const Color(0xFF27AE60))
               ),
               const SizedBox(height: 12),
               Text(
@@ -148,6 +148,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
     );
   }
 
+  // Helper widget for the slideshow UI
   Widget _buildSlideshow(List<Product> items) {
     return Container(
       height: 500,
@@ -190,7 +191,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
           height: 8,
           width: isActive ? 32 : 8,
           decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF2ECC71) : Colors.grey.withOpacity(0.3), 
+            color: isActive ? const Color(0xFF27AE60) : Colors.grey.withOpacity(0.3), 
             borderRadius: BorderRadius.circular(4)
           ),
         );
@@ -208,7 +209,7 @@ class BehindTheLens extends StatelessWidget {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color backgroundColor = isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9);
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
-    const Color accentGreen = Color(0xFF2ECC71);
+    const Color accentGreen = Color(0xFF27AE60);
     return Container(
       color: backgroundColor,
       padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),

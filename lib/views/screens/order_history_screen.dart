@@ -12,6 +12,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/navigation_provider.dart';
+import 'package:quickalert/quickalert.dart';
 
 // Order History Screen
 class OrderHistoryScreen extends StatefulWidget {
@@ -22,6 +23,7 @@ class OrderHistoryScreen extends StatefulWidget {
 }
 
 class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
+  // Fetch user orders upon screen initialization
   @override
   void initState() {
     super.initState();
@@ -30,6 +32,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     });
   }
 
+  // Refresh the order list from the server
   Future<void> _refreshOrders() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
@@ -38,6 +41,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     }
   }
 
+  // Handle pending payments using Stripe
   Future<void> _payWithStripe(Order order) async {
     final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
     
@@ -48,13 +52,26 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
       onSuccess: () async {
         final success = await ordersProvider.updatePaymentStatus(order.id, 'paid');
         if (mounted) {
+          final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
           if (success) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Payment successful! Order is now being processed.'))
+            QuickAlert.show(
+              context: context,
+              type: QuickAlertType.success,
+              title: 'Payment Successful',
+              text: 'Order is now being processed.',
+              backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+              titleColor: isDarkMode ? Colors.white : Colors.black,
+              textColor: isDarkMode ? Colors.white70 : Colors.black87,
             );
           } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Payment recorded by Stripe, but backend update failed. Please contact support.'))
+             QuickAlert.show(
+              context: context,
+              type: QuickAlertType.error,
+              title: 'Processing Error',
+              text: 'Payment recorded by Stripe, but backend update failed. Please contact support.',
+              backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+              titleColor: isDarkMode ? Colors.white : Colors.black,
+              textColor: isDarkMode ? Colors.white70 : Colors.black87,
             );
           }
         }
@@ -62,6 +79,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     );
   }
 
+  // Main build method for the order history UI
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -103,7 +121,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
           final orders = ordersProvider.orders;
           
           if (ordersProvider.isLoading && orders.isEmpty) {
-            return const Center(child: CircularProgressIndicator(color: Color(0xFF2ECC71)));
+            return const Center(child: CircularProgressIndicator(color: Color(0xFF27AE60)));
           }
 
           if (orders.isEmpty) {
@@ -140,7 +158,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
           
           return RefreshIndicator(
             onRefresh: _refreshOrders,
-            color: const Color(0xFF2ECC71),
+            color: const Color(0xFF27AE60),
             child: ListView.builder(
               padding: const EdgeInsets.all(20),
               physics: const AlwaysScrollableScrollPhysics(),
@@ -160,19 +178,39 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                       if (order.status == OrderStatus.pending) {
                         final success = await ordersProvider.cancelOrder(order.id);
                         if (context.mounted) {
+                          final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
                           if (success) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Order cancelled successfully'))
+                            QuickAlert.show(
+                              context: context,
+                              type: QuickAlertType.success,
+                              title: 'Order Cancelled',
+                              text: 'Order cancelled successfully',
+                              backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                              titleColor: isDarkMode ? Colors.white : Colors.black,
+                              textColor: isDarkMode ? Colors.white70 : Colors.black87,
                             );
                           } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Failed to cancel order'))
+                            QuickAlert.show(
+                              context: context,
+                              type: QuickAlertType.error,
+                              title: 'Cancellation Failed',
+                              text: 'Failed to cancel order',
+                              backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                              titleColor: isDarkMode ? Colors.white : Colors.black,
+                              textColor: isDarkMode ? Colors.white70 : Colors.black87,
                             );
                           }
                         }
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Cannot cancel this order'))
+                        final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                        QuickAlert.show(
+                          context: context,
+                          type: QuickAlertType.warning,
+                          title: 'Action Denied',
+                          text: 'Cannot cancel this order',
+                          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                          titleColor: isDarkMode ? Colors.white : Colors.black,
+                          textColor: isDarkMode ? Colors.white70 : Colors.black87,
                         );
                       }
                     },

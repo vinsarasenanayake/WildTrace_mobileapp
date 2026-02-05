@@ -6,6 +6,7 @@ import '../services/api_service.dart';
 
 // Cart Provider
 class CartProvider with ChangeNotifier {
+  // State variables for the shopping cart
   final ApiService _apiService = ApiService();
   final List<CartItem> _items = [];
   bool _isLoading = false;
@@ -21,6 +22,7 @@ class CartProvider with ChangeNotifier {
   bool get isEmpty => _items.isEmpty;
   bool get isLoading => _isLoading;
 
+  // Update auth token and refresh cart items
   void updateToken(String? newToken) {
     if (newToken != _token) {
       _token = newToken;
@@ -32,7 +34,7 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Fetch Cart
+  // Fetch current cart from the server
   Future<void> fetchCart(String token) async {
     _isLoading = true;
     notifyListeners();
@@ -59,7 +61,7 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Add to Cart
+  // Add a product with specific size to the cart
   Future<void> addToCart(Product product, {int quantity = 1, String? size, double? price, String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
@@ -87,7 +89,7 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Update Quantity
+  // Change item quantity or remove if zero
   Future<void> updateQuantity(String cartItemId, int quantity, {String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
@@ -123,7 +125,7 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Clear Cart
+  // Wipe all items from the cart
   Future<void> clearCart({String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;

@@ -22,7 +22,7 @@ class UserModel {
     this.profileImageUrl,
   });
 
-  // Copy With
+  // Factory Method for creating a modified copy of the user model
   UserModel copyWith({
     String? id,
     String? name,
@@ -47,7 +47,7 @@ class UserModel {
     );
   }
 
-  // To Json
+  // Convert user object to JSON format
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -62,7 +62,7 @@ class UserModel {
     };
   }
 
-  // From Json
+  // Create a user object from JSON data
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: (json['id'] ?? '').toString(),

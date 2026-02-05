@@ -9,6 +9,7 @@ import 'forgot_password_screen.dart';
 import '../widgets/common/custom_text_field.dart';
 import '../widgets/common/wildtrace_logo.dart';
 import '../widgets/common/custom_button.dart';
+import 'package:quickalert/quickalert.dart';
 
 // Login Screen
 class LoginScreen extends StatefulWidget {
@@ -20,11 +21,13 @@ class LoginScreen extends StatefulWidget {
 
 // Login State
 class _LoginScreenState extends State<LoginScreen> {
+  // Screen state for password visibility and inputs
   bool _obscurePassword = true;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   // Build Method
+  // Main build method for the login screen
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -42,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 40),
                   GestureDetector(
                     onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainWrapper()), (route) => false),
-                    child: const WildTraceLogo(),
+                    child: const WildTraceLogo()
                   ),
                   const SizedBox(height: 24),
                   Text(
@@ -76,6 +79,30 @@ class _LoginScreenState extends State<LoginScreen> {
                         CustomButton(
                           text: authProvider.isLoading ? 'SIGNING IN...' : 'SIGN IN', 
                           onPressed: authProvider.isLoading ? () {} : () async {
+                            if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
+                              QuickAlert.show(
+                                context: context,
+                                type: QuickAlertType.warning,
+                                title: 'Missing Details',
+                                widget: Text(
+                                  'Please enter your credentials and sign in',
+                                  textAlign: TextAlign.center,
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    color: isDarkMode ? Colors.white70 : Colors.black87,
+                                  ),
+                                ),
+                                backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                                titleColor: isDarkMode ? Colors.white : Colors.black,
+                                confirmBtnText: 'Okay',
+                                confirmBtnTextStyle: GoogleFonts.inter(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                              return;
+                            }
                             try {
                               final success = await authProvider.login(
                                 _emailController.text, 
@@ -88,14 +115,27 @@ class _LoginScreenState extends State<LoginScreen> {
                                   (route) => false
                                 );
                               } else if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Login failed. Please check your credentials.'))
+                                QuickAlert.show(
+                                  context: context,
+                                  type: QuickAlertType.error,
+                                  title: 'Login Failed',
+                                  text: 'Please check your credentials.',
+                                  backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                                  titleColor: isDarkMode ? Colors.white : Colors.black,
+                                  textColor: isDarkMode ? Colors.white70 : Colors.black87,
                                 );
                               }
                             } catch (e) {
                               if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Error: ${e.toString().replaceAll('Exception: ', '')}'))
+                                String errorMessage = e.toString().replaceAll('Exception: ', '');
+                                QuickAlert.show(
+                                  context: context,
+                                  type: QuickAlertType.error,
+                                  title: 'Login Error',
+                                  text: errorMessage,
+                                  backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                                  titleColor: isDarkMode ? Colors.white : Colors.black,
+                                  textColor: isDarkMode ? Colors.white70 : Colors.black87,
                                 );
                               }
                             }
@@ -122,7 +162,17 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 48),
-                  Text('WILDTRACE © 2026', style: GoogleFonts.inter(fontSize: 10, letterSpacing: 2.0, color: Colors.grey[400], fontWeight: FontWeight.w500)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Copyright © 2026 ', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
+                      InkWell(
+                        onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainWrapper()), (route) => false),
+                        child: Text('WILDTRACE', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF27AE60)))
+                      ),
+                      Text('. All Rights Reserved.', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
+                    ],
+                  ),
                   const SizedBox(height: 24),
                 ],
               );

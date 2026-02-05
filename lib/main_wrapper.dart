@@ -12,10 +12,12 @@ import 'views/widgets/common/bottom_nav_bar.dart';
 class MainWrapper extends StatelessWidget {
   const MainWrapper({super.key});
 
+  // Build Method
   @override
   Widget build(BuildContext context) {
     final navProvider = Provider.of<NavigationProvider>(context);
     
+    // Body Selector
     Widget getBody() {
       switch (navProvider.selectedIndex) {
         case 0:

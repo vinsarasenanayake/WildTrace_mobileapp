@@ -1,12 +1,9 @@
-// ============================================================================
-// IMPORTS
-// ============================================================================
+// Imports
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:google_fonts/google_fonts.dart';
 
-// ============================================================================
-// WILD TRACE HERO WIDGET - Reusable Hero Section
-// ============================================================================
+// Reusable Hero Section widget with background image and overlays
 class WildTraceHero extends StatelessWidget {
   final String imagePath;
   final String? title;
@@ -20,6 +17,9 @@ class WildTraceHero extends StatelessWidget {
   final double mainLetterSpacing1;
   final double mainLetterSpacing2;
   final Widget? footer;
+  final MainAxisAlignment verticalAlignment;
+  final Alignment alignment;
+  final double descriptionFontSize;
 
   const WildTraceHero({
     super.key,
@@ -32,11 +32,15 @@ class WildTraceHero extends StatelessWidget {
     this.subtitleQuote,
     this.height,
     this.mainFontSize = 48,
+    this.descriptionFontSize = 13,
     this.mainLetterSpacing1 = -1.0,
     this.mainLetterSpacing2 = -1.0,
     this.footer,
+    this.verticalAlignment = MainAxisAlignment.center,
+    this.alignment = Alignment.center,
   });
 
+  // Main build method for the Hero UI
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -46,40 +50,52 @@ class WildTraceHero extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
+          // Background Image
           imagePath.startsWith('http')
               ? Image.network(
                   imagePath,
                   fit: BoxFit.cover,
+                  alignment: alignment,
                   errorBuilder: (_, __, ___) => Container(color: const Color(0xFF0F1E26)),
                 )
               : Image.asset(
                   imagePath,
                   fit: BoxFit.cover,
+                  alignment: alignment,
                   errorBuilder: (_, __, ___) => Container(color: const Color(0xFF0F1E26)),
                 ),
+          // Dark gradient overlay (top → bottom) + Vignette
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
+                  Colors.black.withOpacity(0.7),
+                  Colors.black.withOpacity(0.2),
                   Colors.black.withOpacity(0.3),
-                  Colors.black.withOpacity(0.1),
                   Colors.black.withOpacity(0.8),
                 ],
+                stops: const [0.0, 0.3, 0.7, 1.0],
               ),
             ),
+          ),
+          // Additional dark overlay to dim the image further
+          Container(
+            color: Colors.black.withOpacity(0.4),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: verticalAlignment,
               children: [
+                if (verticalAlignment == MainAxisAlignment.start) const SizedBox(height: 100),
+
                 if (title != null) ...[
                   Text(
                     title!.toUpperCase(),
                     style: GoogleFonts.inter(
-                      color: const Color(0xFF2ECC71),
+                      color: const Color(0xFF27AE60),
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 3.0,
@@ -87,26 +103,32 @@ class WildTraceHero extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                 ],
-                Text(
-                  mainText1,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 48, // Hardcoding to match TRACE default as per request to "remove other values"
-                    fontWeight: FontWeight.w900,
-                    height: 0.9,
-                    letterSpacing: -1.0,
+                Padding(
+                  padding: EdgeInsets.only(left: mainLetterSpacing1.clamp(0, double.infinity)),
+                  child: Text(
+                    mainText1,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(
+                      color: Colors.white,
+                      fontSize: mainFontSize,
+                      fontWeight: FontWeight.w900,
+                      height: 0.9,
+                      letterSpacing: mainLetterSpacing1,
+                    ),
                   ),
                 ),
-                Text(
-                  mainText2,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.inter(
-                    color: const Color(0xFF2ECC71),
-                    fontSize: 48,
-                    fontWeight: FontWeight.w900,
-                    height: 0.9,
-                    letterSpacing: -1.0,
+                Padding(
+                  padding: EdgeInsets.only(left: mainLetterSpacing2.clamp(0, double.infinity)),
+                  child: Text(
+                    mainText2,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.inter(
+                      color: const Color(0xFF27AE60),
+                      fontSize: mainFontSize,
+                      fontWeight: FontWeight.w900,
+                      height: 0.9,
+                      letterSpacing: mainLetterSpacing2,
+                    ),
                   ),
                 ),
                 if (subtitleQuote != null) ...[
@@ -128,10 +150,11 @@ class WildTraceHero extends StatelessWidget {
                   description,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(
-                    color: Colors.white.withOpacity(0.9),
-                    fontSize: 14,
+                    color: Colors.white.withOpacity(0.75),
+                    fontSize: descriptionFontSize,
                     height: 1.6,
                     fontWeight: subtitleQuote != null ? FontWeight.w300 : FontWeight.normal,
+                    letterSpacing: 0.2,
                   ),
                 ),
                 if (description2 != null) ...[

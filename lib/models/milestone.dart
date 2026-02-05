@@ -12,7 +12,7 @@ class Milestone {
     required this.description,
   });
 
-  // From Json
+  // Factory Method
   factory Milestone.fromJson(Map<String, dynamic> json) {
     return Milestone(
       id: json['id'].toString(),

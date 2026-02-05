@@ -100,7 +100,7 @@ class ProductCard extends StatelessWidget {
                         fontSize: 9, // Reduced from 10
                         fontWeight: FontWeight.bold,
                         letterSpacing: 2.0,
-                        color: const Color(0xFF2ECC71),
+                        color: const Color(0xFF27AE60),
                       ),
                     ),
                     const SizedBox(height: 6), // Reduced from 8

@@ -19,6 +19,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
 
+  // Initial setup for splash animations and navigation
   @override
   void initState() {
     super.initState();
@@ -39,6 +40,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     _navigateToHome();
   }
 
+  // Pre-fetch critical data before entering the app
   void _navigateToHome() async {
     try {
       // Wait for AuthProvider to restore session
@@ -89,6 +91,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
   // Build Method
+  // Splash screen build method
   @override
   Widget build(BuildContext context) {
     return Scaffold(

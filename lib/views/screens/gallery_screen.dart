@@ -7,6 +7,7 @@ import '../../providers/favorites_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../widgets/common/wild_trace_hero.dart';
 import '../widgets/cards/product_card.dart';
+import '../widgets/common/custom_button.dart';
 import 'product_details_screen.dart';
 
 // Gallery Screen
@@ -26,6 +27,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
   int _currentPage = 1;
   final int _pageSize = 9;
 
+  // Main build method for the gallery UI
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -61,7 +63,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 await favoritesProvider.fetchFavorites(authProvider.token!);
               }
             },
-            color: const Color(0xFF2ECC71),
+            color: const Color(0xFF27AE60),
             child: CustomScrollView(
               controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
@@ -82,13 +84,11 @@ class _GalleryScreenState extends State<GalleryScreen> {
                                 style: GoogleFonts.inter(color: Colors.grey),
                               ),
                               const SizedBox(height: 20),
-                              ElevatedButton(
+                              CustomButton(
+                                text: 'REFRESH GALLERY',
                                 onPressed: () => productsProvider.fetchProducts(),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF2ECC71),
-                                  foregroundColor: Colors.white,
-                                ),
-                                child: const Text('REFRESH GALLERY'),
+                                type: CustomButtonType.secondary,
+                                isFullWidth: false,
                               ),
                             ],
                           ),
@@ -112,6 +112,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
   }
 
   // Helper Methods
+  // Build the hero section of the gallery
   Widget _buildHero() {
     return const WildTraceHero(
       imagePath: 'assets/images/heroimagegallery.jpg',
@@ -141,6 +142,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     });
   }
 
+  // Header section for launching filters
   Widget _buildFilterTrigger(bool isDarkMode) {
     return Padding(
       key: _filterKey,
@@ -166,9 +168,10 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
+  // Side drawer for filtering products
   Widget _buildFilterDrawer(BuildContext context, bool isDarkMode, ProductsProvider provider) {
     final Color txtColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
-    final Color accentGreen = const Color(0xFF2ECC71);
+    final Color accentGreen = const Color(0xFF27AE60);
 
     return Drawer(
       backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
@@ -308,6 +311,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
+  // Product grid display
   Widget _buildGrid(List<dynamic> pageItems, FavoritesProvider favoritesProvider) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -340,6 +344,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
+  // Pagination navigation UI
   Widget _buildPagination(bool isDarkMode, bool hasNext) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 40),

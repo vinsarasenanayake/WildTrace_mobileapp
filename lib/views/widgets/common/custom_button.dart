@@ -1,17 +1,11 @@
-// ============================================================================
-// IMPORTS
-// ============================================================================
+// Imports
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// ============================================================================
-// BUTTON TYPES
-// ============================================================================
+// Button style variations
 enum CustomButtonType { primary, secondary, ghost, destructive }
 
-// ============================================================================
-// CUSTOM BUTTON WIDGET
-// ============================================================================
+// Reusable button widget with custom styling
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
@@ -22,6 +16,9 @@ class CustomButton extends StatelessWidget {
   final double verticalPadding;
   final double fontSize;
   final bool isLoading;
+  final double borderRadius;
+  final IconData? icon;
+  final double iconSize;
 
   const CustomButton({
     super.key,
@@ -34,9 +31,12 @@ class CustomButton extends StatelessWidget {
     this.verticalPadding = 18,
     this.fontSize = 14,
     this.isLoading = false,
+    this.borderRadius = 16,
+    this.icon,
+    this.iconSize = 20,
   });
 
-  // --- Build Method ---
+  // Main build method for the button UI
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -54,7 +54,7 @@ class CustomButton extends StatelessWidget {
         fg = foregroundColor ?? (isDarkMode ? Colors.black : Colors.white);
         break;
       case CustomButtonType.secondary:
-        bg = backgroundColor ?? const Color(0xFF2ECC71);
+        bg = backgroundColor ?? const Color(0xFF27AE60);
         fg = foregroundColor ?? Colors.white;
         break;
       case CustomButtonType.destructive:
@@ -64,7 +64,7 @@ class CustomButton extends StatelessWidget {
       case CustomButtonType.ghost:
         bg = Colors.transparent;
         fg = foregroundColor ?? (isDarkMode ? Colors.white : const Color(0xFF1B4332));
-        border = BorderSide(color: Colors.grey.withOpacity(0.5));
+        border = BorderSide(color: fg.withOpacity(0.5));
         break;
     }
 
@@ -74,12 +74,15 @@ class CustomButton extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: 24),
       side: border,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(borderRadius),
       ),
       elevation: 0,
+      splashFactory: NoSplash.splashFactory,
       // If disabled (loading), keep the opacity higher if we want to show loading spinner clearly on the same background
       disabledBackgroundColor: bg.withOpacity(0.8), 
       disabledForegroundColor: fg.withOpacity(0.8),
+    ).copyWith(
+      overlayColor: MaterialStateProperty.all(Colors.transparent),
     );
 
     Widget child = isLoading 
@@ -91,16 +94,28 @@ class CustomButton extends StatelessWidget {
              valueColor: AlwaysStoppedAnimation<Color>(fg)
           )
         )
-      : Text(
-          text,
-          maxLines: 1,
-          softWrap: false,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.inter(
-            fontSize: fontSize,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.0,
-          ),
+      : Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: iconSize, color: fg),
+              const SizedBox(width: 8),
+            ],
+            Flexible(
+              child: Text(
+                text,
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.inter(
+                  fontSize: fontSize,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.0,
+                ),
+              ),
+            ),
+          ],
         );
         
     return SizedBox(

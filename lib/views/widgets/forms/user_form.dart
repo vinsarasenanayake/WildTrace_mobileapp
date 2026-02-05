@@ -62,7 +62,7 @@ class _UserFormState extends State<UserForm> {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Column(
       children: [
-        CustomTextField(label: 'FULL NAME', controller: widget.nameController, hintText: 'Pavan'),
+        CustomTextField(label: 'FULL NAME', controller: widget.nameController, hintText: 'Full Name'),
         const SizedBox(height: 20),
         CustomTextField(label: 'EMAIL ADDRESS', controller: widget.emailController, hintText: 'name@example.com'),
         const SizedBox(height: 20),
@@ -133,7 +133,43 @@ class _UserFormState extends State<UserForm> {
         ),
         const SizedBox(height: 20),
 
-        CustomTextField(label: 'COUNTRY', controller: widget.countryController ?? TextEditingController(text: 'Sri Lanka'), hintText: 'Sri Lanka'),
+        if (widget.countryController != null)
+          GestureDetector(
+            onTap: () {
+               showCountryPicker(
+                context: context,
+                onSelect: (Country country) {
+                  setState(() {
+                     widget.countryController!.text = country.name;
+                  });
+                },
+                countryListTheme: CountryListThemeData(
+                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
+                  backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                  textStyle: GoogleFonts.inter(color: isDarkMode ? Colors.white : Colors.black),
+                  inputDecoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search),
+                    hintText: 'Search Country',
+                    labelStyle: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black54),
+                    hintStyle: TextStyle(color: isDarkMode ? Colors.white30 : Colors.black26),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                    filled: true,
+                    fillColor: isDarkMode ? const Color(0xFF2C2C2C) : Colors.grey.shade100,
+                  ),
+                ),
+              );
+            },
+            child: AbsorbPointer(
+              child: CustomTextField(
+                label: 'COUNTRY', 
+                controller: widget.countryController!, 
+                hintText: 'Select Country',
+                suffix: const Icon(Icons.keyboard_arrow_down_rounded),
+              ),
+            ),
+          )
+        else 
+           const SizedBox.shrink(),
       ],
     );
   }

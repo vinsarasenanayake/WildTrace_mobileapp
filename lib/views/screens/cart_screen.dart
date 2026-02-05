@@ -10,6 +10,11 @@ import '../widgets/common/section_title.dart';
 import '../widgets/cards/cart_item_card.dart';
 import '../../providers/navigation_provider.dart';
 import '../widgets/common/custom_button.dart';
+import 'package:quickalert/quickalert.dart';
+import 'login_screen.dart';
+import 'register_screen.dart';
+import '../widgets/common/wildtrace_logo.dart';
+import '../../main_wrapper.dart';
 
 // Cart Screen
 class CartScreen extends StatefulWidget {
@@ -20,6 +25,7 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
+  // Initialize cart data on start
   @override
   void initState() {
     super.initState();
@@ -31,6 +37,7 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
+  // Main build method for cart UI
   @override
   Widget build(BuildContext context) {
     return Consumer<CartProvider>(
@@ -49,7 +56,7 @@ class _CartScreenState extends State<CartScreen> {
                   await cartProvider.fetchCart(authProvider.token!);
                 }
               },
-              color: const Color(0xFF2ECC71),
+              color: const Color(0xFF27AE60),
               child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
@@ -80,8 +87,64 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  // Helper Methods
+  // Empty state UI when no logged in user
   Widget _buildEmptyState(BuildContext context, CartProvider cartProvider) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
+
+    if (authProvider.token == null) {
+      return Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          children: [
+            const SizedBox(height: 60),
+            const SizedBox(height: 20),
+            Icon(Icons.lock_outline, size: 64, color: Colors.grey.withOpacity(0.3)),
+            const SizedBox(height: 24),
+            Text(
+              'Personalize Your Experience',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.playfairDisplay(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Sign in to view your cart items, manage orders, and checkout faster.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: Colors.grey,
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 40),
+            CustomButton(
+              text: 'SIGN IN NOW',
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
+              type: CustomButtonType.secondary,
+              fontSize: 13,
+              verticalPadding: 18,
+            ),
+            const SizedBox(height: 16),
+            CustomButton(
+              text: 'REGISTER NOW',
+              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())),
+              type: CustomButtonType.ghost,
+              fontSize: 13,
+              verticalPadding: 18,
+            ),
+            const SizedBox(height: 30),
+            _buildFooter(),
+            const SizedBox(height: 20),
+          ],
+        ),
+      );
+    }
+
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -99,7 +162,6 @@ class _CartScreenState extends State<CartScreen> {
           const SizedBox(height: 24),
           TextButton.icon(
             onPressed: () {
-               final authProvider = Provider.of<AuthProvider>(context, listen: false);
                if (authProvider.token != null) {
                  cartProvider.fetchCart(authProvider.token!);
                }
@@ -107,28 +169,31 @@ class _CartScreenState extends State<CartScreen> {
             icon: const Icon(Icons.refresh, size: 18), 
             label: const Text('Refresh Cart'),
             style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFF2ECC71),
+              foregroundColor: const Color(0xFF27AE60),
             ),
           ),
-          if (Provider.of<AuthProvider>(context, listen: false).token != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 16.0),
-              child: SizedBox(
-                width: 220,
-                child: CustomButton(
-                  text: 'EXPLORE GALLERY',
-                  type: CustomButtonType.secondary,
-                  onPressed: () {
-                    Provider.of<NavigationProvider>(context, listen: false).setSelectedIndex(1);
-                  },
-                ),
+          Padding(
+            padding: const EdgeInsets.only(top: 16.0),
+            child: SizedBox(
+              width: 220,
+              child: CustomButton(
+                text: 'EXPLORE GALLERY',
+                type: CustomButtonType.secondary,
+                onPressed: () {
+                  Provider.of<NavigationProvider>(context, listen: false).setSelectedIndex(1);
+                },
               ),
             ),
+          ),
+          const SizedBox(height: 30),
+          _buildFooter(),
+          const SizedBox(height: 20),
         ],
       ),
     );
   }
 
+  // UI sections for the shopping cart items
   List<Widget> _buildCartSlivers(BuildContext context, CartProvider cartProvider, Color textColor) {
     final cartItems = cartProvider.items;
     
@@ -184,10 +249,15 @@ class _CartScreenState extends State<CartScreen> {
                     final productName = item.product.title;
                     cartProvider.removeFromCart(cartItemId);
                     
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('$productName removed'), 
-                      )
+                    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                    QuickAlert.show(
+                      context: context,
+                      type: QuickAlertType.info,
+                      title: 'Item Removed',
+                      text: '$productName removed from cart',
+                      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                      titleColor: isDarkMode ? Colors.white : Colors.black,
+                      textColor: isDarkMode ? Colors.white70 : Colors.black87,
                     );
                   }
                 },
@@ -209,9 +279,16 @@ class _CartScreenState extends State<CartScreen> {
           ),
         ),
       ),
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 30.0),
+          child: _buildFooter(),
+        ),
+      ),
     ];
   }
 
+  // Summary card with total price and checkout
   Widget _buildSummaryCard(BuildContext context, CartProvider cartProvider) {
     return OrderSummaryCard(
       title: 'Cart Summary',
@@ -229,29 +306,17 @@ class _CartScreenState extends State<CartScreen> {
       isSecondaryOutlined: true,
     );
   }
-  Widget _buildSummaryRow(BuildContext context, String label, String value) {
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
-    
+  // Footer section with copyright info
+  Widget _buildFooter() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          label,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: Colors.grey.shade500,
-            fontWeight: FontWeight.w500,
-          ),
+        Text('Copyright © 2026 ', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
+        InkWell(
+          onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainWrapper()), (route) => false),
+          child: Text('WILDTRACE', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF27AE60)))
         ),
-        Text(
-          value,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            color: textColor,
-          ),
-        ),
+        Text('. All Rights Reserved.', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
       ],
     );
   }

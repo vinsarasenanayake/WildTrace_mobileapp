@@ -46,7 +46,7 @@ class MilestoneCard extends StatelessWidget {
             style: GoogleFonts.inter(
               fontSize: 24,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF2ECC71),
+              color: const Color(0xFF27AE60),
             ),
           ),
           const SizedBox(height: 8),

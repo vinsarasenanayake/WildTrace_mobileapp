@@ -4,21 +4,26 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import 'login_screen.dart';
+import 'register_screen.dart';
 import 'order_history_screen.dart';
 import 'favourites_screen.dart';
 import 'edit_profile_screen.dart';
 import '../widgets/cards/dashboard_card.dart';
+import '../widgets/common/wildtrace_logo.dart';
+import '../widgets/common/custom_button.dart';
+import '../../main_wrapper.dart';
 
 // Profile Screen
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  // Main build method for the profile page
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color backgroundColor = isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9);
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
-    const Color accentGreen = Color(0xFF2ECC71);
+    const Color accentGreen = Color(0xFF27AE60);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -47,17 +52,18 @@ class ProfileScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildHeader(textColor, accentGreen, initials, user?.name ?? 'Guest User', user?.email ?? 'Sign in to sync your data'),
-                        const SizedBox(height: 40),
                         if (authProvider.isAuthenticated) ...[
+                          _buildHeader(textColor, accentGreen, initials, user?.name ?? '', user?.email ?? ''),
+                          const SizedBox(height: 40),
                           _buildDashboard(context),
                           const SizedBox(height: 40),
                           _buildLogoutButton(context, authProvider),
                         ] else ...[
+                          const SizedBox(height: 60),
                           _buildGuestView(context, textColor),
                         ],
                         const SizedBox(height: 30),
-                        _buildFooter(),
+                        _buildFooter(context),
                         const SizedBox(height: 20),
                       ],
                     ),
@@ -72,6 +78,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   // Helper Methods
+  // Profile header with user initials and name
   Widget _buildHeader(Color textColor, Color accentGreen, String initials, String name, String email) {
     return Center(
       child: Column(
@@ -104,6 +111,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // Grid of menu options for a logged-in user
   Widget _buildDashboard(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,50 +142,41 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // Red themed logout button
   Widget _buildLogoutButton(BuildContext context, AuthProvider authProvider) {
-    return SizedBox(
-      width: double.infinity,
-      child: OutlinedButton(
-        onPressed: () {
-          authProvider.logout();
-          Navigator.pushAndRemoveUntil(
-            context, 
-            MaterialPageRoute(builder: (context) => const LoginScreen()), 
-            (route) => false
-          );
-        },
-        style: OutlinedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 18),
-          side: BorderSide(color: Colors.red.withOpacity(0.5)),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          backgroundColor: const Color(0xFF351010),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.logout_rounded, size: 20, color: Colors.red.shade400),
-            const SizedBox(width: 8),
-            Text(
-              'LOGOUT', 
-              style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: Colors.red.shade400)
-            ),
-          ],
-        ),
-      ),
+    return CustomButton(
+      text: 'LOGOUT',
+      icon: Icons.logout_rounded,
+      onPressed: () {
+        authProvider.logout();
+        Navigator.pushAndRemoveUntil(
+          context, 
+          MaterialPageRoute(builder: (context) => const LoginScreen()), 
+          (route) => false
+        );
+      },
+      backgroundColor: const Color(0xFF351010),
+      foregroundColor: Colors.red.shade400,
+      verticalPadding: 18,
+      fontSize: 12,
     );
   }
 
-  Widget _buildFooter() {
+  Widget _buildFooter(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text('Copyright © 2026 ', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
-        Text('WILDTRACE', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF2ECC71))),
+        InkWell(
+          onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainWrapper()), (route) => false),
+          child: Text('WILDTRACE', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF27AE60)))
+        ),
         Text('. All Rights Reserved.', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
       ],
     );
   }
 
+  // UI for users who are not logged in
   Widget _buildGuestView(BuildContext context, Color textColor) {
     return Column(
       children: [
@@ -188,7 +187,7 @@ class ProfileScreen extends StatelessWidget {
           'Personalize Your Experience',
           textAlign: TextAlign.center,
           style: GoogleFonts.playfairDisplay(
-            fontSize: 24,
+            fontSize: 22,
             fontWeight: FontWeight.bold,
             color: textColor,
           ),
@@ -204,22 +203,20 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 40),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1B4332),
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              elevation: 0,
-            ),
-            child: Text(
-              'SIGN IN NOW',
-              style: GoogleFonts.inter(fontWeight: FontWeight.bold, letterSpacing: 1.0, fontSize: 13),
-            ),
-          ),
+        CustomButton(
+          text: 'SIGN IN NOW',
+          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())),
+          type: CustomButtonType.secondary,
+          verticalPadding: 18,
+          fontSize: 13,
+        ),
+        const SizedBox(height: 16),
+        CustomButton(
+          text: 'REGISTER NOW',
+          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterScreen())),
+          type: CustomButtonType.ghost,
+          verticalPadding: 18,
+          fontSize: 13,
         ),
       ],
     );

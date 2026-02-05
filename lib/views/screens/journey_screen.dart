@@ -64,6 +64,7 @@ class JourneyScreen extends StatelessWidget {
       mainText2: 'WILD',
       description: 'WildTrace began with a single shutter click in the heart of Sri Lanka. Today, we are\na bunch of photographers dedicated to preserving the wild through art.',
       height: 500,
+      alignment: Alignment.centerRight,
     );
   }
 
@@ -71,7 +72,7 @@ class JourneyScreen extends StatelessWidget {
     return Consumer<ContentProvider>(
       builder: (context, contentProvider, child) {
         if (contentProvider.isLoading && contentProvider.milestones.isEmpty) {
-          return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator(color: Color(0xFF2ECC71))));
+          return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator(color: Color(0xFF27AE60))));
         }
         
         final milestones = contentProvider.milestones;
@@ -120,7 +121,7 @@ class JourneyScreen extends StatelessWidget {
             width: 9,
             height: 9,
             decoration: const BoxDecoration(
-              color: Color(0xFF2ECC71),
+              color: Color(0xFF27AE60),
               shape: BoxShape.circle,
             ),
           ),
@@ -280,7 +281,7 @@ class JourneyScreen extends StatelessWidget {
         color: Colors.black.withOpacity(0.4),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFF2ECC71).withOpacity(0.3),
+          color: const Color(0xFF27AE60).withOpacity(0.3),
           width: 1,
         ),
       ),
@@ -289,7 +290,7 @@ class JourneyScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(6),
             decoration: const BoxDecoration(
-              color: Color(0xFF2ECC71),
+              color: Color(0xFF27AE60),
               shape: BoxShape.circle,
             ),
             child: const Icon(

@@ -1,9 +1,11 @@
+// Imports
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:quickalert/quickalert.dart';
 import '../models/product.dart';
 import '../models/photographer.dart';
 import '../models/milestone.dart';
@@ -20,7 +22,7 @@ class ApiService {
   static const String _storagePath = '/storage/';
   static const String _rootPath = '/';
 
-  // Url Getters
+  // Configurations
   static String get baseUrl => '$baseHost$_apiPath';
   static String get storageUrl => '$baseHost$_storagePath';
   static String get baseHostUrl => '$baseHost$_rootPath';
@@ -138,6 +140,7 @@ class ApiService {
     }
   }
 
+  // User Profile
   // Fetch User Profile
   Future<Map<String, dynamic>> fetchUserProfile(String token) async {
     final response = await http.get(
@@ -181,6 +184,7 @@ class ApiService {
     }
   }
 
+  // Authentication
   // Login
   Future<Map<String, dynamic>> login(String email, String password) async {
     final url = Uri.parse('$baseUrl/login');
@@ -270,6 +274,7 @@ class ApiService {
     }
   }
 
+  // Orders
   // Place Order
   Future<Map<String, dynamic>> placeOrder(Map<String, dynamic> orderData, String token) async {
     final response = await http.post(
@@ -366,6 +371,7 @@ class ApiService {
     }
   }
 
+  // Favorites
   // Fetch Favorites
   Future<List<Product>> fetchFavorites(String token) async {
     final response = await http.get(
@@ -432,6 +438,7 @@ class ApiService {
     }
   }
 
+  // Cart
   // Fetch Cart
   Future<List<dynamic>> fetchCart(String token) async {
     final response = await http.get(
@@ -587,6 +594,7 @@ class ApiService {
 
 // Stripe Service
 class StripeService {
+  // Initialization
   StripeService._();
 
   static final StripeService instance = StripeService._();
@@ -624,8 +632,15 @@ class StripeService {
     } catch (e) {
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Payment Error: $e')),
+        final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Payment Error',
+          text: e.toString(),
+          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+          titleColor: isDarkMode ? Colors.white : Colors.black,
+          textColor: isDarkMode ? Colors.white70 : Colors.black87,
         );
       }
     }
@@ -638,8 +653,15 @@ class StripeService {
     } on StripeException catch (e) {
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Payment Cancelled')),
+        final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.warning,
+          title: 'Cancelled',
+          text: 'Payment Cancelled',
+          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+          titleColor: isDarkMode ? Colors.white : Colors.black,
+          textColor: isDarkMode ? Colors.white70 : Colors.black87,
         );
       }
     } catch (e) {

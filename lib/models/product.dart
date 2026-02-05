@@ -34,7 +34,7 @@ class Product {
     this.options,
   });
 
-  // Copy With
+  // Factory Method for creating a modified copy of the product
   Product copyWith({
     String? id,
     String? imageUrl,
@@ -61,7 +61,7 @@ class Product {
     );
   }
 
-  // To Json
+  // Convert product object to JSON format
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -77,7 +77,7 @@ class Product {
     };
   }
 
-  // From Json
+  // Create a product object from JSON data
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
       id: (json['id'] ?? '').toString(),
