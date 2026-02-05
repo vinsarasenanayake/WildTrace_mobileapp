@@ -1,15 +1,12 @@
-// Imports
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import '../services/api_service.dart';
 
-// Auth Provider
+// manages authentication state
 class AuthProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
-  // State variables for authentication
   UserModel? _currentUser;
   String? _token;
   bool _isAuthenticated = false;
@@ -20,30 +17,25 @@ class AuthProvider with ChangeNotifier {
   bool get isAuthenticated => _isAuthenticated;
   bool get isLoading => _isLoading;
 
-  // Initialization
   AuthProvider() {
     checkAuthStatus();
   }
 
-  // Persistence Keys
   static const String _tokenKey = 'auth_token';
   static const String _userKey = 'user_data';
 
-  // Sign in with email and password
+  // handles user login
   Future<bool> login(String email, String password) async {
     _isLoading = true;
     notifyListeners();
-
     try {
       final response = await _apiService.login(email, password);
-      
       _token = response['token'];
       if (response['user'] != null) {
         _currentUser = UserModel.fromJson(response['user']);
         _isAuthenticated = true;
         await _saveAuthData();
       }
-      
       _isLoading = false;
       notifyListeners();
       return true;
@@ -54,7 +46,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Create a new user account
+  // creates new user account
   Future<bool> register({
     required String name,
     required String email,
@@ -67,7 +59,6 @@ class AuthProvider with ChangeNotifier {
   }) async {
     _isLoading = true;
     notifyListeners();
-
     try {
       final Map<String, dynamic> userData = {
         'name': name,
@@ -80,16 +71,13 @@ class AuthProvider with ChangeNotifier {
         'postal_code': postalCode,
         'country': country,
       };
-
       final response = await _apiService.register(userData);
-      
       _token = response['token'];
       if (response['user'] != null) {
         _currentUser = UserModel.fromJson(response['user']);
         _isAuthenticated = true;
         await _saveAuthData();
       }
-
       _isLoading = false;
       notifyListeners();
       return true;
@@ -100,7 +88,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Logout
+  // clears session
   Future<void> logout() async {
     _currentUser = null;
     _token = null;
@@ -111,12 +99,11 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Update user details in the database
+  // updates user details
   Future<bool> updateProfile(UserModel updatedUser) async {
     if (_token == null) return false;
     _isLoading = true;
     notifyListeners();
-
     try {
       final Map<String, dynamic> profileData = {
         'name': updatedUser.name,
@@ -127,14 +114,11 @@ class AuthProvider with ChangeNotifier {
         'postal_code': updatedUser.postalCode,
         'country': updatedUser.country,
       };
-
       final response = await _apiService.updateUserProfile(profileData, _token!);
-      
       if (response['user'] != null) {
          _currentUser = UserModel.fromJson(response['user']);
          await _saveAuthData();
       }
-
       _isLoading = false;
       notifyListeners();
       return true;
@@ -145,31 +129,27 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Local storage management for persistent login
+  // checks local storage for session
   Future<void> checkAuthStatus() async {
     _isLoading = true;
     notifyListeners();
-
     try {
       final prefs = await SharedPreferences.getInstance();
       final savedToken = prefs.getString(_tokenKey);
       final savedUserJson = prefs.getString(_userKey);
-
       if (savedToken != null && savedUserJson != null) {
         _token = savedToken;
         _currentUser = UserModel.fromJson(json.decode(savedUserJson));
         _isAuthenticated = true;
-
       }
-    } catch (e) {
-
+    } catch (_) {
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  // Save Auth Data
+  // saves session to storage
   Future<void> _saveAuthData() async {
     if (_token != null && _currentUser != null) {
       final prefs = await SharedPreferences.getInstance();

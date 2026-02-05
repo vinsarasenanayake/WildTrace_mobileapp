@@ -1,12 +1,10 @@
-// Imports
 import 'package:flutter/material.dart';
 import '../models/cart_item.dart';
 import '../models/product.dart';
 import '../services/api_service.dart';
 
-// Cart Provider
+// shopping cart state manager
 class CartProvider with ChangeNotifier {
-  // State variables for the shopping cart
   final ApiService _apiService = ApiService();
   final List<CartItem> _items = [];
   bool _isLoading = false;
@@ -22,19 +20,17 @@ class CartProvider with ChangeNotifier {
   bool get isEmpty => _items.isEmpty;
   bool get isLoading => _isLoading;
 
-  // Update auth token and refresh cart items
+  // refreshes token and items
   void updateToken(String? newToken) {
     if (newToken != _token) {
       _token = newToken;
       _items.clear();
-      if (newToken != null) {
-        fetchCart(newToken);
-      }
+      if (newToken != null) fetchCart(newToken);
       notifyListeners();
     }
   }
 
-  // Fetch current cart from the server
+  // gets current cart from server
   Future<void> fetchCart(String token) async {
     _isLoading = true;
     notifyListeners();
@@ -53,53 +49,44 @@ class CartProvider with ChangeNotifier {
            ));
          }
       }
-    } catch (e) {
-
+    } catch (_) {
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  // Add a product with specific size to the cart
+  // adds product to cart
   Future<void> addToCart(Product product, {int quantity = 1, String? size, double? price, String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
-
     try {
       await _apiService.addToCart(product.id, quantity, tokenToUse, size: size);
-      
       await fetchCart(tokenToUse);
-    } catch (e) {
-
-    }
+    } catch (_) {}
   }
 
-  // Remove from Cart
+  // removes item from cart
   Future<void> removeFromCart(String cartItemId, {String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
-
     try {
       await _apiService.removeFromCart(cartItemId, tokenToUse);
-      
       await fetchCart(tokenToUse);
     } catch (e) {
       await fetchCart(tokenToUse);
     }
   }
 
-  // Change item quantity or remove if zero
+  // sets item quantity
   Future<void> updateQuantity(String cartItemId, int quantity, {String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
-
     try {
       if (quantity <= 0) {
         await removeFromCart(cartItemId, token: tokenToUse);
       } else {
         await _apiService.updateCartItem(cartItemId, quantity, tokenToUse);
-        
         await fetchCart(tokenToUse);
       }
     } catch (e) {
@@ -107,14 +94,12 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Increment Quantity
+  // increases quantity by 1
   Future<void> incrementQuantity(CartItem item, {String? token}) async {
-    if (item.id != null) {
-      await updateQuantity(item.id!, item.quantity + 1, token: token);
-    }
+    if (item.id != null) await updateQuantity(item.id!, item.quantity + 1, token: token);
   }
 
-  // Decrement Quantity
+  // decreases quantity by 1
   Future<void> decrementQuantity(CartItem item, {String? token}) async {
     if (item.id != null) {
       if (item.quantity > 1) {
@@ -125,40 +110,32 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Wipe all items from the cart
+  // empties the cart
   Future<void> clearCart({String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
-
     try {
       _items.clear();
       notifyListeners();
-
       await _apiService.clearCart(tokenToUse);
-      
       await fetchCart(tokenToUse);
     } catch (e) {
       await fetchCart(tokenToUse);
     }
   }
 
-  // Reset After Order
+  // cleanup after successful order
   Future<void> resetAfterOrder({String? token}) async {
     _items.clear();
     notifyListeners();
-    
     final tokenToUse = token ?? _token;
-    if (tokenToUse != null) {
-      await fetchCart(tokenToUse);
-    }
+    if (tokenToUse != null) await fetchCart(tokenToUse);
   }
 
-  // Is In Cart
-  bool isInCart(String productId) {
-    return _items.any((item) => item.product.id == productId);
-  }
+  // checks if product is in cart
+  bool isInCart(String productId) => _items.any((item) => item.product.id == productId);
 
-  // Get Quantity
+  // retrieves quantity of a product
   int getQuantity(String productId) {
     final index = _items.indexWhere((item) => item.product.id == productId);
     return index >= 0 ? _items[index].quantity : 0;

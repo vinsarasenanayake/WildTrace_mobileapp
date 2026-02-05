@@ -20,6 +20,59 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController _emailController = TextEditingController();
 
+  void _handleResetPassword(bool isDarkMode) {
+    if (_emailController.text.isEmpty) {
+       QuickAlert.show(
+         context: context,
+         type: QuickAlertType.warning,
+         title: 'Required Field',
+         widget: Text(
+           'Please enter your email',
+           textAlign: TextAlign.center,
+           style: GoogleFonts.inter(
+             fontSize: 12,
+             color: isDarkMode ? Colors.white70 : Colors.black87,
+           ),
+         ),
+         backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+         titleColor: isDarkMode ? Colors.white : Colors.black,
+         confirmBtnText: 'Okay',
+         confirmBtnTextStyle: GoogleFonts.inter(
+           fontSize: 12,
+           color: Colors.white,
+           fontWeight: FontWeight.bold,
+         ),
+       );
+       return;
+    }
+    // Simulate sending email
+    QuickAlert.show(
+      context: context,
+      type: QuickAlertType.success,
+      title: 'Link Sent',
+      widget: Text(
+        'Reset link sent to ${_emailController.text}',
+        textAlign: TextAlign.center,
+        style: GoogleFonts.inter(
+          fontSize: 12,
+          color: isDarkMode ? Colors.white70 : Colors.black87,
+        ),
+      ),
+      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+      titleColor: isDarkMode ? Colors.white : Colors.black,
+      confirmBtnText: 'Okay',
+      confirmBtnTextStyle: GoogleFonts.inter(
+        fontSize: 12,
+        color: Colors.white,
+        fontWeight: FontWeight.bold,
+      ),
+      onConfirmBtnTap: () {
+        Navigator.pop(context); // Close alert
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+      }
+    );
+  }
+
   // Build Method
   @override
   Widget build(BuildContext context) {
@@ -27,6 +80,24 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     
     return Scaffold(
       backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            color: Colors.transparent,
+            child: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: isDarkMode ? Colors.white : const Color(0xFF1B4332),
+              size: 20,
+            ),
+          ),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -71,64 +142,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    CustomTextField(label: 'EMAIL ADDRESS', controller: _emailController, hintText: 'name@example.com'),
+                    CustomTextField(
+                      label: 'EMAIL ADDRESS', 
+                      controller: _emailController, 
+                      hintText: 'name@example.com',
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => _handleResetPassword(isDarkMode),
+                    ),
                     const SizedBox(height: 32),
                     CustomButton(
                       text: 'SEND RESET LINK', 
-                      onPressed: () {
-                        if (_emailController.text.isEmpty) {
-                           final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-                           QuickAlert.show(
-                             context: context,
-                             type: QuickAlertType.warning,
-                             title: 'Required Field',
-                             widget: Text(
-                               'Please enter your email',
-                               textAlign: TextAlign.center,
-                               style: GoogleFonts.inter(
-                                 fontSize: 12,
-                                 color: isDarkMode ? Colors.white70 : Colors.black87,
-                               ),
-                             ),
-                             backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                             titleColor: isDarkMode ? Colors.white : Colors.black,
-                             confirmBtnText: 'Okay',
-                             confirmBtnTextStyle: GoogleFonts.inter(
-                               fontSize: 12,
-                               color: Colors.white,
-                               fontWeight: FontWeight.bold,
-                             ),
-                           );
-                           return;
-                        }
-                        // Simulate sending email
-                        final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-                        QuickAlert.show(
-                          context: context,
-                          type: QuickAlertType.success,
-                          title: 'Link Sent',
-                          widget: Text(
-                            'Reset link sent to ${_emailController.text}',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              color: isDarkMode ? Colors.white70 : Colors.black87,
-                            ),
-                          ),
-                          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                          titleColor: isDarkMode ? Colors.white : Colors.black,
-                          confirmBtnText: 'Okay',
-                          confirmBtnTextStyle: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          onConfirmBtnTap: () {
-                            Navigator.pop(context); // Close alert
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-                          }
-                        );
-                      }
+                      onPressed: () => _handleResetPassword(isDarkMode)
                     ),
                     const SizedBox(height: 24),
                     Center(

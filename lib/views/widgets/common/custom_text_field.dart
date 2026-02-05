@@ -1,12 +1,7 @@
-// ============================================================================
-// IMPORTS
-// ============================================================================
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// ============================================================================
-// CUSTOM TEXT FIELD WIDGET
-// ============================================================================
+// custom styled text field
 class CustomTextField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
@@ -16,6 +11,8 @@ class CustomTextField extends StatelessWidget {
   final bool hasToggle;
   final Widget? prefix;
   final Widget? suffix;
+  final TextInputAction? textInputAction;
+  final ValueChanged<String>? onSubmitted;
 
   const CustomTextField({
     super.key,
@@ -27,12 +24,14 @@ class CustomTextField extends StatelessWidget {
     this.hasToggle = false,
     this.prefix,
     this.suffix,
+    this.textInputAction,
+    this.onSubmitted,
   });
 
-  // --- Build Method ---
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -51,6 +50,8 @@ class CustomTextField extends StatelessWidget {
         TextField(
           controller: controller,
           obscureText: isObscure,
+          textInputAction: textInputAction,
+          onSubmitted: onSubmitted,
           style: GoogleFonts.inter(color: isDarkMode ? Colors.white : Colors.black87),
           decoration: InputDecoration(
             hintText: hintText,

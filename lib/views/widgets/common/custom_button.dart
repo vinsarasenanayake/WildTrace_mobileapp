@@ -1,11 +1,10 @@
-// Imports
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// Button style variations
+// button style options
 enum CustomButtonType { primary, secondary, ghost, destructive }
 
-// Reusable button widget with custom styling
+// generic reusable button
 class CustomButton extends StatelessWidget {
   final String text;
   final VoidCallback? onPressed;
@@ -36,18 +35,15 @@ class CustomButton extends StatelessWidget {
     this.iconSize = 20,
   });
 
-  // Main build method for the button UI
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
     Color bg;
     Color fg;
     BorderSide border = BorderSide.none;
-    
-    // Disable interaction if loading
     final VoidCallback? effectiveOnPressed = isLoading ? null : onPressed;
 
+    // determine colors based on type
     switch (type) {
       case CustomButtonType.primary:
         bg = backgroundColor ?? (isDarkMode ? Colors.white : const Color(0xFF1B1B1B));
@@ -73,26 +69,21 @@ class CustomButton extends StatelessWidget {
       foregroundColor: fg,
       padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: 24),
       side: border,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(borderRadius),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius)),
       elevation: 0,
       splashFactory: NoSplash.splashFactory,
-      // If disabled (loading), keep the opacity higher if we want to show loading spinner clearly on the same background
       disabledBackgroundColor: bg.withOpacity(0.8), 
       disabledForegroundColor: fg.withOpacity(0.8),
     ).copyWith(
       overlayColor: MaterialStateProperty.all(Colors.transparent),
     );
 
+    // button content logic
     Widget child = isLoading 
       ? SizedBox(
           width: fontSize + 4, 
           height: fontSize + 4, 
-          child: CircularProgressIndicator(
-             strokeWidth: 2, 
-             valueColor: AlwaysStoppedAnimation<Color>(fg)
-          )
+          child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(fg))
         )
       : Row(
           mainAxisSize: MainAxisSize.min,
@@ -108,11 +99,7 @@ class CustomButton extends StatelessWidget {
                 maxLines: 1,
                 softWrap: false,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.inter(
-                  fontSize: fontSize,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.0,
-                ),
+                style: GoogleFonts.inter(fontSize: fontSize, fontWeight: FontWeight.bold, letterSpacing: 1.0),
               ),
             ),
           ],
@@ -120,11 +107,7 @@ class CustomButton extends StatelessWidget {
         
     return SizedBox(
       width: isFullWidth ? double.infinity : null,
-      child: ElevatedButton(
-        onPressed: effectiveOnPressed,
-        style: buttonStyle,
-        child: child,
-      ),
+      child: ElevatedButton(onPressed: effectiveOnPressed, style: buttonStyle, child: child),
     );
   }
 }

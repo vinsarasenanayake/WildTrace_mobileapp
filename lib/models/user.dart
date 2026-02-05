@@ -1,4 +1,4 @@
-// User Model
+// user profile model
 class UserModel {
   final String id;
   final String name;
@@ -9,6 +9,7 @@ class UserModel {
   final String? postalCode;
   final String? country;
   final String? profileImageUrl;
+  final String? role;
 
   UserModel({
     required this.id,
@@ -20,9 +21,10 @@ class UserModel {
     this.postalCode,
     this.country,
     this.profileImageUrl,
+    this.role,
   });
 
-  // Factory Method for creating a modified copy of the user model
+  // creates copy with updates
   UserModel copyWith({
     String? id,
     String? name,
@@ -33,6 +35,7 @@ class UserModel {
     String? postalCode,
     String? country,
     String? profileImageUrl,
+    String? role,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -44,10 +47,11 @@ class UserModel {
       postalCode: postalCode ?? this.postalCode,
       country: country ?? this.country,
       profileImageUrl: profileImageUrl ?? this.profileImageUrl,
+      role: role ?? this.role,
     );
   }
 
-  // Convert user object to JSON format
+  // converts to json
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -59,10 +63,11 @@ class UserModel {
       'postalCode': postalCode,
       'country': country,
       'profileImageUrl': profileImageUrl,
+      'role': role,
     };
   }
 
-  // Create a user object from JSON data
+  // creates from json
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: (json['id'] ?? '').toString(),
@@ -74,6 +79,7 @@ class UserModel {
       postalCode: (json['postal_code'] ?? json['postalCode'])?.toString(),
       country: json['country']?.toString(),
       profileImageUrl: (json['profile_image_url'] ?? json['profileImageUrl'])?.toString(),
+      role: json['role']?.toString(),
     );
   }
 }

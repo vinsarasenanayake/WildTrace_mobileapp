@@ -58,7 +58,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _currPass.dispose();
     _newPass.dispose();
     _confPass.dispose();
+    _confPass.dispose();
     super.dispose();
+  }
+
+  Future<void> _handleUpdateProfile(AuthProvider authProvider) async {
+    final currentUser = authProvider.currentUser;
+    if (currentUser != null) {
+      final updatedUser = UserModel(
+        id: currentUser.id,
+        name: _nameController.text,
+        email: _emailController.text,
+        contactNumber: _contactController.text,
+        address: _addressController.text,
+        city: _cityController.text,
+        postalCode: _postalCodeController.text,
+        country: _countryController.text,
+      );
+      
+      final success = await authProvider.updateProfile(updatedUser);
+      if (mounted) {
+        final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+        QuickAlert.show(
+          context: context,
+          type: success ? QuickAlertType.success : QuickAlertType.error,
+          title: success ? 'Profile Updated' : 'Update Failed',
+          text: success ? 'Profile updated successfully' : 'Failed to update profile',
+          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+          titleColor: isDarkMode ? Colors.white : Colors.black,
+          textColor: isDarkMode ? Colors.white70 : Colors.black87,
+        );
+      }
+    }
   }
 
   // Build Method
@@ -155,39 +186,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 contactController: _contactController, addressController: _addressController,
                 cityController: _cityController, postalCodeController: _postalCodeController,
                 countryController: _countryController,
+                onSubmitted: (_) => _handleUpdateProfile(authProvider),
               ),
               const SizedBox(height: 24),
               CustomButton(
                 text: authProvider.isLoading ? 'SAVING...' : 'SAVE', 
-                onPressed: authProvider.isLoading ? () {} : () async {
-                  final currentUser = authProvider.currentUser;
-                  if (currentUser != null) {
-                    final updatedUser = UserModel(
-                      id: currentUser.id,
-                      name: _nameController.text,
-                      email: _emailController.text,
-                      contactNumber: _contactController.text,
-                      address: _addressController.text,
-                      city: _cityController.text,
-                      postalCode: _postalCodeController.text,
-                      country: _countryController.text,
-                    );
-                    
-                    final success = await authProvider.updateProfile(updatedUser);
-                    if (mounted) {
-                      final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-                      QuickAlert.show(
-                        context: context,
-                        type: success ? QuickAlertType.success : QuickAlertType.error,
-                        title: success ? 'Profile Updated' : 'Update Failed',
-                        text: success ? 'Profile updated successfully' : 'Failed to update profile',
-                        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                        titleColor: isDarkMode ? Colors.white : Colors.black,
-                        textColor: isDarkMode ? Colors.white70 : Colors.black87,
-                      );
-                    }
-                  }
-                }
+                onPressed: authProvider.isLoading ? () {} : () => _handleUpdateProfile(authProvider)
               ),
             ],
           ),
@@ -220,11 +224,47 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
           child: Column(
             children: [
-               CustomTextField(label: 'Current Password', controller: _currPass, hintText: '', isObscure: _obscureCurrent, hasToggle: true, onToggleVisibility: () => setState(() => _obscureCurrent = !_obscureCurrent)),
+               CustomTextField(
+                label: 'Current Password', 
+                controller: _currPass, 
+                hintText: '', 
+                isObscure: _obscureCurrent, 
+                hasToggle: true, 
+                onToggleVisibility: () => setState(() => _obscureCurrent = !_obscureCurrent),
+                textInputAction: TextInputAction.next,
+              ),
               const SizedBox(height: 20),
-              CustomTextField(label: 'New Password', controller: _newPass, hintText: '', isObscure: _obscureNew, hasToggle: true, onToggleVisibility: () => setState(() => _obscureNew = !_obscureNew)),
+              CustomTextField(
+                label: 'New Password', 
+                controller: _newPass, 
+                hintText: '', 
+                isObscure: _obscureNew, 
+                hasToggle: true, 
+                onToggleVisibility: () => setState(() => _obscureNew = !_obscureNew),
+                textInputAction: TextInputAction.next,
+              ),
               const SizedBox(height: 20),
-              CustomTextField(label: 'Confirm Password', controller: _confPass, hintText: '', isObscure: _obscureConfirm, hasToggle: true, onToggleVisibility: () => setState(() => _obscureConfirm = !_obscureConfirm)),
+              CustomTextField(
+                label: 'Confirm Password', 
+                controller: _confPass, 
+                hintText: '', 
+                isObscure: _obscureConfirm, 
+                hasToggle: true, 
+                onToggleVisibility: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) {
+                   final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                    QuickAlert.show(
+                      context: context,
+                      type: QuickAlertType.info,
+                      title: 'Info',
+                      text: 'Password update simulated',
+                      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                      titleColor: isDarkMode ? Colors.white : Colors.black,
+                      textColor: isDarkMode ? Colors.white70 : Colors.black87,
+                    );
+                },
+              ),
               const SizedBox(height: 24),
               CustomButton(text: 'SAVE', onPressed: () {
                 final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;

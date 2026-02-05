@@ -1,4 +1,4 @@
-// Imports
+// Registration interface for new collectors joining the WildTrace platform
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +10,6 @@ import '../widgets/common/custom_button.dart';
 import 'login_screen.dart';
 import 'package:quickalert/quickalert.dart';
 
-// Register Screen
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -18,9 +17,7 @@ class RegisterScreen extends StatefulWidget {
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-// Register State
 class _RegisterScreenState extends State<RegisterScreen> {
-  // State management for user registration inputs
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   final TextEditingController _nameController = TextEditingController();
@@ -33,14 +30,97 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _postalCodeController = TextEditingController();
   final TextEditingController _countryController = TextEditingController();
 
-  // Build Method
-  // Main build method for the registration screen
+  Future<void> _handleRegister(AuthProvider authProvider, bool isDarkMode) async {
+    if (_passwordController.text != _confirmPasswordController.text) {
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.warning,
+        title: 'Mismatch',
+        widget: Text(
+          'Passwords do not match',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            color: isDarkMode ? Colors.white70 : Colors.black87,
+          ),
+        ),
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        titleColor: isDarkMode ? Colors.white : Colors.black,
+        confirmBtnText: 'Okay',
+        confirmBtnTextStyle: GoogleFonts.inter(
+          fontSize: 12,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+      return;
+    }
+    
+    final success = await authProvider.register(
+      name: _nameController.text,
+      email: _emailController.text,
+      password: _passwordController.text,
+      contactNumber: _contactController.text,
+      address: _addressController.text,
+      city: _cityController.text,
+      postalCode: _postalCodeController.text,
+    );
+    
+    if (success && mounted) {
+      Navigator.pushAndRemoveUntil(
+        context, 
+        MaterialPageRoute(builder: (context) => const MainWrapper()), 
+        (route) => false
+      );
+    } else if (mounted) {
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.error,
+        title: 'Registration Failed',
+        widget: Text(
+          'Please check your details and try again.',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            color: isDarkMode ? Colors.white70 : Colors.black87,
+          ),
+        ),
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        titleColor: isDarkMode ? Colors.white : Colors.black,
+        confirmBtnText: 'Okay',
+        confirmBtnTextStyle: GoogleFonts.inter(
+          fontSize: 12,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     
     return Scaffold(
       backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            color: Colors.transparent,
+            child: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: isDarkMode ? Colors.white : const Color(0xFF1B4332),
+              size: 20,
+            ),
+          ),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -88,78 +168,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           isPasswordObscure: _obscurePassword, isConfirmPasswordObscure: _obscureConfirmPassword,
                           onPasswordToggle: () => setState(() => _obscurePassword = !_obscurePassword),
                           onConfirmPasswordToggle: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+                          onSubmitted: (_) => _handleRegister(authProvider, isDarkMode),
                         ),
                         const SizedBox(height: 32),
                         CustomButton(
                           text: authProvider.isLoading ? 'CREATING ACCOUNT...' : 'COMPLETE REGISTRATION', 
-                          onPressed: authProvider.isLoading ? () {} : () async {
-                            if (_passwordController.text != _confirmPasswordController.text) {
-                              QuickAlert.show(
-                                context: context,
-                                type: QuickAlertType.warning,
-                                title: 'Mismatch',
-                                widget: Text(
-                                  'Passwords do not match',
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    color: isDarkMode ? Colors.white70 : Colors.black87,
-                                  ),
-                                ),
-                                backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                                titleColor: isDarkMode ? Colors.white : Colors.black,
-                                confirmBtnText: 'Okay',
-                                confirmBtnTextStyle: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              );
-                              return;
-                            }
-                            
-                            final success = await authProvider.register(
-                              name: _nameController.text,
-                              email: _emailController.text,
-                              password: _passwordController.text,
-                              contactNumber: _contactController.text,
-                              address: _addressController.text,
-                              city: _cityController.text,
-                              postalCode: _postalCodeController.text,
-                              // Country might need to be added to register method if supported, 
-                              // but for now we ensure it is collected.
-                            );
-                            
-                            if (success && mounted) {
-                              Navigator.pushAndRemoveUntil(
-                                context, 
-                                MaterialPageRoute(builder: (context) => const MainWrapper()), 
-                                (route) => false
-                              );
-                            } else if (mounted) {
-                              QuickAlert.show(
-                                context: context,
-                                type: QuickAlertType.error,
-                                title: 'Registration Failed',
-                                widget: Text(
-                                  'Please check your details and try again.',
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    color: isDarkMode ? Colors.white70 : Colors.black87,
-                                  ),
-                                ),
-                                backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                                titleColor: isDarkMode ? Colors.white : Colors.black,
-                                confirmBtnText: 'Okay',
-                                confirmBtnTextStyle: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              );
-                            }
-                          }
+                          onPressed: authProvider.isLoading ? () {} : () => _handleRegister(authProvider, isDarkMode)
                         ),
                         const SizedBox(height: 24),
                         Center(

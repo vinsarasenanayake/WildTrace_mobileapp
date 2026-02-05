@@ -1,4 +1,4 @@
-// Imports
+// User profile management and account dashboard interface
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -13,11 +13,9 @@ import '../widgets/common/wildtrace_logo.dart';
 import '../widgets/common/custom_button.dart';
 import '../../main_wrapper.dart';
 
-// Profile Screen
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  // Main build method for the profile page
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -77,7 +75,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // Helper Methods
   // Profile header with user initials and name
   Widget _buildHeader(Color textColor, Color accentGreen, String initials, String name, String email) {
     return Center(

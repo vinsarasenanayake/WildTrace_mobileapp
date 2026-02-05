@@ -1,13 +1,11 @@
-// Imports
 import 'package:flutter/material.dart';
 
-// Navigation Provider
+// manages bottom navigation state
 class NavigationProvider with ChangeNotifier {
   int _selectedIndex = 0;
-
   int get selectedIndex => _selectedIndex;
 
-  // Set Selected Index
+  // updates tab index
   void setSelectedIndex(int index) {
     _selectedIndex = index;
     notifyListeners();

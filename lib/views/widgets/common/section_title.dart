@@ -1,12 +1,7 @@
-// ============================================================================
-// IMPORTS
-// ============================================================================
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// ============================================================================
-// SECTION TITLE WIDGET
-// ============================================================================
+// section header with optional line decoration
 class SectionTitle extends StatelessWidget {
   final String title;
   final Color? color;
@@ -25,7 +20,6 @@ class SectionTitle extends StatelessWidget {
     this.mainAxisAlignment = MainAxisAlignment.start,
   });
 
-  // --- Build Method ---
   @override
   Widget build(BuildContext context) {
     return Row(

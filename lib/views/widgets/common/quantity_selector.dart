@@ -1,12 +1,7 @@
-// ============================================================================
-// IMPORTS
-// ============================================================================
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// ============================================================================
-// QUANTITY SELECTOR WIDGET
-// ============================================================================
+// quantity adjustment controls
 class QuantitySelector extends StatelessWidget {
   final int quantity;
   final VoidCallback onIncrement;
@@ -19,7 +14,6 @@ class QuantitySelector extends StatelessWidget {
     required this.onDecrement,
   });
 
-  // --- Build Method ---
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -60,7 +54,7 @@ class QuantitySelector extends StatelessWidget {
     );
   }
 
-  // --- Helper Methods ---
+  // button builder helper
   Widget _buildButton(IconData icon, VoidCallback onTap, bool isDarkMode) {
     return InkWell(
       onTap: onTap,

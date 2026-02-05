@@ -1,9 +1,7 @@
-// Imports
 import 'package:flutter/material.dart';
-import 'dart:ui';
 import 'package:google_fonts/google_fonts.dart';
 
-// Reusable Hero Section widget with background image and overlays
+// hero banner section with background image
 class WildTraceHero extends StatelessWidget {
   final String imagePath;
   final String? title;
@@ -40,7 +38,6 @@ class WildTraceHero extends StatelessWidget {
     this.alignment = Alignment.center,
   });
 
-  // Main build method for the Hero UI
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -50,7 +47,7 @@ class WildTraceHero extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // Background Image
+          // background
           imagePath.startsWith('http')
               ? Image.network(
                   imagePath,
@@ -64,7 +61,7 @@ class WildTraceHero extends StatelessWidget {
                   alignment: alignment,
                   errorBuilder: (_, __, ___) => Container(color: const Color(0xFF0F1E26)),
                 ),
-          // Dark gradient overlay (top → bottom) + Vignette
+          // gradient overlay
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -80,10 +77,11 @@ class WildTraceHero extends StatelessWidget {
               ),
             ),
           ),
-          // Additional dark overlay to dim the image further
+          // dimming overlay
           Container(
             color: Colors.black.withOpacity(0.4),
           ),
+          // content
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Column(

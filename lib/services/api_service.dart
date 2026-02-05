@@ -1,4 +1,3 @@
-// Imports
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,49 +9,33 @@ import '../models/product.dart';
 import '../models/photographer.dart';
 import '../models/milestone.dart';
 
-// Api Service
+// Main network service
 class ApiService {
-  // Base Host
-  static String get baseHost {
-    return 'https://wildtrace-production.up.railway.app';
-  }
-
-  // Paths
+  // host configuration
+  static String get baseHost => 'https://wildtrace-production.up.railway.app';
   static const String _apiPath = '/api';
   static const String _storagePath = '/storage/';
   static const String _rootPath = '/';
 
-  // Configurations
+  // api endpoint urls
   static String get baseUrl => '$baseHost$_apiPath';
   static String get storageUrl => '$baseHost$_storagePath';
   static String get baseHostUrl => '$baseHost$_rootPath';
 
-  // Image Url Helper
+  // resolves full image url
   String _resolveImageUrl(String? path) {
     if (path == null || path.isEmpty) return '';
-    
     String resolvedPath = path;
-    if (resolvedPath.startsWith('http')) {
-      return resolvedPath;
-    }
-    
+    if (resolvedPath.startsWith('http')) return resolvedPath;
     String cleanPath = resolvedPath.startsWith('/') ? resolvedPath.substring(1) : resolvedPath;
-    
-    if (cleanPath.startsWith('assets/')) {
-      cleanPath = cleanPath.replaceFirst('assets/', '');
-    }
-
-    if (cleanPath.startsWith('storage/')) {
-      return '$baseHost/$cleanPath';
-    }
-
+    if (cleanPath.startsWith('assets/')) cleanPath = cleanPath.replaceFirst('assets/', '');
+    if (cleanPath.startsWith('storage/')) return '$baseHost/$cleanPath';
     return '$baseHostUrl$cleanPath';
   }
 
-  // Parse Products
+  // parses products from json
   List<Product> _parseProductList(dynamic data) {
     final List<dynamic> list = (data is Map && data.containsKey('data')) ? data['data'] : (data is List ? data : []);
-    
     return list.map((item) {
       if (item['image_url'] != null) {
         item['image_url'] = _resolveImageUrl(item['image_url'].toString());
@@ -64,7 +47,7 @@ class ApiService {
     }).toList();
   }
 
-  // Fetch Products
+  // fetches all products
   Future<List<Product>> fetchProducts({String? token}) async {
     final url = Uri.parse('$baseUrl/products');
     try {
@@ -88,7 +71,7 @@ class ApiService {
     }
   }
 
-  // Get Product Price
+  // gets specific product price
   Future<double?> getProductPrice(String productId, String size, {String? token}) async {
     final url = Uri.parse('$baseUrl/products/$productId/price?size=${Uri.encodeComponent(size)}');
     try {
@@ -110,7 +93,7 @@ class ApiService {
     }
   }
 
-  // Fetch Product Details
+  // fetches single product details
   Future<Product?> fetchProductDetails(String productId, {String? token}) async {
     final url = Uri.parse('$baseUrl/products/$productId');
     try {
@@ -124,14 +107,12 @@ class ApiService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
-        
         if (data['image_url'] != null) {
           data['image_url'] = _resolveImageUrl(data['image_url'].toString());
         }
         if (data['photographer'] != null && data['photographer']['image'] != null) {
           data['photographer']['image'] = _resolveImageUrl(data['photographer']['image'].toString());
         }
-        
         return Product.fromJson(data);
       }
       return null;
@@ -140,8 +121,7 @@ class ApiService {
     }
   }
 
-  // User Profile
-  // Fetch User Profile
+  // fetches current user profile
   Future<Map<String, dynamic>> fetchUserProfile(String token) async {
     final response = await http.get(
       Uri.parse('$baseUrl/user'),
@@ -164,7 +144,7 @@ class ApiService {
     }
   }
 
-  // Update User Profile
+  // updates user profile data
   Future<Map<String, dynamic>> updateUserProfile(Map<String, dynamic> profileData, String token) async {
     final response = await http.put(
       Uri.parse('$baseUrl/user/profile'),
@@ -184,8 +164,7 @@ class ApiService {
     }
   }
 
-  // Authentication
-  // Login
+  // handles user authentication
   Future<Map<String, dynamic>> login(String email, String password) async {
     final url = Uri.parse('$baseUrl/login');
     final normalizedEmail = email.trim().toLowerCase();
@@ -210,8 +189,18 @@ class ApiService {
         if (responseBody.isEmpty) throw Exception('Server returned an empty response');
         final decoded = json.decode(responseBody);
         
-        if (decoded['user'] != null && decoded['user']['image'] != null) {
-          decoded['user']['image'] = _resolveImageUrl(decoded['user']['image'].toString());
+        if (decoded['user'] != null) {
+          if (decoded['user']['image'] != null) {
+            decoded['user']['image'] = _resolveImageUrl(decoded['user']['image'].toString());
+          }
+          
+          final userData = decoded['user'];
+          final bool isAdmin = userData['role']?.toString().toLowerCase() == 'admin' || 
+                             userData['role_id']?.toString() == '1' || 
+                             userData['is_admin'] == true || 
+                             userData['is_admin']?.toString() == '1';
+          
+          if (isAdmin) throw Exception('Admin dashboard access is restricted to the web platform only.');
         }
         
         return decoded;
@@ -227,7 +216,6 @@ class ApiService {
         } catch (_) {
           errorMessage = 'Server error (${response.statusCode})';
         }
-        
         throw Exception(errorMessage);
       }
     } catch (e) {
@@ -238,10 +226,9 @@ class ApiService {
     }
   }
 
-  // Register
+  // creates a new user
   Future<Map<String, dynamic>> register(Map<String, dynamic> userData) async {
     final url = Uri.parse('$baseUrl/register');
-    
     try {
       final response = await http.post(
         url,
@@ -260,7 +247,7 @@ class ApiService {
     }
   }
 
-  // Logout
+  // clears user session
   Future<void> logout(String token) async {
     try {
       await http.post(
@@ -270,12 +257,10 @@ class ApiService {
           'Authorization': 'Bearer $token',
         },
       ).timeout(const Duration(seconds: 10));
-    } catch (e) {
-    }
+    } catch (_) {}
   }
 
-  // Orders
-  // Place Order
+  // creates a new order
   Future<Map<String, dynamic>> placeOrder(Map<String, dynamic> orderData, String token) async {
     final response = await http.post(
       Uri.parse('$baseUrl/orders'),
@@ -295,7 +280,7 @@ class ApiService {
     }
   }
 
-  // Fetch Orders
+  // fetches user orders
   Future<List<dynamic>> fetchOrders(String token) async {
     final response = await http.get(
       Uri.parse('$baseUrl/orders'),
@@ -329,7 +314,7 @@ class ApiService {
     }
   }
 
-  // Cancel Order
+  // cancels an order
   Future<void> cancelOrder(String orderId, String token) async {
     final response = await http.post(
       Uri.parse('$baseUrl/orders/$orderId/cancel'),
@@ -349,7 +334,7 @@ class ApiService {
     }
   }
 
-  // Update Order Payment Status
+  // updates order payment status
   Future<void> updateOrderPaymentStatus(String orderId, String status, String token) async {
     final response = await http.post(
       Uri.parse('$baseUrl/orders/$orderId/payment-status'),
@@ -371,8 +356,7 @@ class ApiService {
     }
   }
 
-  // Favorites
-  // Fetch Favorites
+  // fetches user favorite products
   Future<List<Product>> fetchFavorites(String token) async {
     final response = await http.get(
       Uri.parse('$baseUrl/favorites'),
@@ -385,7 +369,6 @@ class ApiService {
     if (response.statusCode == 200) {
       final decoded = json.decode(response.body);
       final List<dynamic> list = (decoded is Map && decoded.containsKey('data')) ? decoded['data'] : (decoded is List ? decoded : []);
-      
       return list.map((item) {
         final productData = item['product'] ?? item;
         if (productData['image_url'] != null) {
@@ -398,7 +381,7 @@ class ApiService {
     }
   }
 
-  // Toggle Favorite
+  // toggles favorite status for a product
   Future<Map<String, dynamic>> toggleFavorite(String productId, String token) async {
     final response = await http.post(
       Uri.parse('$baseUrl/favorites/toggle'),
@@ -417,7 +400,7 @@ class ApiService {
     }
   }
 
-  // Check Favorite
+  // checks if a product is favorited
   Future<bool> checkFavorite(String productId, String token) async {
     try {
       final response = await http.get(
@@ -438,8 +421,7 @@ class ApiService {
     }
   }
 
-  // Cart
-  // Fetch Cart
+  // fetches cart items
   Future<List<dynamic>> fetchCart(String token) async {
     final response = await http.get(
       Uri.parse('$baseUrl/cart'),
@@ -452,7 +434,6 @@ class ApiService {
     if (response.statusCode == 200) {
       final decoded = json.decode(response.body);
       final List<dynamic> items = (decoded is Map && decoded.containsKey('data')) ? decoded['data'] : (decoded is List ? decoded : []);
-      
       for (var item in items) {
         if (item['product'] != null && item['product']['image_url'] != null) {
           item['product']['image_url'] = _resolveImageUrl(item['product']['image_url'].toString());
@@ -464,7 +445,7 @@ class ApiService {
     }
   }
 
-  // Add to Cart
+  // adds product to cart
   Future<Map<String, dynamic>> addToCart(String productId, int quantity, String token, {String? size}) async {
     final response = await http.post(
       Uri.parse('$baseUrl/cart'),
@@ -488,7 +469,7 @@ class ApiService {
     }
   }
 
-  // Update Cart Item
+  // updates quantity in cart
   Future<Map<String, dynamic>> updateCartItem(String cartItemId, int quantity, String token) async {
     final response = await http.put(
       Uri.parse('$baseUrl/cart/$cartItemId'),
@@ -508,7 +489,7 @@ class ApiService {
     }
   }
 
-  // Remove from Cart
+  // removes item from cart
   Future<void> removeFromCart(String cartItemId, String token) async {
     final response = await http.delete(
       Uri.parse('$baseUrl/cart/$cartItemId'),
@@ -524,7 +505,7 @@ class ApiService {
     }
   }
 
-  // Clear Cart
+  // clears entire cart
   Future<void> clearCart(String token) async {
     final response = await http.delete(
       Uri.parse('$baseUrl/cart'),
@@ -539,7 +520,7 @@ class ApiService {
     }
   }
 
-  // Fetch Photographers
+  // fetches photographers list
   Future<List<dynamic>> fetchPhotographers() async {
     final response = await http.get(
       Uri.parse('$baseUrl/photographers'),
@@ -549,7 +530,6 @@ class ApiService {
     if (response.statusCode == 200) {
       final decoded = json.decode(response.body);
       final List<dynamic> list = (decoded is Map && decoded.containsKey('data')) ? decoded['data'] : (decoded is List ? decoded : []);
-      
       for (var item in list) {
         if (item['image_url'] != null) {
           item['image_url'] = _resolveImageUrl(item['image_url'].toString());
@@ -563,7 +543,7 @@ class ApiService {
     }
   }
 
-  // Fetch Milestones
+  // fetches project milestones
   Future<List<dynamic>> fetchMilestones() async {
     final response = await http.get(
       Uri.parse('$baseUrl/milestones'),
@@ -578,7 +558,7 @@ class ApiService {
     }
   }
 
-  // Sync Cart
+  // syncs local cart with server
   Future<void> syncCart(List<Map<String, dynamic>> cartData, String token) async {
     await http.post(
       Uri.parse('$baseUrl/cart/sync'),
@@ -592,15 +572,13 @@ class ApiService {
   }
 }
 
-// Stripe Service
+// stripe payment processor
 class StripeService {
-  // Initialization
   StripeService._();
-
   static final StripeService instance = StripeService._();
-
   final String _secretKey = dotenv.get('STRIPE_SECRET_KEY');
 
+  // processes one-time payment
   Future<void> makePayment({
     required double amount,
     required String currency,
@@ -608,7 +586,7 @@ class StripeService {
     required Function() onSuccess,
   }) async {
     try {
-      // Create Payment Intent
+      // create intent
       Map<String, dynamic>? paymentIntentData = await _createPaymentIntent(
         (amount * 100).toInt().toString(),
         currency,
@@ -618,7 +596,7 @@ class StripeService {
         throw Exception('Failed to create Payment Intent: ${paymentIntentData?['error']?['message'] ?? 'Unknown Error'}');
       }
 
-      // Initialize Payment Sheet
+      // init payment sheet
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: paymentIntentData['client_secret'],
@@ -627,10 +605,9 @@ class StripeService {
         ),
       );
 
-      // Display Payment Sheet
+      // show sheet
       await _displayPaymentSheet(onSuccess, context);
     } catch (e) {
-
       if (context.mounted) {
         final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
         QuickAlert.show(
@@ -646,12 +623,12 @@ class StripeService {
     }
   }
 
+  // shows the native payment sheet
   Future<void> _displayPaymentSheet(Function() onSuccess, BuildContext context) async {
     try {
       await Stripe.instance.presentPaymentSheet();
       onSuccess();
     } on StripeException catch (e) {
-
       if (context.mounted) {
         final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
         QuickAlert.show(
@@ -664,11 +641,10 @@ class StripeService {
           textColor: isDarkMode ? Colors.white70 : Colors.black87,
         );
       }
-    } catch (e) {
-
-    }
+    } catch (_) {}
   }
 
+  // creates payment intent via stripe api
   Future<Map<String, dynamic>?> _createPaymentIntent(String amount, String currency) async {
     try {
       Map<String, dynamic> body = {
@@ -676,7 +652,6 @@ class StripeService {
         'currency': currency,
         'payment_method_types[]': 'card',
       };
-
       var response = await http.post(
         Uri.parse('https://api.stripe.com/v1/payment_intents'),
         body: body,
@@ -685,10 +660,8 @@ class StripeService {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
       );
-      
       return jsonDecode(response.body);
     } catch (err) {
-
       rethrow;
     }
   }

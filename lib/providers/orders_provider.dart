@@ -1,11 +1,10 @@
-// Imports
 import 'package:flutter/material.dart';
 import '../models/order.dart';
 import '../models/cart_item.dart';
 import '../models/product.dart';
 import '../services/api_service.dart';
 
-// Orders Provider
+// manages purchase records
 class OrdersProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
   final List<Order> _orders = [];
@@ -15,28 +14,26 @@ class OrdersProvider with ChangeNotifier {
   int get count => _orders.length;
   bool get isEmpty => _orders.isEmpty;
 
-  // Refresh the auth token and reload user orders
+  // updates session token
   void updateToken(String? newToken, String? userId) {
     if (newToken != _token) {
       _token = newToken;
       _orders.clear();
-      if (newToken != null && userId != null) {
-        loadOrders(userId, newToken);
-      }
+      if (newToken != null && userId != null) loadOrders(userId, newToken);
       notifyListeners();
     }
   }
 
-  // Get Order By Id
+  // retrieves order by id
   Order? getOrderById(String id) {
     try {
       return _orders.firstWhere((o) => o.id == id);
-    } catch (e) {
+    } catch (_) {
       return null;
     }
   }
 
-  // Submit a new order to the backend
+  // submits new purchase data
   Future<bool> placeOrder({
     required String userId,
     required List<CartItem> items,
@@ -49,10 +46,8 @@ class OrdersProvider with ChangeNotifier {
   }) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return false;
-    
     try {
       final totalPrice = subtotal + tax + shipping;
-      
       final Map<String, dynamic> orderData = {
         'items': items.map((i) => {
           'product_id': i.product.id,
@@ -65,9 +60,7 @@ class OrdersProvider with ChangeNotifier {
         'shipping_address': shippingAddress ?? 'No address provided',
         'payment_status': paymentStatus,
       };
-
       final response = await _apiService.placeOrder(orderData, tokenToUse);
-      
       final order = Order(
         id: (response['order']['id'] ?? 'ORD-${DateTime.now().millisecondsSinceEpoch}').toString(),
         userId: userId,
@@ -80,16 +73,15 @@ class OrdersProvider with ChangeNotifier {
         orderDate: DateTime.now(),
         shippingAddress: shippingAddress,
       );
-
       _orders.insert(0, order);
       notifyListeners();
       return true;
-    } catch (e) {
+    } catch (_) {
       return false;
     }
   }
 
-  // Update Order Status
+  // sets order status
   void updateOrderStatus(String orderId, OrderStatus status) {
     final index = _orders.indexWhere((o) => o.id == orderId);
     if (index >= 0) {
@@ -98,13 +90,11 @@ class OrdersProvider with ChangeNotifier {
     }
   }
 
-  // Send a cancellation request for a pending order
+  // sends cancellation request
   Future<bool> cancelOrder(String orderId) async {
     if (_token == null) return false;
-    
     try {
       await _apiService.cancelOrder(orderId, _token!);
-      
       final index = _orders.indexWhere((o) => o.id == orderId);
       if (index >= 0) {
         _orders[index] = _orders[index].copyWith(status: OrderStatus.declined);
@@ -112,18 +102,16 @@ class OrdersProvider with ChangeNotifier {
         return true;
       }
       return false;
-    } catch (e) {
+    } catch (_) {
       return false;
     }
   }
 
-  // Sync payment status after a successful Stripe transaction
+  // updates payment status
   Future<bool> updatePaymentStatus(String orderId, String status) async {
     if (_token == null) return false;
-    
     try {
       await _apiService.updateOrderPaymentStatus(orderId, status, _token!);
-      
       final index = _orders.indexWhere((o) => o.id == orderId);
       if (index >= 0) {
         _orders[index] = _orders[index].copyWith(
@@ -133,12 +121,12 @@ class OrdersProvider with ChangeNotifier {
         return true;
       }
       return false;
-    } catch (e) {
+    } catch (_) {
       return false;
     }
   }
 
-  // Get Orders By Status
+  // filters orders by status
   List<Order> getOrdersByStatus(OrderStatus status) {
     return _orders.where((o) => o.status == status).toList();
   }
@@ -146,15 +134,13 @@ class OrdersProvider with ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  // Retrieve all orders for the current user
+  // loads order history from server
   Future<void> loadOrders(String userId, String token) async {
     _isLoading = true;
     notifyListeners();
-
     try {
       final List<dynamic> data = await _apiService.fetchOrders(token);
       _orders.clear();
-      
       for (var item in data) {
          final List<dynamic> apiItems = item['items'] ?? [];
          final List<CartItem> orderItems = apiItems.map((apiItem) {
@@ -163,7 +149,6 @@ class OrdersProvider with ChangeNotifier {
              quantity: apiItem['quantity'] ?? 1,
            );
          }).toList();
-
          final totalPrice = _parseNum(item['total_price']);
          final subtotal = _parseNum(item['subtotal']) > 0 
                          ? _parseNum(item['subtotal']) 
@@ -174,7 +159,6 @@ class OrdersProvider with ChangeNotifier {
          final shipping = _parseNum(item['shipping']) > 0 
                          ? _parseNum(item['shipping']) 
                          : totalPrice * 0.1;
-
          _orders.add(Order(
            id: item['id'].toString(),
            userId: item['user_id'].toString(),
@@ -188,21 +172,21 @@ class OrdersProvider with ChangeNotifier {
            shippingAddress: item['shipping_address'],
          ));
       }
-    } catch (e) {
+    } catch (_) {
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  // Parse Num
+  // helper to parse numbers
   double _parseNum(dynamic value) {
     if (value == null) return 0.0;
     if (value is num) return value.toDouble();
     return double.tryParse(value.toString()) ?? 0.0;
   }
 
-  // Parse Order Status
+  // helper to parse order status
   OrderStatus _parseOrderStatus(String? status, String? paymentStatus) {
     switch (status?.toLowerCase()) {
       case 'pending': return OrderStatus.pending;
@@ -213,12 +197,8 @@ class OrdersProvider with ChangeNotifier {
       case 'cancelled': return OrderStatus.cancelled;
       case 'declined': return OrderStatus.declined;
     }
-
     final pStatus = paymentStatus?.toLowerCase();
-    if (pStatus == 'declined' || pStatus == 'failed') {
-      return OrderStatus.declined;
-    }
-    
+    if (pStatus == 'declined' || pStatus == 'failed') return OrderStatus.declined;
     return OrderStatus.pending;
   }
 }

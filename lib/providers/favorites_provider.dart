@@ -1,9 +1,8 @@
-// Imports
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../services/api_service.dart';
 
-// Favorites Provider
+// favorite items manager
 class FavoritesProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
   final List<Product> _favorites = [];
@@ -15,18 +14,17 @@ class FavoritesProvider with ChangeNotifier {
   bool get isEmpty => _favorites.isEmpty;
   bool get isLoading => _isLoading;
 
+  // updates session token
   void updateToken(String? newToken) {
     if (newToken != _token) {
       _token = newToken;
       _favorites.clear();
-      if (newToken != null) {
-        fetchFavorites(newToken);
-      }
+      if (newToken != null) fetchFavorites(newToken);
       notifyListeners();
     }
   }
 
-  // Fetch Favorites
+  // gets favorites from server
   Future<void> fetchFavorites(String token) async {
     _isLoading = true;
     notifyListeners();
@@ -34,19 +32,17 @@ class FavoritesProvider with ChangeNotifier {
       final List<Product> fetchedFavorites = await _apiService.fetchFavorites(token);
       _favorites.clear();
       _favorites.addAll(fetchedFavorites.map((p) => p.copyWith(isFavorite: true)));
-    } catch (e) {
-
+    } catch (_) {
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  // Toggle Favorite
+  // toggles favorite status
   Future<void> toggleFavorite(Product product) async {
     final tokenToUse = _token;
     if (tokenToUse == null) return;
-
     try {
       final index = _favorites.indexWhere((p) => p.id == product.id);
       if (index >= 0) {
@@ -55,16 +51,14 @@ class FavoritesProvider with ChangeNotifier {
         _favorites.add(product.copyWith(isFavorite: true));
       }
       notifyListeners();
-
       await _apiService.toggleFavorite(product.id, tokenToUse);
-      
       await fetchFavorites(tokenToUse);
     } catch (e) {
       await fetchFavorites(tokenToUse);
     }
   }
 
-  // Add to Favorites
+  // adds to local favorites
   void addToFavorites(Product product) {
     if (!isFavorite(product.id)) {
       _favorites.add(product.copyWith(isFavorite: true));
@@ -73,7 +67,7 @@ class FavoritesProvider with ChangeNotifier {
     }
   }
 
-  // Remove from Favorites
+  // removes from local favorites
   void removeFromFavorites(String productId) {
     final index = _favorites.indexWhere((p) => p.id == productId);
     if (index >= 0) {
@@ -83,12 +77,10 @@ class FavoritesProvider with ChangeNotifier {
     }
   }
 
-  // Is Favorite
-  bool isFavorite(String productId) {
-    return _favorites.any((p) => p.id == productId);
-  }
+  // checks favorite status
+  bool isFavorite(String productId) => _favorites.any((p) => p.id == productId);
 
-  // Clear Favorites
+  // clears local favorites
   void clearFavorites() {
     for (var product in _favorites) {
       product.isFavorite = false;

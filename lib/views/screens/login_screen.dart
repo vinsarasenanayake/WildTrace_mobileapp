@@ -1,4 +1,4 @@
-// Imports
+// Secure login interface for existing collectors joined to the platform
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -11,7 +11,6 @@ import '../widgets/common/wildtrace_logo.dart';
 import '../widgets/common/custom_button.dart';
 import 'package:quickalert/quickalert.dart';
 
-// Login Screen
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -19,21 +18,111 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-// Login State
 class _LoginScreenState extends State<LoginScreen> {
-  // Screen state for password visibility and inputs
   bool _obscurePassword = true;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  // Build Method
-  // Main build method for the login screen
+  Future<void> _handleLogin(AuthProvider authProvider, bool isDarkMode) async {
+    if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.warning,
+        title: 'Missing Details',
+        widget: Text(
+          'Please enter your credentials and sign in',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            color: isDarkMode ? Colors.white70 : Colors.black87,
+          ),
+        ),
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        titleColor: isDarkMode ? Colors.white : Colors.black,
+        confirmBtnText: 'Okay',
+        confirmBtnTextStyle: GoogleFonts.inter(
+          fontSize: 12,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      );
+      return;
+    }
+    
+    try {
+      final success = await authProvider.login(
+        _emailController.text, 
+        _passwordController.text
+      );
+      if (success && mounted) {
+        Navigator.pushAndRemoveUntil(
+          context, 
+          MaterialPageRoute(builder: (context) => const MainWrapper()), 
+          (route) => false
+        );
+      } else if (mounted) {
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Login Failed',
+          text: 'Please check your credentials.',
+          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+          titleColor: isDarkMode ? Colors.white : Colors.black,
+          textColor: isDarkMode ? Colors.white70 : Colors.black87,
+          confirmBtnText: 'Okay',
+          confirmBtnTextStyle: GoogleFonts.inter(
+            fontSize: 12,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        String errorMessage = e.toString().replaceAll('Exception: ', '');
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Login Error',
+          text: errorMessage,
+          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+          titleColor: isDarkMode ? Colors.white : Colors.black,
+          textColor: isDarkMode ? Colors.white70 : Colors.black87,
+          confirmBtnText: 'Okay',
+          confirmBtnTextStyle: GoogleFonts.inter(
+            fontSize: 12,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     
     return Scaffold(
       backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            color: Colors.transparent,
+            child: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: isDarkMode ? Colors.white : const Color(0xFF1B4332),
+              size: 20,
+            ),
+          ),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -72,74 +161,27 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CustomTextField(label: 'EMAIL ADDRESS', controller: _emailController, hintText: 'name@example.com'),
+                        CustomTextField(
+                          label: 'EMAIL ADDRESS', 
+                          controller: _emailController, 
+                          hintText: 'name@example.com',
+                          textInputAction: TextInputAction.next,
+                        ),
                         const SizedBox(height: 24),
-                        CustomTextField(label: 'PASSWORD', controller: _passwordController, hintText: '........', isObscure: _obscurePassword, hasToggle: true, onToggleVisibility: () => setState(() => _obscurePassword = !_obscurePassword)),
+                        CustomTextField(
+                          label: 'PASSWORD', 
+                          controller: _passwordController, 
+                          hintText: '........', 
+                          isObscure: _obscurePassword, 
+                          hasToggle: true, 
+                          onToggleVisibility: () => setState(() => _obscurePassword = !_obscurePassword),
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) => _handleLogin(authProvider, isDarkMode),
+                        ),
                         const SizedBox(height: 32),
                         CustomButton(
                           text: authProvider.isLoading ? 'SIGNING IN...' : 'SIGN IN', 
-                          onPressed: authProvider.isLoading ? () {} : () async {
-                            if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
-                              QuickAlert.show(
-                                context: context,
-                                type: QuickAlertType.warning,
-                                title: 'Missing Details',
-                                widget: Text(
-                                  'Please enter your credentials and sign in',
-                                  textAlign: TextAlign.center,
-                                  style: GoogleFonts.inter(
-                                    fontSize: 12,
-                                    color: isDarkMode ? Colors.white70 : Colors.black87,
-                                  ),
-                                ),
-                                backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                                titleColor: isDarkMode ? Colors.white : Colors.black,
-                                confirmBtnText: 'Okay',
-                                confirmBtnTextStyle: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              );
-                              return;
-                            }
-                            try {
-                              final success = await authProvider.login(
-                                _emailController.text, 
-                                _passwordController.text
-                              );
-                              if (success && mounted) {
-                                Navigator.pushAndRemoveUntil(
-                                  context, 
-                                  MaterialPageRoute(builder: (context) => const MainWrapper()), 
-                                  (route) => false
-                                );
-                              } else if (mounted) {
-                                QuickAlert.show(
-                                  context: context,
-                                  type: QuickAlertType.error,
-                                  title: 'Login Failed',
-                                  text: 'Please check your credentials.',
-                                  backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                                  titleColor: isDarkMode ? Colors.white : Colors.black,
-                                  textColor: isDarkMode ? Colors.white70 : Colors.black87,
-                                );
-                              }
-                            } catch (e) {
-                              if (mounted) {
-                                String errorMessage = e.toString().replaceAll('Exception: ', '');
-                                QuickAlert.show(
-                                  context: context,
-                                  type: QuickAlertType.error,
-                                  title: 'Login Error',
-                                  text: errorMessage,
-                                  backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                                  titleColor: isDarkMode ? Colors.white : Colors.black,
-                                  textColor: isDarkMode ? Colors.white70 : Colors.black87,
-                                );
-                              }
-                            }
-                          }
+                          onPressed: authProvider.isLoading ? () {} : () => _handleLogin(authProvider, isDarkMode)
                         ),
                         const SizedBox(height: 24),
                         Row(

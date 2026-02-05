@@ -1,10 +1,9 @@
-// Imports
 import 'cart_item.dart';
 
-// Order Status Enum
+// purchase status levels
 enum OrderStatus { pending, paid, processing, shipped, delivered, cancelled, declined }
 
-// Order Model
+// customer order record
 class Order {
   final String id;
   final String userId;
@@ -30,7 +29,7 @@ class Order {
     this.shippingAddress,
   });
 
-  // Factory Method for creating a modified copy of the order
+  // creates copy with updates
   Order copyWith({
     String? id,
     String? userId,
@@ -57,7 +56,7 @@ class Order {
     );
   }
 
-  // Convert order object to JSON format
+  // converts to json
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -73,7 +72,7 @@ class Order {
     };
   }
 
-  // Create an order object from JSON data
+  // creates from json
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
       id: json['id'] as String,

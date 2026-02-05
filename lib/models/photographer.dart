@@ -1,4 +1,4 @@
-// Photographer Model
+// photographer profile data
 class Photographer {
   final String id;
   final String name;
@@ -18,7 +18,7 @@ class Photographer {
     required this.imageUrl,
   });
 
-  // Create a photographer object from JSON data
+  // creates from json
   factory Photographer.fromJson(Map<String, dynamic> json) {
     return Photographer(
       id: json['id'].toString(),

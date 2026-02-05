@@ -1,12 +1,7 @@
-// ============================================================================
-// IMPORTS
-// ============================================================================
 import 'package:flutter/material.dart';
 import '../../../main_wrapper.dart';
 
-// ============================================================================
-// WILDTRACE LOGO WIDGET
-// ============================================================================
+// brand logo widget
 class WildTraceLogo extends StatelessWidget {
   final double height;
   final Color? iconColor;
@@ -19,7 +14,6 @@ class WildTraceLogo extends StatelessWidget {
     this.onTap,
   });
 
-  // --- Build Method ---
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;

@@ -1,4 +1,3 @@
-// Imports
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,20 +12,21 @@ import 'views/screens/splash_screen.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-// Main Entry Point
+// App initialization
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Load environment variables
+  // Setup environment
   await dotenv.load(fileName: ".env");
   
-  // Initialize Stripe
+  // Configure payments
   Stripe.publishableKey = dotenv.get('STRIPE_PUBLISHABLE_KEY');
   await Stripe.instance.applySettings();
 
   runApp(
     MultiProvider(
       providers: [
+        // State management
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProxyProvider<AuthProvider, FavoritesProvider>(
@@ -52,17 +52,17 @@ void main() async {
   );
 }
 
-// App Widget
+// Main application widget
 class WildTraceApp extends StatelessWidget {
   const WildTraceApp({super.key});
 
-  // Build Method
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Wild Trace',
       debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.system,
+      // Light theme settings
       theme: ThemeData(
         useMaterial3: true,
         splashColor: Colors.transparent,
@@ -105,6 +105,7 @@ class WildTraceApp extends StatelessWidget {
           ),
         ),
       ),
+      // Dark theme settings
       darkTheme: ThemeData(
         useMaterial3: true,
         splashColor: Colors.transparent,
@@ -155,11 +156,10 @@ class WildTraceApp extends StatelessWidget {
   }
 }
 
-// Custom Scroll Behavior
+// Scroll behavior configuration
 class NoGlowScrollBehavior extends ScrollBehavior {
   const NoGlowScrollBehavior();
   
-  // Build Overscroll Indicator
   @override
   Widget buildOverscrollIndicator(BuildContext context, Widget child, ScrollableDetails details) {
     return child;

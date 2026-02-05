@@ -1,11 +1,10 @@
-// Imports
+// Animated splash screen for initial app loading and state restoration
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/products_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../main_wrapper.dart';
 
-// Splash Screen
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -13,13 +12,12 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-// Splash Screen State
 class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
 
-  // Initial setup for splash animations and navigation
+  // Setup animations and begin data pre-fetching
   @override
   void initState() {
     super.initState();
@@ -40,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     _navigateToHome();
   }
 
-  // Pre-fetch critical data before entering the app
+  // Handle app initialization and navigation to main screen
   void _navigateToHome() async {
     try {
       // Wait for AuthProvider to restore session
@@ -90,8 +88,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     super.dispose();
   }
 
-  // Build Method
-  // Splash screen build method
   @override
   Widget build(BuildContext context) {
     return Scaffold(

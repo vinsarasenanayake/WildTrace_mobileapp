@@ -1,7 +1,6 @@
-// Imports
 import 'product.dart';
 
-// Cart Item Model
+// Shopping cart item
 class CartItem {
   final String? id;
   final Product product;
@@ -17,10 +16,10 @@ class CartItem {
     this.price,
   });
 
-  // Calculate total price for this cart item
+  // item total cost
   double get totalPrice => (price ?? product.price) * quantity;
 
-  // Factory Method for creating a modified copy of the cart item
+  // creates copy with updates
   CartItem copyWith({
     String? id,
     Product? product,
@@ -37,7 +36,7 @@ class CartItem {
     );
   }
 
-  // Convert cart item to JSON format
+  // converts to json
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -48,7 +47,7 @@ class CartItem {
     };
   }
 
-  // Create a cart item from JSON data
+  // creates from json
   factory CartItem.fromJson(Map<String, dynamic> json) {
     return CartItem(
       id: json['id']?.toString(),

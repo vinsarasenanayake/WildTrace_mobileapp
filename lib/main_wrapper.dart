@@ -1,4 +1,3 @@
-// Imports
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/navigation_provider.dart';
@@ -8,16 +7,15 @@ import 'views/screens/cart_screen.dart';
 import 'views/screens/profile_screen.dart';
 import 'views/widgets/common/bottom_nav_bar.dart';
 
-// Main Wrapper
+// Application wrapper
 class MainWrapper extends StatelessWidget {
   const MainWrapper({super.key});
 
-  // Build Method
   @override
   Widget build(BuildContext context) {
     final navProvider = Provider.of<NavigationProvider>(context);
     
-    // Body Selector
+    // Switch between screens
     Widget getBody() {
       switch (navProvider.selectedIndex) {
         case 0:

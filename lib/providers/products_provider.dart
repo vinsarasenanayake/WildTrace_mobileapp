@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../services/api_service.dart';
 
-// Products Provider
+// manages product catalog
 class ProductsProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
   final List<Product> _products = [];
@@ -17,17 +17,16 @@ class ProductsProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String get error => _error;
   String? get token => _token;
-
   List<Product> get products => List.unmodifiable(_products);
   
-  // Get top 5 highest priced products for Featured Collection
+  // returns featured products
   List<Product> get topProductsByPrice {
     final list = List<Product>.from(_products);
     list.sort((a, b) => b.price.compareTo(a.price));
     return list.take(5).toList();
   }
   
-  // Update Token
+  // updates session token
   void updateToken(String? newToken) {
     if (_token != newToken) {
       _token = newToken;
@@ -35,20 +34,17 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  // Fetch Products
+  // loads products from server
   Future<void> fetchProducts() async {
     _isLoading = true;
     _error = '';
-    
     Future.microtask(() => notifyListeners());
-
     try {
       final fetchedProducts = await _apiService.fetchProducts(token: _token);
       _products.clear();
       _products.addAll(fetchedProducts);
     } catch (e) {
       _error = e.toString();
-
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -60,18 +56,15 @@ class ProductsProvider with ChangeNotifier {
   String get sortOption => _sortOption;
   String get searchQuery => _searchQuery;
 
-  // Get Filtered Products
+  // applies active filters
   List<Product> get filteredProducts {
     var filtered = _products.toList();
-
     if (_selectedCategory != 'All' && _selectedCategory != 'All Collections') {
       filtered = filtered.where((p) => p.category.toUpperCase() == _selectedCategory.toUpperCase()).toList();
     }
-
     if (_selectedAuthor != 'All Photographers') {
       filtered = filtered.where((p) => p.author == _selectedAuthor).toList();
     }
-
     if (_searchQuery.isNotEmpty) {
       filtered = filtered.where((p) =>
         p.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
@@ -79,7 +72,6 @@ class ProductsProvider with ChangeNotifier {
         p.category.toLowerCase().contains(_searchQuery.toLowerCase())
       ).toList();
     }
-
     switch (_sortOption) {
       case 'Price: Low to High':
         filtered.sort((a, b) => a.price.compareTo(b.price));
@@ -90,37 +82,35 @@ class ProductsProvider with ChangeNotifier {
       case 'Name: A-Z':
         filtered.sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase())); 
         break;
-      case 'Latest Arrivals':
       default:
         break;
     }
-
     return filtered;
   }
 
-  // Get Product By Id
+  // finds product by id
   Product? getProductById(String id) {
     try {
       return _products.firstWhere((p) => p.id == id);
-    } catch (e) {
+    } catch (_) {
       return null;
     }
   }
 
-  // Set Products
+  // sets product list
   void setProducts(List<Product> products) {
     _products.clear();
     _products.addAll(products);
     notifyListeners();
   }
 
-  // Add Product
+  // adds single product
   void addProduct(Product product) {
     _products.add(product);
     notifyListeners();
   }
 
-  // Update Product
+  // updates product data
   void updateProduct(String id, Product updatedProduct) {
     final index = _products.indexWhere((p) => p.id == id);
     if (index >= 0) {
@@ -129,37 +119,37 @@ class ProductsProvider with ChangeNotifier {
     }
   }
 
-  // Remove Product
+  // deletes product
   void removeProduct(String id) {
     _products.removeWhere((p) => p.id == id);
     notifyListeners();
   }
 
-  // Set Category
+  // sets filter category
   void setCategory(String category) {
     _selectedCategory = category;
     notifyListeners();
   }
 
-  // Set Author
+  // sets filter author
   void setAuthor(String author) {
     _selectedAuthor = author;
     notifyListeners();
   }
 
-  // Set Sort Option
+  // sets sorting method
   void setSortOption(String sortOption) {
     _sortOption = sortOption;
     notifyListeners();
   }
 
-  // Set Search Query
+  // updates search text
   void setSearchQuery(String query) {
     _searchQuery = query;
     notifyListeners();
   }
 
-  // Clear Filters
+  // resets all filters
   void clearFilters() {
     _selectedCategory = 'All Collections';
     _selectedAuthor = 'All Photographers';
@@ -168,7 +158,7 @@ class ProductsProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Get Categories
+  // gets unique categories
   List<String> get categories {
     final cats = _products.map((p) => 
         p.category.isNotEmpty 
@@ -180,7 +170,7 @@ class ProductsProvider with ChangeNotifier {
     return cats;
   }
 
-  // Get Authors
+  // gets unique authors
   List<String> get authors {
     final list = _products.map((p) => p.author).toSet().toList();
     list.insert(0, 'All Photographers');
