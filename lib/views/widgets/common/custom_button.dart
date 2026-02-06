@@ -6,18 +6,21 @@ enum CustomButtonType { primary, secondary, ghost, destructive }
 
 // generic reusable button
 class CustomButton extends StatelessWidget {
+  // button configuration
   final String text;
   final VoidCallback? onPressed;
   final CustomButtonType type;
   final bool isFullWidth;
+  
+  // styling options
   final Color? backgroundColor;
   final Color? foregroundColor;
   final double verticalPadding;
   final double fontSize;
-  final bool isLoading;
   final double borderRadius;
   final IconData? icon;
   final double iconSize;
+  final bool isLoading;
 
   const CustomButton({
     super.key,
@@ -35,6 +38,7 @@ class CustomButton extends StatelessWidget {
     this.iconSize = 20,
   });
 
+  // builds styled button with optional icon and loading state
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -43,7 +47,7 @@ class CustomButton extends StatelessWidget {
     BorderSide border = BorderSide.none;
     final VoidCallback? effectiveOnPressed = isLoading ? null : onPressed;
 
-    // determine colors based on type
+    // apply colors based on button type
     switch (type) {
       case CustomButtonType.primary:
         bg = backgroundColor ?? (isDarkMode ? Colors.white : const Color(0xFF1B1B1B));

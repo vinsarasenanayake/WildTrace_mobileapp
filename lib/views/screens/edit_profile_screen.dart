@@ -1,16 +1,18 @@
-// Imports
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/user.dart';
+import '../../utils/responsive_helper.dart';
 import '../widgets/common/custom_text_field.dart';
 import '../widgets/forms/user_form.dart';
 import '../widgets/common/custom_button.dart';
 import '../widgets/common/wildtrace_logo.dart';
 import 'package:quickalert/quickalert.dart';
+import '../../providers/orders_provider.dart';
+import '../../models/order.dart';
 
-// Edit Profile Screen
+// edit profile screen
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -18,8 +20,8 @@ class EditProfileScreen extends StatefulWidget {
   State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
-// Edit Profile State
 class _EditProfileScreenState extends State<EditProfileScreen> {
+  // form field controllers
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _contactController;
@@ -28,11 +30,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _postalCodeController;
   late TextEditingController _countryController;
   
+  // password modification controllers
   final TextEditingController _currPass = TextEditingController();
   final TextEditingController _newPass = TextEditingController();
   final TextEditingController _confPass = TextEditingController();
   bool _obscureCurrent = true, _obscureNew = true, _obscureConfirm = true;
 
+  // populates controllers with existing user data
   @override
   void initState() {
     super.initState();
@@ -46,6 +50,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _countryController = TextEditingController(text: user?.country ?? '');
   }
   
+  // disposes all input controllers
   @override
   void dispose() {
     _nameController.dispose();
@@ -58,10 +63,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _currPass.dispose();
     _newPass.dispose();
     _confPass.dispose();
-    _confPass.dispose();
     super.dispose();
   }
 
+  // processes profile detail updates
   Future<void> _handleUpdateProfile(AuthProvider authProvider) async {
     final currentUser = authProvider.currentUser;
     if (currentUser != null) {
@@ -92,11 +97,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  // Build Method
+  // builds the main screen architecture
   @override
   Widget build(BuildContext context) {
+    // detects theme and device orientation
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     
     return Scaffold(
       backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
@@ -123,25 +130,36 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ),
       body: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              children: [
-                _buildBreadcrumb(),
-                const SizedBox(height: 16),
-                _buildTitle(textColor),
-                const SizedBox(height: 48),
-                _buildProfileSection(isDarkMode, authProvider),
-                const SizedBox(height: 40),
-                _buildPasswordSection(isDarkMode),
-                const SizedBox(height: 40),
-                _buildTwoFactorSection(textColor),
-                const SizedBox(height: 40),
-                _buildSessionsSection(textColor),
-                const SizedBox(height: 40),
-                _buildDestructiveSection(),
-                const SizedBox(height: 40),
-              ],
+          return SafeArea(
+            left: false,
+            right: false,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Center(
+                child: Container(
+                  width: isLandscape ? MediaQuery.of(context).size.width * 0.7 : null,
+                  child: Column(
+                    children: [
+                      // navigation indicators
+                      _buildBreadcrumb(),
+                      const SizedBox(height: 16),
+                      _buildTitle(textColor),
+                      const SizedBox(height: 48),
+                      // segmented setting sections
+                      _buildProfileSection(isDarkMode, authProvider, isLandscape),
+                      const SizedBox(height: 40),
+                      _buildPasswordSection(isDarkMode),
+                      const SizedBox(height: 40),
+                      _buildTwoFactorSection(textColor),
+                      const SizedBox(height: 40),
+                      _buildSessionsSection(textColor),
+                      const SizedBox(height: 40),
+                      _buildDestructiveSection(),
+                      const SizedBox(height: 40),
+                    ],
+                  ),
+                ),
+              ),
             ),
           );
         }
@@ -149,15 +167,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // Helper Methods
+  // builds the contextual path indicator
   Widget _buildBreadcrumb() {
     return Text('BACK TO DASHBOARD', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 2.0, color: Colors.grey.shade500));
   }
+
+  // builds the page header title
   Widget _buildTitle(Color textColor) {
     return Text('Edit Profile', style: GoogleFonts.playfairDisplay(fontSize: 32, fontWeight: FontWeight.bold, fontStyle: FontStyle.italic, color: textColor));
   }
   
-  Widget _buildProfileSection(bool isDarkMode, AuthProvider authProvider) {
+  // builds the user info modification forms
+  Widget _buildProfileSection(bool isDarkMode, AuthProvider authProvider, bool isLandscape) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -187,6 +208,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 cityController: _cityController, postalCodeController: _postalCodeController,
                 countryController: _countryController,
                 onSubmitted: (_) => _handleUpdateProfile(authProvider),
+                isLandscape: isLandscape,
               ),
               const SizedBox(height: 24),
               CustomButton(
@@ -200,6 +222,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
   
+  // builds the password management interface
   Widget _buildPasswordSection(bool isDarkMode) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,6 +307,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ],
     );
   }
+
+  // builds the security configuration area
   Widget _buildTwoFactorSection(Color textColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,10 +345,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ],
     );
   }
+
+  // builds the active session tracking summary
   Widget _buildSessionsSection(Color textColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // session management header
         Text(
           'Browser Sessions',
           style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: textColor),
@@ -347,6 +375,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             children: [
               Text('Manage and log out your active sessions on other browsers and devices.', style: GoogleFonts.inter(fontSize: 12, height: 1.5, color: Colors.grey.shade600)),
               const SizedBox(height: 24),
+              // active device indicator
               Row(
                 children: [
                   Icon(Icons.desktop_windows_outlined, size: 32, color: Colors.grey.shade500),
@@ -369,11 +398,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       ],
     );
   }
+
+  // builds the danger zone account removal area
   Widget _buildDestructiveSection() {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // destructive action header
         Text(
           'Delete Account',
           style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: isDarkMode ? Colors.white : const Color(0xFF1B4332)),
@@ -397,7 +429,95 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             children: [
               Text('Once your account is deleted, all of its resources and data will be permanently deleted.', style: GoogleFonts.inter(fontSize: 12, height: 1.5, color: Colors.grey.shade600)),
               const SizedBox(height: 24),
-              CustomButton(text: 'DELETE ACCOUNT', type: CustomButtonType.destructive, onPressed: () {}),
+              // initiates deletion with validity checks
+              CustomButton(
+                text: 'DELETE ACCOUNT', 
+                type: CustomButtonType.destructive, 
+                onPressed: () {
+                  final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
+                  final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+                  
+                  // verifies if there are pending orders before providing deletion option
+                  final hasOngoingOrders = ordersProvider.orders.any((order) => 
+                    order.status == OrderStatus.paid || 
+                    order.status == OrderStatus.processing || 
+                    order.status == OrderStatus.shipped
+                  );
+
+                  if (hasOngoingOrders) {
+                    QuickAlert.show(
+                      context: context,
+                      type: QuickAlertType.error,
+                      title: 'Cannot Delete Account',
+                      text: 'You have ongoing orders that are being processed or shipped. Please wait until they are delivered or resolved before deleting your account.',
+                      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                      titleColor: isDarkMode ? Colors.white : Colors.black,
+                      textColor: isDarkMode ? Colors.white70 : Colors.black87,
+                      showConfirmBtn: false,
+                      widget: Column(
+                        children: [
+                          SizedBox(height: isLandscape ? 8 : 24),
+                          CustomButton(
+                            text: 'OKAY',
+                            fontSize: 12,
+                            verticalPadding: isLandscape ? 10 : 16,
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    // requests final confirmation
+                    QuickAlert.show(
+                      context: context,
+                      type: QuickAlertType.confirm,
+                      title: 'Are you sure?',
+                      text: 'Once your account is deleted, all of its resources and data will be permanently deleted.',
+                      confirmBtnText: 'Delete',
+                      cancelBtnText: 'Cancel',
+                      confirmBtnColor: Colors.red,
+                      confirmBtnTextStyle: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      cancelBtnTextStyle: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: isDarkMode ? Colors.white70 : Colors.grey,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      onConfirmBtnTap: () {
+                        // restricted action notification
+                        Navigator.pop(context);
+                        QuickAlert.show(
+                          context: context,
+                          type: QuickAlertType.info,
+                          title: 'Action Restricted',
+                          text: 'Account deletion is currently limited for security. Please contact support.',
+                          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                          titleColor: isDarkMode ? Colors.white : Colors.black,
+                          textColor: isDarkMode ? Colors.white70 : Colors.black87,
+                          showConfirmBtn: false,
+                          widget: Column(
+                            children: [
+                              SizedBox(height: isLandscape ? 8 : 24),
+                              CustomButton(
+                                text: 'OKAY',
+                                fontSize: 12,
+                                verticalPadding: isLandscape ? 10 : 16,
+                                onPressed: () => Navigator.pop(context),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                      titleColor: isDarkMode ? Colors.white : Colors.black,
+                      textColor: isDarkMode ? Colors.white70 : Colors.black87,
+                    );
+                  }
+                }
+              ),
             ],
           ),
         ),

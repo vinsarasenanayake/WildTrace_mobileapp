@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// brand milestone timeline card
 class MilestoneCard extends StatelessWidget {
+  // milestone data
   final String year;
   final String title;
   final String description;
@@ -13,6 +15,7 @@ class MilestoneCard extends StatelessWidget {
     required this.description,
   });
 
+  // builds milestone card with year, title, and description
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -22,25 +25,11 @@ class MilestoneCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF1E1E1E) : const Color(0xFFF5F5F5),
         borderRadius: BorderRadius.circular(16),
-        boxShadow: isDarkMode
-            ? [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                )
-              ]
-            : [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4),
-                ),
-              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // year display
           Text(
             year,
             style: GoogleFonts.inter(
@@ -50,6 +39,7 @@ class MilestoneCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
+          // milestone title
           Text(
             title,
             style: GoogleFonts.playfairDisplay(
@@ -59,6 +49,7 @@ class MilestoneCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
+          // milestone description
           Text(
             description,
             style: GoogleFonts.inter(

@@ -1,21 +1,22 @@
-// Imports
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/content_provider.dart';
+import '../../utils/responsive_helper.dart';
 import '../widgets/common/bottom_nav_bar.dart';
 import '../widgets/common/wild_trace_hero.dart';
 import '../widgets/common/section_title.dart';
 import '../widgets/cards/milestone_card.dart';
 import '../widgets/cards/photographer_card.dart';
 
-// Screen
+// brand story and timeline
 class JourneyScreen extends StatelessWidget {
   const JourneyScreen({super.key});
 
-  // Build Method
+  // builds the narrative journey interface
   @override
   Widget build(BuildContext context) {
+    // theme and layout configuration
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color backgroundColor = isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9);
 
@@ -24,6 +25,7 @@ class JourneyScreen extends StatelessWidget {
       bottomNavigationBar: const WildTraceBottomNavBar(),
       body: Stack(
         children: [
+          // scrollable content container
           SingleChildScrollView(
             child: Column(
               children: [
@@ -34,6 +36,7 @@ class JourneyScreen extends StatelessWidget {
               ],
             ),
           ),
+          // high-level navigation control
           Positioned(
             top: 50,
             left: 20,
@@ -55,34 +58,43 @@ class JourneyScreen extends StatelessWidget {
     );
   }
 
-  // Helper Methods
+  // builds the visual entry for the brand story
   Widget _buildHeroSection() {
-    return const WildTraceHero(
-      imagePath: 'assets/images/heroimageaboutus.jpg',
-      title: 'OUR STORY',
-      mainText1: 'INTO THE',
-      mainText2: 'WILD',
-      description: 'WildTrace began with a single shutter click in the heart of Sri Lanka. Today, we are\na bunch of photographers dedicated to preserving the wild through art.',
-      height: 500,
-      alignment: Alignment.centerRight,
+    return Builder(
+      builder: (context) {
+        final isLandscape = ResponsiveHelper.isLandscape(context);
+        final screenHeight = MediaQuery.of(context).size.height;
+        
+        return WildTraceHero(
+          imagePath: 'assets/images/heroimageaboutus.jpg',
+          title: 'OUR STORY',
+          mainText1: 'INTO THE',
+          mainText2: 'WILD',
+          description: 'WildTrace began with a single shutter click in the heart of Sri Lanka. Today, we are\na bunch of photographers dedicated to preserving the wild through art.',
+          height: isLandscape ? screenHeight * 0.85 : 500,
+          alignment: Alignment.centerRight,
+          verticalAlignment: isLandscape ? MainAxisAlignment.center : MainAxisAlignment.center,
+        );
+      }
     );
   }
 
+  // builds the historical timeline using external content
   Widget _buildTimelineSection() {
     return Consumer<ContentProvider>(
       builder: (context, contentProvider, child) {
+        // provides feedback for content synchronization
         if (contentProvider.isLoading && contentProvider.milestones.isEmpty) {
           return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator(color: Color(0xFF27AE60))));
         }
         
         final milestones = contentProvider.milestones;
-        // Sort milestones by year descending if not already
-        // milestones.sort((a, b) => int.parse(b.year).compareTo(int.parse(a.year)));
         
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
           child: Stack(
             children: [
+              // vertical timeline guide line
               Positioned(
                 left: 4,
                 top: 20,
@@ -92,6 +104,7 @@ class JourneyScreen extends StatelessWidget {
                   color: Colors.grey.withOpacity(0.3),
                 ),
               ),
+              // list of historical markers
               Column(
                 children: milestones.map((event) => _buildTimelineItem(
                       year: event.year,
@@ -106,6 +119,7 @@ class JourneyScreen extends StatelessWidget {
     );
   }
 
+  // builds a singular milestone entry with indicator
   Widget _buildTimelineItem({
     required String year,
     required String title,
@@ -116,8 +130,9 @@ class JourneyScreen extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // visual status indicator
           Container(
-            margin: const EdgeInsets.only(top: 5), // Align with the year text
+            margin: const EdgeInsets.only(top: 5), 
             width: 9,
             height: 9,
             decoration: const BoxDecoration(
@@ -126,6 +141,7 @@ class JourneyScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 24),
+          // entry content card
           Expanded(
             child: MilestoneCard(
               year: year,
@@ -138,6 +154,7 @@ class JourneyScreen extends StatelessWidget {
     );
   }
 
+  // builds the workforce presentation section
   Widget _buildTeamSection() {
     return Container(
       width: double.infinity,
@@ -149,6 +166,7 @@ class JourneyScreen extends StatelessWidget {
         children: [
           const SectionTitle(title: 'PHOTOGRAPHERS'),
           const SizedBox(height: 16),
+          // section identifier
           Text(
             'The Eyes Behind the Lens',
             style: GoogleFonts.playfairDisplay(
@@ -159,6 +177,7 @@ class JourneyScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
+          // group descriptive summary
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Text(
@@ -171,112 +190,138 @@ class JourneyScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 40),
-          SizedBox(
-            height: 520,
-            child: Consumer<ContentProvider>(
-              builder: (context, contentProvider, child) {
-                if (contentProvider.isLoading && contentProvider.photographers.isEmpty) {
-                   return const Center(child: CircularProgressIndicator(color: Colors.white));
-                }
-                
-                final photographers = contentProvider.photographers;
-                
-                if (photographers.isEmpty) {
-                  return const Center(child: Text('No photographers found', style: TextStyle(color: Colors.white)));
-                }
+          // dynamic builder for horizontal scroller
+          Builder(
+            builder: (context) {
+              final isLandscape = ResponsiveHelper.isLandscape(context);
+              return SizedBox(
+                height: isLandscape ? 320 : 520,
+                child: Consumer<ContentProvider>(
+                  builder: (context, contentProvider, child) {
+                    if (contentProvider.isLoading && contentProvider.photographers.isEmpty) {
+                       return const Center(child: CircularProgressIndicator(color: Colors.white));
+                    }
+                    
+                    final photographers = contentProvider.photographers;
+                    
+                    if (photographers.isEmpty) {
+                      return const Center(child: Text('No photographers found', style: TextStyle(color: Colors.white)));
+                    }
 
-                return ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  itemCount: photographers.length,
-                  itemBuilder: (context, index) {
-                    final p = photographers[index];
-                    return Container(
-                      width: 300,
-                      margin: const EdgeInsets.only(right: 20),
-                      child: PhotographerCard(
-                        name: p.name,
-                        role: p.profession, // mapped from profession
-                        quote: p.quote,
-                        achievement: p.achievement,
-                        badgeText: p.post ?? '', // mapped from post
-                        imagePath: p.imageUrl,
-                      ),
+                    // renders biographies in a scrollable list
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      itemCount: photographers.length,
+                      itemBuilder: (context, index) {
+                        final p = photographers[index];
+                        return Container(
+                          width: isLandscape ? 240 : 300,
+                          margin: const EdgeInsets.only(right: 20),
+                          child: PhotographerCard(
+                            name: p.name,
+                            role: p.profession, 
+                            quote: p.quote,
+                            achievement: p.achievement,
+                            badgeText: p.post ?? '', 
+                            imagePath: p.imageUrl,
+                          ),
+                        );
+                      },
                     );
                   },
-                );
-              },
-            ),
+                ),
+              );
+            }
           ),
         ],
       ),
     );
   }
 
+  // builds the section highlighting conservation efforts
   Widget _buildImpactSection() {
-    return Container(
-      width: double.infinity,
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage('assets/images/communitywork2.jpg'),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.92),
-        ),
-        child: Column(
-          children: [
-            const SectionTitle(title: 'COMMUNITY IMPACT'),
-            const SizedBox(height: 16),
-            Text(
-              'Empowering Locals,\nProtecting Nature',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.playfairDisplay(
-                fontSize: 32,
-                fontWeight: FontWeight.w400,
-                fontStyle: FontStyle.italic,
-                color: Colors.white,
-                height: 1.2,
-              ),
+    return Builder(
+      builder: (context) {
+        final isLandscape = ResponsiveHelper.isLandscape(context);
+        final int gridColumns = 2;
+        final double spacing = ResponsiveHelper.getSpacing(context, portrait: 16);
+        
+        return Container(
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/communitywork2.jpg'),
+              fit: BoxFit.cover,
             ),
-            const SizedBox(height: 20),
-            Text(
-              'We believe that true conservation happens when local communities are\nempowered. WildTrace works directly with local stakeholders to ensure the survival\nof our planet\'s ecosystems.',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.inter(
-                fontSize: 13,
-                color: Colors.white.withOpacity(0.9),
-                height: 1.6,
-              ),
+          ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
+            decoration: BoxDecoration(
+              color: Colors.black.withOpacity(0.92),
             ),
-            const SizedBox(height: 40),
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 2.2,
-              padding: EdgeInsets.zero,
+            child: Column(
               children: [
-                _buildImpactCard('Reforestation projects'),
-                _buildImpactCard('Wildlife photography workshops'),
-                _buildImpactCard('Calendar sponsorships'),
-                _buildImpactCard('Wildlife department collaboration'),
+                const SectionTitle(title: 'COMMUNITY IMPACT'),
+                const SizedBox(height: 16),
+                // mission identifier
+                Text(
+                  isLandscape ? 'Empowering Locals, Protecting Nature' : 'Empowering Locals,\nProtecting Nature',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 32,
+                    fontWeight: FontWeight.w400,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.white,
+                    height: 1.2,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // philosophical statement
+                Text(
+                  'We believe that true conservation happens when local communities are\nempowered. WildTrace works directly with local stakeholders to ensure the survival\nof our planet\'s ecosystems.',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.inter(
+                    fontSize: 13,
+                    color: Colors.white.withOpacity(0.9),
+                    height: 1.6,
+                  ),
+                ),
+                const SizedBox(height: 40),
+                // core contributions grid
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: isLandscape ? 60 : 0),
+                  child: GridView.count(
+                    crossAxisCount: gridColumns,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    mainAxisSpacing: isLandscape ? 10 : spacing,
+                    crossAxisSpacing: isLandscape ? 10 : spacing,
+                    childAspectRatio: isLandscape ? 3.5 : 2.2,
+                    padding: EdgeInsets.zero,
+                    children: [
+                      _buildImpactCard('Reforestation projects', isLandscape),
+                      _buildImpactCard('Wildlife photography workshops', isLandscape),
+                      _buildImpactCard('Calendar sponsorships', isLandscape),
+                      _buildImpactCard('Wildlife department collaboration', isLandscape),
+                    ],
+                  ),
+                ),
               ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      }
     );
   }
 
-  Widget _buildImpactCard(String text) {
+  // builds a singular contribution marker for the impact grid
+  Widget _buildImpactCard(String text, bool isLandscape) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: EdgeInsets.symmetric(
+        horizontal: isLandscape ? 6 : 16, 
+        vertical: isLandscape ? 4 : 12
+      ),
       decoration: BoxDecoration(
         color: Colors.black.withOpacity(0.4),
         borderRadius: BorderRadius.circular(12),
@@ -286,25 +331,30 @@ class JourneyScreen extends StatelessWidget {
         ),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // visual validation identifier
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: EdgeInsets.all(isLandscape ? 3 : 6),
             decoration: const BoxDecoration(
               color: Color(0xFF27AE60),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.check,
               color: Colors.white,
-              size: 14,
+              size: isLandscape ? 16 : 14,
             ),
           ),
-          const SizedBox(width: 12),
-          Expanded(
+          SizedBox(width: isLandscape ? 6 : 12),
+          // descriptive textual information
+          Flexible(
             child: Text(
               text,
+              textAlign: TextAlign.center,
               style: GoogleFonts.inter(
-                fontSize: 12,
+                fontSize: isLandscape ? 13 : 12,
                 fontWeight: FontWeight.w500,
                 color: Colors.white,
               ),
@@ -317,3 +367,4 @@ class JourneyScreen extends StatelessWidget {
     );
   }
 }
+

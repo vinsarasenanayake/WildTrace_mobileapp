@@ -14,6 +14,7 @@ class Order {
   final double total;
   final OrderStatus status;
   final DateTime orderDate;
+  final DateTime? estimatedDeliveryDate;
   final String? shippingAddress;
 
   Order({
@@ -26,6 +27,7 @@ class Order {
     required this.total,
     required this.status,
     required this.orderDate,
+    this.estimatedDeliveryDate,
     this.shippingAddress,
   });
 
@@ -40,6 +42,7 @@ class Order {
     double? total,
     OrderStatus? status,
     DateTime? orderDate,
+    DateTime? estimatedDeliveryDate,
     String? shippingAddress,
   }) {
     return Order(
@@ -52,6 +55,7 @@ class Order {
       total: total ?? this.total,
       status: status ?? this.status,
       orderDate: orderDate ?? this.orderDate,
+      estimatedDeliveryDate: estimatedDeliveryDate ?? this.estimatedDeliveryDate,
       shippingAddress: shippingAddress ?? this.shippingAddress,
     );
   }
@@ -68,6 +72,7 @@ class Order {
       'total': total,
       'status': status.toString(),
       'orderDate': orderDate.toIso8601String(),
+      'estimatedDeliveryDate': estimatedDeliveryDate?.toIso8601String(),
       'shippingAddress': shippingAddress,
     };
   }
@@ -89,6 +94,9 @@ class Order {
         orElse: () => OrderStatus.pending,
       ),
       orderDate: DateTime.parse(json['orderDate'] as String),
+      estimatedDeliveryDate: json['estimatedDeliveryDate'] != null 
+          ? DateTime.parse(json['estimatedDeliveryDate'] as String) 
+          : null,
       shippingAddress: json['shippingAddress'] as String?,
     );
   }

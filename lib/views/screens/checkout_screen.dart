@@ -1,4 +1,3 @@
-// Imports
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +6,7 @@ import '../../providers/cart_provider.dart';
 import '../../providers/orders_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../models/order.dart';
+import '../../utils/responsive_helper.dart';
 import 'order_history_screen.dart';
 import '../widgets/forms/user_form.dart';
 import '../widgets/cards/order_summary_card.dart';
@@ -14,8 +14,9 @@ import '../widgets/cards/order_item_card.dart';
 import '../widgets/common/section_title.dart';
 import '../../services/api_service.dart';
 import 'package:quickalert/quickalert.dart';
+import 'package:intl/intl.dart' as intl;
 
-// Checkout Screen
+// handles checkout process
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
 
@@ -23,8 +24,8 @@ class CheckoutScreen extends StatefulWidget {
   State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
-// Checkout State
 class _CheckoutScreenState extends State<CheckoutScreen> {
+  // form field controllers
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _contactController;
@@ -33,7 +34,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   late TextEditingController _postalCodeController;
   late TextEditingController _countryController;
 
-  // Initialize controllers with user data
+  // initializes controllers with current user data
   @override
   void initState() {
     super.initState();
@@ -47,7 +48,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     _countryController = TextEditingController(text: user?.country ?? '');
   }
 
-  // Clean up resources when screen is closed
+  // releases controller resources
   @override
   void dispose() {
     _nameController.dispose();
@@ -60,12 +61,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     super.dispose();
   }
 
-  // Build Method
-  // Main build method for checkout flow
+  // builds the checkout workflow interface
   @override
   Widget build(BuildContext context) {
+    // theme and layout detection
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
 
     return Scaffold(
       backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
@@ -74,6 +76,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
+        // back navigation control
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(
@@ -86,6 +89,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
           ),
         ),
+        centerTitle: true,
         title: Text(
           'Complete Purchase',
           style: GoogleFonts.inter(
@@ -100,14 +104,153 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           final cartItems = cartProvider.items;
           final totalAmount = cartProvider.totalAmount;
           
+          // prevents checkout if cart is empty
           if (cartItems.isEmpty) {
              return Center(child: Text("Cart is empty", style: GoogleFonts.inter(color: textColor)));
           }
 
+          // defines user information input section
+          final shippingDetailsWidget = Column(
+             crossAxisAlignment: CrossAxisAlignment.start,
+             children: [
+                const SectionTitle(title: 'Shipping Details', showLine: false),
+                const SizedBox(height: 24),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10))],
+                  ),
+                  child: UserForm(
+                    nameController: _nameController,
+                    emailController: _emailController,
+                    contactController: _contactController,
+                    addressController: _addressController,
+                    cityController: _cityController,
+                    postalCodeController: _postalCodeController,
+                    countryController: _countryController,
+                    addressLabel: 'SHIPPING ADDRESS',
+                  ),
+                ),
+             ],
+          );
+
+          // defines financial and item summary section
+          final orderSummaryWidget = OrderSummaryCard(
+            title: 'Order Review',
+            items: cartItems.map((item) => OrderItem(
+              image: item.product.imageUrl,
+              title: item.product.title,
+              subtitle: item.size,
+              quantity: item.quantity,
+              price: item.price ?? item.product.price,
+            )).toList(),
+            totalLabel: 'Total',
+            totalValue: '\$${totalAmount.toStringAsFixed(2)}',
+            primaryButtonLabel: 'PROCEED TO PAYMENT',
+            // initiates secure payment flow
+            primaryButtonOnTap: () async {
+              final authProvider = Provider.of<AuthProvider>(context, listen: false);
+              final user = authProvider.currentUser;
+              final token = authProvider.token;
+
+              // ensures user is authenticated before payment
+              if (user == null || token == null) {
+                final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                QuickAlert.show(
+                  context: context,
+                  type: QuickAlertType.warning,
+                  title: 'Authentication Required',
+                  text: 'Please login to complete your purchase.',
+                  backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                  titleColor: isDarkMode ? Colors.white : Colors.black,
+                  textColor: isDarkMode ? Colors.white70 : Colors.black87,
+                );
+                return;
+              }
+
+              // launches stripe payment integration
+              await StripeService.instance.makePayment(
+                amount: totalAmount,
+                currency: 'USD',
+                context: context,
+                onSuccess: () async {
+                  // places order after verified payment
+                  final success = await ordersProvider.placeOrder(
+                    userId: user.id,
+                    items: List.from(cartItems),
+                    subtotal: cartProvider.subtotal,
+                    tax: cartProvider.tax,
+                    shipping: cartProvider.shipping,
+                    shippingAddress: '${_addressController.text}, ${_cityController.text}, ${_postalCodeController.text}',
+                    token: token,
+                    paymentStatus: 'paid',
+                  );
+                  
+                  // handles order placement result
+                  if (success) {
+                      await cartProvider.resetAfterOrder(token: token);
+                      if (context.mounted) {
+                        final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                        final estimatedDate = DateTime.now().add(const Duration(days: 3));
+                        final formattedDate = intl.DateFormat('MMMM dd, yyyy').format(estimatedDate);
+                         
+                        // displays success confirmation
+                        QuickAlert.show(
+                          context: context,
+                          type: QuickAlertType.success,
+                          title: 'Order Placed!',
+                          text: 'Order placed successfully! \nEstimated Delivery: $formattedDate',
+                          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                          titleColor: isDarkMode ? Colors.white : Colors.black,
+                          textColor: isDarkMode ? Colors.white70 : Colors.black87,
+                          confirmBtnText: 'GO TO ORDER HISTORY',
+                          confirmBtnTextStyle: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          onConfirmBtnTap: () {
+                            Navigator.pop(context); // Close alert
+                            Navigator.pushReplacement(
+                              context, 
+                              MaterialPageRoute(builder: (context) => const OrderHistoryScreen())
+                            );
+                          },
+                        );
+                      }
+                  } else {
+                      // reports data persistence failure
+                      if (context.mounted) {
+                        final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                        QuickAlert.show(
+                          context: context,
+                          type: QuickAlertType.error,
+                          title: 'Order Error',
+                          text: 'Payment was successful, but failed to record order. Please contact support.',
+                          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                          titleColor: isDarkMode ? Colors.white : Colors.black,
+                          textColor: isDarkMode ? Colors.white70 : Colors.black87,
+                        );
+                      }
+                  }
+                },
+              );
+            },
+            secondaryButtonLabel: 'CANCEL ORDER',
+            secondaryButtonOnTap: () => Navigator.pop(context),
+            isSecondaryOutlined: true,
+            footerText: 'You will be redirected to Stripe\'s secure payment page to complete your purchase.',
+          );
+
+          // assembles the scrollable layout
           return SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
             child: Column(
               children: [
+                // header branding section
                 const SectionTitle(title: 'FINAL STEP', mainAxisAlignment: MainAxisAlignment.center),
                 const SizedBox(height: 8),
                 Text(
@@ -121,133 +264,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
                 const SizedBox(height: 40),
                 
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SectionTitle(title: 'Shipping Details', showLine: false),
-                    const SizedBox(height: 24),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10))],
-                      ),
-                      child: UserForm(
-                        nameController: _nameController,
-                        emailController: _emailController,
-                        contactController: _contactController,
-                        addressController: _addressController,
-                        cityController: _cityController,
-                        postalCodeController: _postalCodeController,
-                        countryController: _countryController,
-                        addressLabel: 'SHIPPING ADDRESS',
-                      ),
+                // adaptive layout for different orientations
+                isLandscape 
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: shippingDetailsWidget),
+                        const SizedBox(width: 24),
+                        Expanded(child: orderSummaryWidget),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        shippingDetailsWidget,
+                        const SizedBox(height: 32),
+                        orderSummaryWidget,
+                      ],
                     ),
-                  ],
-                ),
-                
-                const SizedBox(height: 32),
-                
-                OrderSummaryCard(
-                  title: 'Order Review',
-                  items: cartItems.map((item) => OrderItem(
-                    image: item.product.imageUrl,
-                    title: item.product.title,
-                    subtitle: item.product.category,
-                    quantity: item.quantity,
-                    price: item.product.price,
-                  )).toList(),
-                  totalLabel: 'Total',
-                  totalValue: '\$${totalAmount.toStringAsFixed(2)}',
-                  primaryButtonLabel: 'PROCEED TO PAYMENT',
-                  primaryButtonOnTap: () async {
-                    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                    final user = authProvider.currentUser;
-                    final token = authProvider.token;
-
-                    if (user == null || token == null) {
-                      final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-                      QuickAlert.show(
-                        context: context,
-                        type: QuickAlertType.warning,
-                        title: 'Authentication Required',
-                        text: 'Please login to complete your purchase.',
-                        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                        titleColor: isDarkMode ? Colors.white : Colors.black,
-                        textColor: isDarkMode ? Colors.white70 : Colors.black87,
-                      );
-                      return;
-                    }
-
-                    // Start Stripe Payment
-                    await StripeService.instance.makePayment(
-                      amount: totalAmount,
-                      currency: 'USD',
-                      context: context,
-                      onSuccess: () async {
-                        // If payment success, place the order
-                        final success = await ordersProvider.placeOrder(
-                          userId: user.id,
-                          items: List.from(cartItems),
-                          subtotal: cartProvider.subtotal,
-                          tax: cartProvider.tax,
-                          shipping: cartProvider.shipping,
-                          shippingAddress: '${_addressController.text}, ${_cityController.text}, ${_postalCodeController.text}',
-                          token: token,
-                          paymentStatus: 'paid',
-                        );
-                        
-                        if (success) {
-                            await cartProvider.resetAfterOrder(token: token);
-                            if (context.mounted) {
-                              final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-                              QuickAlert.show(
-                                context: context,
-                                type: QuickAlertType.success,
-                                title: 'Order Placed!',
-                                text: 'Order placed and paid successfully!',
-                                backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                                titleColor: isDarkMode ? Colors.white : Colors.black,
-                                textColor: isDarkMode ? Colors.white70 : Colors.black87,
-                                confirmBtnText: 'Okay',
-                                confirmBtnTextStyle: GoogleFonts.inter(
-                                  fontSize: 12,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                onConfirmBtnTap: () {
-                                  Navigator.pop(context); // Close alert
-                                  Navigator.pushReplacement(
-                                    context, 
-                                    MaterialPageRoute(builder: (context) => const OrderHistoryScreen())
-                                  );
-                                },
-                              );
-                            }
-                        } else {
-                            if (context.mounted) {
-                              final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-                              QuickAlert.show(
-                                context: context,
-                                type: QuickAlertType.error,
-                                title: 'Order Error',
-                                text: 'Payment was successful, but failed to record order. Please contact support.',
-                                backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                                titleColor: isDarkMode ? Colors.white : Colors.black,
-                                textColor: isDarkMode ? Colors.white70 : Colors.black87,
-                              );
-                            }
-                        }
-                      },
-                    );
-                  },
-                  secondaryButtonLabel: 'CANCEL ORDER',
-                  secondaryButtonOnTap: () => Navigator.pop(context),
-                  isSecondaryOutlined: true,
-                  footerText: 'You will be redirected to Stripe\'s secure payment page to complete your purchase.',
-                ),
+                    
+                // bottom spacing
                 const SizedBox(height: 40),
               ],
             ),

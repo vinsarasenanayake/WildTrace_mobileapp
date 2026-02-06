@@ -1,16 +1,25 @@
-# wild_trace
+# Wild Trace
 
-A new Flutter project.
+Wild Trace is a premium mobile application for wildlife photography enthusiasts. It allows users to browse untamed moments, learn about the photographers behind the lens, and purchase high-quality prints.
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- **Untamed Gallery**: Explore high-resolution wildlife photography.
+- **Behind the Lens**: Learn about world-class wildlife photographers.
+- **Museum-Quality Prints**: Order prints with different size options and secure payments.
+- **User Experience**: Premium, responsive design with full landscape support.
+- **State Persistence**: Secure authentication and persistent cart/favorites.
 
-A few resources to get you started if this is your first Flutter project:
+## Tech Stack
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **Flutter**: Cross-platform mobile framework.
+- **Provider**: State management.
+- **Stripe**: Secure payment integration.
+- **API Architecture**: Robust connection to a dedicated Laravel backend.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Development
+
+1. Create a `.env` file in the root directory.
+2. Add your `STRIPE_PUBLISHABLE_KEY` and other necessary secrets.
+3. Run `flutter pub get`.
+4. Run `flutter run`.

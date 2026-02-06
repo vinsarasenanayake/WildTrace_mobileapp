@@ -1,15 +1,16 @@
-// Registration interface for new collectors joining the WildTrace platform
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../main_wrapper.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/responsive_helper.dart';
 import '../widgets/forms/user_form.dart';
 import '../widgets/common/wildtrace_logo.dart';
 import '../widgets/common/custom_button.dart';
 import 'login_screen.dart';
 import 'package:quickalert/quickalert.dart';
 
+// account registration screen
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -18,8 +19,11 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  // UI visibility state
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
+
+  // form data controllers
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -30,7 +34,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _postalCodeController = TextEditingController();
   final TextEditingController _countryController = TextEditingController();
 
+  // manages the user onboarding workflow
   Future<void> _handleRegister(AuthProvider authProvider, bool isDarkMode) async {
+    // validates credential consistency
     if (_passwordController.text != _confirmPasswordController.text) {
       QuickAlert.show(
         context: context,
@@ -56,6 +62,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
     
+    // attempts credential persistence via the provider
     final success = await authProvider.register(
       name: _nameController.text,
       email: _emailController.text,
@@ -66,13 +73,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
       postalCode: _postalCodeController.text,
     );
     
+    // redirects to main platform upon successful account creation
     if (success && mounted) {
       Navigator.pushAndRemoveUntil(
         context, 
-        MaterialPageRoute(builder: (context) => const MainWrapper()), 
+        MaterialPageRoute(builder: (context) => MainWrapper()), 
         (route) => false
       );
     } else if (mounted) {
+      // handles registration failures with granular feedback
       QuickAlert.show(
         context: context,
         type: QuickAlertType.error,
@@ -97,9 +106,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  // builds the registration viewport
   @override
   Widget build(BuildContext context) {
+    // theme and layout design tokens
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     
     return Scaffold(
       backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
@@ -108,6 +120,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
+        // entry point navigation exit
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(
@@ -122,6 +135,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
       body: SafeArea(
+        left: false,
+        right: false,
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Consumer<AuthProvider>(
@@ -130,11 +145,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 40),
+                  // branded visual anchor
                   GestureDetector(
-                    onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainWrapper()), (route) => false),
+                    onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainWrapper()), (route) => false),
                     child: const WildTraceLogo()
                   ),
                   const SizedBox(height: 24),
+                  // section identifiers
                   Text(
                     'Join WildTrace',
                     style: GoogleFonts.playfairDisplay(
@@ -149,7 +166,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     style: GoogleFonts.inter(fontSize: 12, letterSpacing: 1.5, fontWeight: FontWeight.w600, color: isDarkMode ? Colors.white70 : Colors.grey[600]),
                   ),
                   const SizedBox(height: 40),
+                  // adaptive form container
                   Container(
+                    width: isLandscape ? MediaQuery.of(context).size.width * 0.7 : null,
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
@@ -159,7 +178,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // modular user information collector
                         UserForm(
+                          isLandscape: isLandscape,
                           nameController: _nameController, emailController: _emailController,
                           contactController: _contactController, addressController: _addressController,
                           cityController: _cityController, postalCodeController: _postalCodeController,
@@ -171,11 +192,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           onSubmitted: (_) => _handleRegister(authProvider, isDarkMode),
                         ),
                         const SizedBox(height: 32),
+                        // primary submission action with progression feedback
                         CustomButton(
                           text: authProvider.isLoading ? 'CREATING ACCOUNT...' : 'COMPLETE REGISTRATION', 
                           onPressed: authProvider.isLoading ? () {} : () => _handleRegister(authProvider, isDarkMode)
                         ),
                         const SizedBox(height: 24),
+                        // secondary navigation to alternate onboarding flow
                         Center(
                           child: TextButton(
                             onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
@@ -189,12 +212,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 40),
+                  // branded copyright attribution
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text('Copyright © 2026 ', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
                       InkWell(
-                        onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainWrapper()), (route) => false),
+                        onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainWrapper()), (route) => false),
                         child: Text('WILDTRACE', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF27AE60)))
                       ),
                       Text('. All Rights Reserved.', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
@@ -210,3 +234,4 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 }
+

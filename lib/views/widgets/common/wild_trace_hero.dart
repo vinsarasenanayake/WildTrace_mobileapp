@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// hero banner section with background image
+// main hero banner component
 class WildTraceHero extends StatelessWidget {
+  // content configuration
   final String imagePath;
   final String? title;
   final String mainText1;
@@ -10,6 +11,8 @@ class WildTraceHero extends StatelessWidget {
   final String description;
   final String? description2;
   final String? subtitleQuote;
+  
+  // layout options
   final double? height;
   final double mainFontSize;
   final double mainLetterSpacing1;
@@ -38,6 +41,7 @@ class WildTraceHero extends StatelessWidget {
     this.alignment = Alignment.center,
   });
 
+  // builds full-screen hero banner with background image and text overlay
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -83,13 +87,17 @@ class WildTraceHero extends StatelessWidget {
           ),
           // content
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            padding: EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: MediaQuery.of(context).orientation == Orientation.landscape ? 0.0 : 0.0
+            ),
             child: Column(
               mainAxisAlignment: verticalAlignment,
               children: [
-                if (verticalAlignment == MainAxisAlignment.start) const SizedBox(height: 100),
+                if (verticalAlignment == MainAxisAlignment.start) 
+                  SizedBox(height: MediaQuery.of(context).orientation == Orientation.landscape ? 20 : 100),
 
-                if (title != null) ...[
+                if (title != null) ...[ 
                   Text(
                     title!.toUpperCase(),
                     style: GoogleFonts.inter(
@@ -99,38 +107,86 @@ class WildTraceHero extends StatelessWidget {
                       letterSpacing: 3.0,
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: MediaQuery.of(context).orientation == Orientation.landscape ? 8 : 24),
                 ],
-                Padding(
-                  padding: EdgeInsets.only(left: mainLetterSpacing1.clamp(0, double.infinity)),
-                  child: Text(
-                    mainText1,
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(
-                      color: Colors.white,
-                      fontSize: mainFontSize,
-                      fontWeight: FontWeight.w900,
-                      height: 0.9,
-                      letterSpacing: mainLetterSpacing1,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(left: mainLetterSpacing2.clamp(0, double.infinity)),
-                  child: Text(
-                    mainText2,
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.inter(
-                      color: const Color(0xFF27AE60),
-                      fontSize: mainFontSize,
-                      fontWeight: FontWeight.w900,
-                      height: 0.9,
-                      letterSpacing: mainLetterSpacing2,
-                    ),
-                  ),
+                // Main text - single line in landscape, stacked in portrait
+                Builder(
+                  builder: (context) {
+                    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+                    
+                    if (isLandscape) {
+                      // Landscape: Display on one line
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(left: mainLetterSpacing1.clamp(0, double.infinity)),
+                            child: Text(
+                              mainText1,
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontSize: mainFontSize,
+                                fontWeight: FontWeight.w900,
+                                height: 0.9,
+                                letterSpacing: mainLetterSpacing1,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Padding(
+                            padding: EdgeInsets.only(left: mainLetterSpacing2.clamp(0, double.infinity)),
+                            child: Text(
+                              mainText2,
+                              style: GoogleFonts.inter(
+                                color: const Color(0xFF27AE60),
+                                fontSize: mainFontSize,
+                                fontWeight: FontWeight.w900,
+                                height: 0.9,
+                                letterSpacing: mainLetterSpacing2,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    } else {
+                      // Portrait: Display stacked (original behavior)
+                      return Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(left: mainLetterSpacing1.clamp(0, double.infinity)),
+                            child: Text(
+                              mainText1,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.inter(
+                                color: Colors.white,
+                                fontSize: mainFontSize,
+                                fontWeight: FontWeight.w900,
+                                height: 0.9,
+                                letterSpacing: mainLetterSpacing1,
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: mainLetterSpacing2.clamp(0, double.infinity)),
+                            child: Text(
+                              mainText2,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.inter(
+                                color: const Color(0xFF27AE60),
+                                fontSize: mainFontSize,
+                                fontWeight: FontWeight.w900,
+                                height: 0.9,
+                                letterSpacing: mainLetterSpacing2,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                  },
                 ),
                 if (subtitleQuote != null) ...[
-                  const SizedBox(height: 48),
+                  SizedBox(height: MediaQuery.of(context).orientation == Orientation.landscape ? 24 : 48),
                   Text(
                     subtitleQuote!,
                     textAlign: TextAlign.center,
@@ -143,7 +199,7 @@ class WildTraceHero extends StatelessWidget {
                     ),
                   ),
                 ],
-                const SizedBox(height: 32),
+                SizedBox(height: MediaQuery.of(context).orientation == Orientation.landscape ? 16 : 32),
                 Text(
                   description,
                   textAlign: TextAlign.center,
@@ -168,7 +224,7 @@ class WildTraceHero extends StatelessWidget {
                   ),
                 ],
                 if (footer != null) ...[
-                  const SizedBox(height: 60),
+                  SizedBox(height: MediaQuery.of(context).orientation == Orientation.landscape ? 30 : 60),
                   footer!,
                 ],
               ],

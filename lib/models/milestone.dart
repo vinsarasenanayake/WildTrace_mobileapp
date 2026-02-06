@@ -1,4 +1,4 @@
-// Timeline milestone
+// Milestones timeline
 class Milestone {
   final String id;
   final String year;

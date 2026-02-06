@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// section header with optional line decoration
+// section header text with styling
 class SectionTitle extends StatelessWidget {
+  // title styling options
   final String title;
   final Color? color;
   final bool showLine;
@@ -20,6 +21,7 @@ class SectionTitle extends StatelessWidget {
     this.mainAxisAlignment = MainAxisAlignment.start,
   });
 
+  // builds section title with optional action button
   @override
   Widget build(BuildContext context) {
     return Row(

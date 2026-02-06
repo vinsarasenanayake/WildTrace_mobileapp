@@ -3,12 +3,17 @@ import 'package:google_fonts/google_fonts.dart';
 
 // custom styled text field
 class CustomTextField extends StatelessWidget {
+  // field configuration
   final String label;
   final TextEditingController controller;
   final String hintText;
+  
+  // password field options
   final bool isObscure;
   final VoidCallback? onToggleVisibility;
   final bool hasToggle;
+  
+  // additional options
   final Widget? prefix;
   final Widget? suffix;
   final TextInputAction? textInputAction;

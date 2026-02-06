@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../main_wrapper.dart';
 
-// brand logo widget
+// brand identity logo widget
 class WildTraceLogo extends StatelessWidget {
+  // logo configuration
   final double height;
   final Color? iconColor;
   final VoidCallback? onTap;

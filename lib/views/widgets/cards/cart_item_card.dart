@@ -2,13 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../common/quantity_selector.dart';
 
+// shopping cart item card
 class CartItemCard extends StatelessWidget {
+  // product information
   final String image;
   final String category;
   final String title;
   final double price;
   final int quantity;
   final String? size;
+  
+  // action callbacks
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
   final VoidCallback onDelete;
@@ -28,16 +32,19 @@ class CartItemCard extends StatelessWidget {
     required this.onDismissed,
   });
 
+  // builds swipeable cart item card
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     final Color cardBg = isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
 
+    // swipe to delete wrapper
     return Dismissible(
       key: Key(title),
       direction: DismissDirection.endToStart,
       onDismissed: (_) => onDismissed(),
+      // delete background when swiping
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
@@ -53,6 +60,7 @@ class CartItemCard extends StatelessWidget {
         ),
         child: Row(
           children: [
+            // product image
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: image.startsWith('http')
@@ -66,6 +74,7 @@ class CartItemCard extends StatelessWidget {
                   ),
             ),
             const SizedBox(width: 16),
+            // product details and controls
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,6 +87,7 @@ class CartItemCard extends StatelessWidget {
                     Text(size!, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.grey.shade500)),
                   ],
                   const SizedBox(height: 8),
+                  // price and quantity controls
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

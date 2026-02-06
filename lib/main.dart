@@ -1,6 +1,15 @@
+// ============================================================================
+// Main application entry point for WildTrace platform.
+// ============================================================================
+
+// Core Flutter and utility imports
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
+// Providers
 import 'providers/navigation_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/cart_provider.dart';
@@ -8,9 +17,9 @@ import 'providers/favorites_provider.dart';
 import 'providers/products_provider.dart';
 import 'providers/orders_provider.dart';
 import 'providers/content_provider.dart';
+
+// Screens
 import 'views/screens/splash_screen.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // App initialization
 void main() async {
@@ -26,7 +35,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        // State management
+        // State management providers
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProxyProvider<AuthProvider, FavoritesProvider>(

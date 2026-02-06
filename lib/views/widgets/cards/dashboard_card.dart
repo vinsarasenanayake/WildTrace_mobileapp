@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// profile dashboard menu card
 class DashboardCard extends StatelessWidget {
+  // widget properties
   final IconData icon;
   final String title;
   final String subtitle;
@@ -15,11 +17,14 @@ class DashboardCard extends StatelessWidget {
     required this.onTap,
   });
 
+  // builds clickable card with icon and text
   @override
   Widget build(BuildContext context) {
+    // theme colors
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     final Color cardColor = isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
+    
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
@@ -38,6 +43,7 @@ class DashboardCard extends StatelessWidget {
         ),
         child: Row(
           children: [
+            // icon container
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -47,6 +53,7 @@ class DashboardCard extends StatelessWidget {
               child: Icon(icon, color: textColor, size: 22),
             ),
             const SizedBox(width: 16),
+            // title and subtitle
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,6 +77,7 @@ class DashboardCard extends StatelessWidget {
                 ],
               ),
             ),
+            // chevron arrow
             Icon(Icons.chevron_right_rounded, color: Colors.grey.shade500),
           ],
         ),

@@ -3,14 +3,19 @@ import 'package:google_fonts/google_fonts.dart';
 import '../common/custom_button.dart';
 import 'order_item_card.dart';
 
+// purchase order summary card
 class OrderCard extends StatelessWidget {
+  // order information
   final String status;
   final String orderId;
   final String date;
   final String total;
+  
+  // action callbacks
   final VoidCallback onPayNow;
   final VoidCallback onCancel;
   final List<Widget> items;
+  final String? estimatedDelivery;
 
   const OrderCard({
     super.key,
@@ -21,15 +26,17 @@ class OrderCard extends StatelessWidget {
     required this.onPayNow,
     required this.onCancel,
     required this.items,
+    this.estimatedDelivery,
   });
 
+  // builds expandable order card with status and actions
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color cardColor = isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     
-    // Determine button states based on status
+    // determine button visibility based on order status
     final bool isPending = status.toUpperCase() == 'PENDING';
     final bool showButtons = ['PENDING', 'DECLINED', 'CANCELLED'].contains(status.toUpperCase());
 
@@ -90,6 +97,18 @@ class OrderCard extends StatelessWidget {
                         color: textColor,
                       ),
                     ),
+                    if (estimatedDelivery != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'Est. Delivery: $estimatedDelivery',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                          fontStyle: FontStyle.italic,
+                          color: const Color(0xFF27AE60),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

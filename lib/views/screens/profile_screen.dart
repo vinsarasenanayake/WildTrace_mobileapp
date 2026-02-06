@@ -1,8 +1,8 @@
-// User profile management and account dashboard interface
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/responsive_helper.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
 import 'order_history_screen.dart';
@@ -13,26 +13,40 @@ import '../widgets/common/wildtrace_logo.dart';
 import '../widgets/common/custom_button.dart';
 import '../../main_wrapper.dart';
 
+// user dashboard and settings
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  // builds the user account management interface
   @override
   Widget build(BuildContext context) {
+    // theme and adaptive layout configuration
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color backgroundColor = isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9);
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     const Color accentGreen = Color(0xFF27AE60);
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final padding = MediaQuery.of(context).padding;
+    final sidePadding = (padding.left > padding.right ? padding.left : padding.right) + 24.0;
 
     return Scaffold(
       backgroundColor: backgroundColor,
+      // dynamic update binding for authentication context
       body: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
           final user = authProvider.currentUser;
           final initials = user?.name.isNotEmpty == true ? user!.name[0].toUpperCase() : 'U';
 
           return SafeArea(
+            left: false,
+            right: false,
             child: CustomScrollView(
+              // restricts scrolling for minimal guest views
+              physics: (isLandscape && !authProvider.isAuthenticated) 
+                  ? const NeverScrollableScrollPhysics() 
+                  : const AlwaysScrollableScrollPhysics(),
               slivers: [
+                // floating navigation integration
                 const SliverAppBar(
                   backgroundColor: Colors.transparent,
                   elevation: 0,
@@ -46,10 +60,11 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.all(24.0),
+                    padding: EdgeInsets.symmetric(horizontal: sidePadding, vertical: isLandscape ? 4.0 : 24.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // bifurcates UI based on session state
                         if (authProvider.isAuthenticated) ...[
                           _buildHeader(textColor, accentGreen, initials, user?.name ?? '', user?.email ?? ''),
                           const SizedBox(height: 40),
@@ -57,12 +72,11 @@ class ProfileScreen extends StatelessWidget {
                           const SizedBox(height: 40),
                           _buildLogoutButton(context, authProvider),
                         ] else ...[
-                          const SizedBox(height: 60),
                           _buildGuestView(context, textColor),
                         ],
-                        const SizedBox(height: 30),
+                        SizedBox(height: isLandscape ? 10 : 30),
                         _buildFooter(context),
-                        const SizedBox(height: 20),
+                        SizedBox(height: isLandscape ? 10 : 20),
                       ],
                     ),
                   ),
@@ -75,11 +89,12 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // Profile header with user initials and name
+  // builds the visual identification header
   Widget _buildHeader(Color textColor, Color accentGreen, String initials, String name, String email) {
     return Center(
       child: Column(
         children: [
+          // branded avatar container
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: accentGreen, width: 2)),
@@ -93,11 +108,13 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
+          // primary user identification
           Text(
             name, 
             style: GoogleFonts.playfairDisplay(fontSize: 24, fontWeight: FontWeight.bold, color: textColor)
           ),
           const SizedBox(height: 4),
+          // secondary contact metadata
           if (email.isNotEmpty)
             Text(
               email, 
@@ -108,13 +125,15 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // Grid of menu options for a logged-in user
+  // builds the categorical menu of management options
   Widget _buildDashboard(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // section identifier
         Text('DASHBOARD', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 2.0, color: Colors.grey.shade500)),
         const SizedBox(height: 16),
+        // order tracking gateway
         DashboardCard(
           icon: Icons.shopping_bag_outlined,
           title: 'Order History',
@@ -122,6 +141,7 @@ class ProfileScreen extends StatelessWidget {
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const OrderHistoryScreen())),
         ),
         const SizedBox(height: 16),
+        // wishlist persistence gateway
         DashboardCard(
           icon: Icons.favorite_border,
           title: 'Favourites',
@@ -129,6 +149,7 @@ class ProfileScreen extends StatelessWidget {
           onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const FavouritesScreen())),
         ),
         const SizedBox(height: 16),
+        // account metadata mutation gateway
         DashboardCard(
           icon: Icons.person_outline,
           title: 'Edit Profile',
@@ -139,13 +160,15 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // Red themed logout button
+  // builds the secure session termination control
   Widget _buildLogoutButton(BuildContext context, AuthProvider authProvider) {
     return CustomButton(
       text: 'LOGOUT',
       icon: Icons.logout_rounded,
       onPressed: () {
+        // clears local auth state
         authProvider.logout();
+        // redirects to entry point
         Navigator.pushAndRemoveUntil(
           context, 
           MaterialPageRoute(builder: (context) => const LoginScreen()), 
@@ -159,11 +182,13 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // builds the platform branding and copyright footer
   Widget _buildFooter(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text('Copyright © 2026 ', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
+        // primary platform identifier with navigation
         InkWell(
           onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainWrapper()), (route) => false),
           child: Text('WILDTRACE', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF27AE60)))
@@ -173,23 +198,28 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // UI for users who are not logged in
+  // builds the call-to-action viewport for unauthorized sessions
   Widget _buildGuestView(BuildContext context, Color textColor) {
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+
     return Column(
       children: [
-        const SizedBox(height: 20),
-        Icon(Icons.lock_outline, size: 64, color: Colors.grey.withOpacity(0.3)),
-        const SizedBox(height: 24),
+        SizedBox(height: isLandscape ? 0 : 60),
+        // visual status indicator
+        Icon(Icons.lock_outline, size: isLandscape ? 40 : 64, color: Colors.grey.withOpacity(0.3)),
+        SizedBox(height: isLandscape ? 12 : 24),
+        // value proposition messaging
         Text(
           'Personalize Your Experience',
           textAlign: TextAlign.center,
           style: GoogleFonts.playfairDisplay(
-            fontSize: 22,
+            fontSize: isLandscape ? 18 : 22,
             fontWeight: FontWeight.bold,
             color: textColor,
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: isLandscape ? 8 : 12),
+        // descriptive benefit statement
         Text(
           'Sign in to view your order history, manage favorites, and checkout faster.',
           textAlign: TextAlign.center,
@@ -199,23 +229,56 @@ class ProfileScreen extends StatelessWidget {
             height: 1.5,
           ),
         ),
-        const SizedBox(height: 40),
-        CustomButton(
-          text: 'SIGN IN NOW',
-          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen())),
-          type: CustomButtonType.secondary,
-          verticalPadding: 18,
-          fontSize: 13,
-        ),
-        const SizedBox(height: 16),
-        CustomButton(
-          text: 'REGISTER NOW',
-          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterScreen())),
-          type: CustomButtonType.ghost,
-          verticalPadding: 18,
-          fontSize: 13,
-        ),
+        SizedBox(height: isLandscape ? 20 : 40),
+        // adapts navigation targets based on orientation
+        if (isLandscape)
+          Row(
+            children: [
+              Expanded(
+                child: CustomButton(
+                  text: 'SIGN IN NOW',
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
+                  type: CustomButtonType.secondary,
+                  verticalPadding: 16,
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: CustomButton(
+                  text: 'REGISTER NOW',
+                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())),
+                  type: CustomButtonType.ghost,
+                  verticalPadding: 16,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          )
+        else
+          Column(
+            children: [
+              // primary redirection
+              CustomButton(
+                text: 'SIGN IN NOW',
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
+                type: CustomButtonType.secondary,
+                verticalPadding: 18,
+                fontSize: 13,
+              ),
+              const SizedBox(height: 16),
+              // secondary onboarding
+              CustomButton(
+                text: 'REGISTER NOW',
+                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())),
+                type: CustomButtonType.ghost,
+                verticalPadding: 18,
+                fontSize: 13,
+              ),
+            ],
+          ),
       ],
     );
   }
 }
+

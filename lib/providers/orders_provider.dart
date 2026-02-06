@@ -61,6 +61,9 @@ class OrdersProvider with ChangeNotifier {
         'payment_status': paymentStatus,
       };
       final response = await _apiService.placeOrder(orderData, tokenToUse);
+      final orderDate = DateTime.now();
+      final estimatedDeliveryDate = orderDate.add(const Duration(days: 3));
+      
       final order = Order(
         id: (response['order']['id'] ?? 'ORD-${DateTime.now().millisecondsSinceEpoch}').toString(),
         userId: userId,
@@ -69,8 +72,9 @@ class OrdersProvider with ChangeNotifier {
         tax: tax,
         shipping: shipping,
         total: totalPrice,
-        status: OrderStatus.pending,
-        orderDate: DateTime.now(),
+        status: paymentStatus == 'paid' ? OrderStatus.paid : OrderStatus.pending,
+        orderDate: orderDate,
+        estimatedDeliveryDate: estimatedDeliveryDate,
         shippingAddress: shippingAddress,
       );
       _orders.insert(0, order);
@@ -159,18 +163,22 @@ class OrdersProvider with ChangeNotifier {
          final shipping = _parseNum(item['shipping']) > 0 
                          ? _parseNum(item['shipping']) 
                          : totalPrice * 0.1;
-         _orders.add(Order(
-           id: item['id'].toString(),
-           userId: item['user_id'].toString(),
-           items: orderItems,
-           subtotal: subtotal,
-           tax: tax,
-           shipping: shipping,
-           total: totalPrice,
-           status: _parseOrderStatus(item['status'], item['payment_status']),
-           orderDate: DateTime.parse(item['created_at'] ?? DateTime.now().toString()),
-           shippingAddress: item['shipping_address'],
-         ));
+          final orderDate = DateTime.parse(item['created_at'] ?? DateTime.now().toString());
+          _orders.add(Order(
+            id: item['id'].toString(),
+            userId: item['user_id'].toString(),
+            items: orderItems,
+            subtotal: subtotal,
+            tax: tax,
+            shipping: shipping,
+            total: totalPrice,
+            status: _parseOrderStatus(item['status'], item['payment_status']),
+            orderDate: orderDate,
+            estimatedDeliveryDate: item['estimated_delivery_date'] != null 
+                ? DateTime.parse(item['estimated_delivery_date']) 
+                : orderDate.add(const Duration(days: 3)),
+            shippingAddress: item['shipping_address'],
+          ));
       }
     } catch (_) {
     } finally {

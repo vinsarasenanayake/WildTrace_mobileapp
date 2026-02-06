@@ -1,15 +1,12 @@
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:quickalert/quickalert.dart';
 import '../models/product.dart';
-import '../models/photographer.dart';
-import '../models/milestone.dart';
 
-// Main network service
+// main network service
 class ApiService {
   // host configuration
   static String get baseHost => 'https://wildtrace-production.up.railway.app';
@@ -28,7 +25,6 @@ class ApiService {
     String resolvedPath = path;
     if (resolvedPath.startsWith('http')) return resolvedPath;
     String cleanPath = resolvedPath.startsWith('/') ? resolvedPath.substring(1) : resolvedPath;
-    if (cleanPath.startsWith('assets/')) cleanPath = cleanPath.replaceFirst('assets/', '');
     if (cleanPath.startsWith('storage/')) return '$baseHost/$cleanPath';
     return '$baseHostUrl$cleanPath';
   }
@@ -556,19 +552,6 @@ class ApiService {
     } else {
       throw Exception('Failed to load milestones');
     }
-  }
-
-  // syncs local cart with server
-  Future<void> syncCart(List<Map<String, dynamic>> cartData, String token) async {
-    await http.post(
-      Uri.parse('$baseUrl/cart/sync'),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-      body: json.encode({'items': cartData}),
-    ).timeout(const Duration(seconds: 10));
   }
 }
 

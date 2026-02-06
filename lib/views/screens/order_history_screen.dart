@@ -1,10 +1,10 @@
-// Imports
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../providers/orders_provider.dart';
 import '../../models/order.dart';
+import '../../utils/responsive_helper.dart';
 import '../widgets/common/custom_button.dart';
 import '../widgets/cards/order_card.dart';
 import '../widgets/cards/order_item_card.dart';
@@ -14,7 +14,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/navigation_provider.dart';
 import 'package:quickalert/quickalert.dart';
 
-// Order History Screen
+// purchase history records
 class OrderHistoryScreen extends StatefulWidget {
   const OrderHistoryScreen({super.key});
 
@@ -23,7 +23,7 @@ class OrderHistoryScreen extends StatefulWidget {
 }
 
 class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
-  // Fetch user orders upon screen initialization
+  // initiates orders retrieval on component mount
   @override
   void initState() {
     super.initState();
@@ -32,38 +32,48 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     });
   }
 
-  // Refresh the order list from the server
+  // synchronizes local order list with backend records
   Future<void> _refreshOrders() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
+    // requires authenticated session context
     if (authProvider.token != null && authProvider.currentUser?.id != null) {
       await ordersProvider.loadOrders(authProvider.currentUser!.id, authProvider.token!);
     }
   }
 
-  // Handle pending payments using Stripe
+  // manages the payment fulfillment workflow via Stripe
   Future<void> _payWithStripe(Order order) async {
     final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
     
+    // triggers external payment gateway
     await StripeService.instance.makePayment(
       amount: order.total,
       currency: 'USD',
       context: context,
       onSuccess: () async {
+        // synchronizes payment state with platform backend
         final success = await ordersProvider.updatePaymentStatus(order.id, 'paid');
         if (mounted) {
           final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
           if (success) {
+            // provides delivery expectations to the user
+            final estimatedDate = DateTime.now().add(const Duration(days: 3));
+            final formattedDate = DateFormat('MMMM dd, yyyy').format(estimatedDate);
+
             QuickAlert.show(
               context: context,
               type: QuickAlertType.success,
               title: 'Payment Successful',
-              text: 'Order is now being processed.',
+              text: 'Order is now being processed! \nEstimated Delivery: $formattedDate',
               backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
               titleColor: isDarkMode ? Colors.white : Colors.black,
               textColor: isDarkMode ? Colors.white70 : Colors.black87,
+              confirmBtnText: 'OKAY',
+              confirmBtnTextStyle: GoogleFonts.inter(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
             );
           } else {
+            // handles backend synchronization failures post-payment
              QuickAlert.show(
               context: context,
               type: QuickAlertType.error,
@@ -79,9 +89,10 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     );
   }
 
-  // Main build method for the order history UI
+  // builds the visual purchase history workflow
   @override
   Widget build(BuildContext context) {
+    // theme and layout design tokens
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color backgroundColor = isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9);
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
@@ -93,6 +104,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
+        // session exit navigation
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(
@@ -116,14 +128,17 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
           ),
         ),
       ),
+      // dynamic update binding for order records
       body: Consumer<OrdersProvider>(
         builder: (context, ordersProvider, child) {
           final orders = ordersProvider.orders;
           
+          // loading visualization for asynchronous data
           if (ordersProvider.isLoading && orders.isEmpty) {
             return const Center(child: CircularProgressIndicator(color: Color(0xFF27AE60)));
           }
 
+          // handles scenarios where no purchases exist
           if (orders.isEmpty) {
             return Center(
               child: Column(
@@ -140,6 +155,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                     )
                   ),
                   const SizedBox(height: 24),
+                  // guides user back to core value proposition
                   SizedBox(
                     width: 220,
                     child: CustomButton(
@@ -156,6 +172,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
             );
           }
           
+          // manages manual list synchronization
           return RefreshIndicator(
             onRefresh: _refreshOrders,
             color: const Color(0xFF27AE60),
@@ -166,6 +183,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
               itemBuilder: (context, index) {
                 final order = orders[index];
                 
+                // singular order presentation card
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 24.0),
                   child: OrderCard(
@@ -173,8 +191,12 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                     orderId: 'ORDER #${order.id}',
                     date: DateFormat('MMMM d, y').format(order.orderDate),
                     total: '\$${order.total.toStringAsFixed(2)}',
+                    estimatedDelivery: order.estimatedDeliveryDate != null 
+                        ? DateFormat('MMMM d, y').format(order.estimatedDeliveryDate!) 
+                        : null,
                     onPayNow: () => _payWithStripe(order),
                     onCancel: () async {
+                      // validates that order can still be aborted
                       if (order.status == OrderStatus.pending) {
                         final success = await ordersProvider.cancelOrder(order.id);
                         if (context.mounted) {
@@ -202,6 +224,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                           }
                         }
                       } else {
+                        // feedback for immutable order states
                         final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
                         QuickAlert.show(
                           context: context,
@@ -214,12 +237,13 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                         );
                       }
                     },
+                    // transforms internal line items for presentation
                     items: order.items.map((item) => OrderItem(
                       image: item.product.imageUrl,
                       title: item.product.title,
-                      subtitle: item.product.category,
+                      subtitle: item.size ?? item.product.category,
                       quantity: item.quantity,
-                      price: item.product.price,
+                      price: item.price ?? item.product.price,
                     )).toList(),
                   ),
                 );
@@ -231,6 +255,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     );
   }
   
+  // transforms enum state to human readable identifier
   String _statusToString(OrderStatus status) {
     switch (status) {
       case OrderStatus.pending: return 'PENDING';
@@ -243,3 +268,4 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     }
   }
 }
+

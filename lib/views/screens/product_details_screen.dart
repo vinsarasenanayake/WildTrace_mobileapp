@@ -5,7 +5,9 @@ import '../../models/product.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/favorites_provider.dart';
 import '../../providers/products_provider.dart';
+import '../../providers/products_provider.dart';
 import '../../providers/navigation_provider.dart';
+import '../../utils/responsive_helper.dart';
 import '../widgets/common/custom_button.dart';
 import '../widgets/common/section_title.dart';
 import '../widgets/common/quantity_selector.dart';
@@ -18,8 +20,9 @@ import '../screens/login_screen.dart';
 import 'cart_screen.dart';
 import 'package:quickalert/quickalert.dart';
 
-// Product Details Screen
+// product immersive details
 class ProductDetailsScreen extends StatefulWidget {
+  // core product reference
   final Product product;
 
   const ProductDetailsScreen({
@@ -31,8 +34,8 @@ class ProductDetailsScreen extends StatefulWidget {
   State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
 }
 
-// Product Details State
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
+  // configuration state
   String _selectedSize = '12 x 18 in';
   int _quantity = 1;
   double? _currentPrice;
@@ -42,13 +45,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   final List<String> _sizes = [];
   final ApiService _apiService = ApiService();
 
-  // Initial setup for product details
+  // establishes initial state and data synchronization
   @override
   void initState() {
     super.initState();
     _currentPrice = widget.product.price;
     
-    // Parse sizes from options
+    // extracts available frame sizes from product options
     if (widget.product.options != null && widget.product.options!['frames'] != null) {
       final List frames = widget.product.options!['frames'];
       for (var frame in frames) {
@@ -58,20 +61,21 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       }
     }
     
-    // Fallback if no sizes in options
+    // provides fallback dimensions if none specified
     if (_sizes.isEmpty) {
       _sizes.addAll(['12 x 18 in', '18 x 24 in', '24 x 36 in', '40 x 60 in']);
     }
 
     _selectedSize = _sizes.first;
     
-    // Initial fetch for default size
+    // synchronizes specific configuration pricing
     _fetchPrice(_selectedSize);
     
-    // Fetch full product details (photographer info, etc.)
+    // retrieves extended product metadata (photographer bio, etc)
     _fetchFullDetails();
   }
 
+  // synchronizes detailed product records from the server
   Future<void> _fetchFullDetails() async {
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -87,8 +91,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     }
   }
 
+  // restricts interaction for guest users
   Future<void> _showLoginRequiredAlert() async {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     QuickAlert.show(
       context: context,
       type: QuickAlertType.warning,
@@ -101,31 +107,33 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       showCancelBtn: false,
       widget: Column(
         children: [
-          const SizedBox(height: 24),
+          SizedBox(height: isLandscape ? 8 : 24),
           Row(
             children: [
+              // dismiss feedback
               Expanded(
                 child: CustomButton(
                   text: 'LATER',
                   fontSize: 10,
-                  verticalPadding: 12,
+                  verticalPadding: isLandscape ? 8 : 12,
                   backgroundColor: isDarkMode ? Colors.grey.withOpacity(0.2) : Colors.grey.shade200,
                   foregroundColor: isDarkMode ? Colors.white : Colors.grey.shade800,
                   onPressed: () {
-                    Navigator.pop(context); // Close alert
+                    Navigator.pop(context); 
                   },
                 ),
               ),
               const SizedBox(width: 12),
+              // primary redirection
               Expanded(
                 child: CustomButton(
                   text: 'LOGIN',
                   fontSize: 10,
-                  verticalPadding: 12,
-                  backgroundColor: const Color(0xFF3498DB), // Match QuickAlert blue
+                  verticalPadding: isLandscape ? 8 : 12,
+                  backgroundColor: const Color(0xFF3498DB), 
                   foregroundColor: Colors.white,
                   onPressed: () {
-                    Navigator.pop(context); // Close alert
+                    Navigator.pop(context); 
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -140,6 +148,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
+  // retrieves updated pricing for specific item configurations
   Future<void> _fetchPrice(String size) async {
     setState(() => _isPriceLoading = true);
     
@@ -164,11 +173,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     }
   }
 
-  // Main build method for the product details page
+  // builds the immersive product detail viewport
   @override
   Widget build(BuildContext context) {
+    // theme and adaptive layout design tokens
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     
     return Scaffold(
       backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
@@ -177,6 +188,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         elevation: 0, 
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
+        // modal exit control
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(
@@ -203,25 +215,55 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         padding: const EdgeInsets.fromLTRB(24, 40, 24, 40),
         child: Column(
           children: [
-            _buildHeading(textColor),
+            // primary product identification
+            _buildHeading(textColor, isLandscape),
+            SizedBox(height: isLandscape ? 24 : 48),
+            // adapts visual weight based on orientation
+            isLandscape 
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: _buildMainImage(isLandscape)),
+                    const SizedBox(width: 24),
+                    Expanded(child: _buildPurchaseOptions(isDarkMode, textColor, isLandscape)),
+                  ],
+                )
+              : Column(
+                  children: [
+                    _buildMainImage(),
+                    const SizedBox(height: 48),
+                    _buildPurchaseOptions(isDarkMode, textColor),
+                  ],
+                ),
             const SizedBox(height: 48),
-            _buildMainImage(),
-            const SizedBox(height: 48),
-            _buildPurchaseOptions(isDarkMode, textColor),
-            const SizedBox(height: 48),
-            _buildStory(textColor),
-            const SizedBox(height: 48),
-            _buildPhotographerProfile(),
+            // secondary descriptive content
+            isLandscape
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: _buildStory(textColor, isLandscape)),
+                    const SizedBox(width: 24),
+                    Expanded(child: _buildPhotographerProfile()),
+                  ],
+                )
+              : Column(
+                  children: [
+                    _buildStory(textColor),
+                    const SizedBox(height: 48),
+                    _buildPhotographerProfile(),
+                  ],
+                ),
             const SizedBox(height: 60),
-            _buildSimilarWorks(textColor),
+            // cross-sell recommendations
+            _buildSimilarWorks(textColor, isLandscape),
           ],
         ),
       ),
     );
   }
 
-  // Helper Methods
-  Widget _buildHeading(Color textColor) {
+  // builds product title and capture metadata
+  Widget _buildHeading(Color textColor, [bool isLandscape = false]) {
     return Column(
       children: [
         SectionTitle(title: widget.product.category, mainAxisAlignment: MainAxisAlignment.center),
@@ -231,12 +273,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           textAlign: TextAlign.center, 
           style: GoogleFonts.playfairDisplay(
             color: textColor, 
-            fontSize: 48, 
+            fontSize: isLandscape ? 32 : 48, 
             fontStyle: FontStyle.italic, 
             height: 1.1
           )
         ),
         const SizedBox(height: 24),
+        // attribution and location markers
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -261,6 +304,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
   
+  // builds singular metadata label
   Widget _meta(String text) => Text(
     text, 
     style: GoogleFonts.inter(
@@ -271,30 +315,27 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     )
   );
 
-  // Display the main product image
-  Widget _buildMainImage() {
+  // builds the main artistic showcase image
+  Widget _buildMainImage([bool isLandscape = false]) {
     return Container(
-      height: 400,
+      height: 400, 
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(32)),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(32), 
-        child: widget.product.imageUrl.startsWith('http')
-          ? Image.network(
-              widget.product.imageUrl, 
-              fit: BoxFit.cover, 
-              errorBuilder: (_,__,___) => Container(color: Colors.grey[900])
-            )
-          : Image.asset(
-              widget.product.imageUrl, 
-              fit: BoxFit.cover, 
-              errorBuilder: (_,__,___) => Container(color: Colors.grey[900])
-            )
+        child: Image.network(
+          widget.product.imageUrl.startsWith('http') ? widget.product.imageUrl : '${ApiService.baseHost}/${widget.product.imageUrl}', 
+          fit: BoxFit.cover, 
+          errorBuilder: (_,__,___) => Container(
+            color: Colors.grey[900],
+            child: const Center(child: Icon(Icons.broken_image, color: Colors.white24, size: 48)),
+          )
+        )
       ),
     );
   }
 
-  // Size selection and quantity selection controls
-  Widget _buildPurchaseOptions(bool isDarkMode, Color textColor) {
+  // builds the interactive configuration and commerce container
+  Widget _buildPurchaseOptions(bool isDarkMode, Color textColor, [bool isLandscape = false]) {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
 
     return Container(
@@ -318,6 +359,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey.shade500)
           ),
           const SizedBox(height: 8),
+          // provides visual feedback for price synchronization
           _isPriceLoading 
             ? const SizedBox(
                 height: 44, 
@@ -337,16 +379,32 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey.shade500)
           ),
           const SizedBox(height: 12),
-          GridView.count(
-            padding: EdgeInsets.zero, 
-            crossAxisCount: 2, 
-            shrinkWrap: true, 
-            physics: const NeverScrollableScrollPhysics(),
-            childAspectRatio: 2.5, 
-            mainAxisSpacing: 12, 
-            crossAxisSpacing: 12,
-            children: _sizes.map((s) => _sizeBtn(s, isDarkMode)).toList(),
-          ),
+          // adaptive size selection grid or row
+          isLandscape 
+            ? Row(
+                children: _sizes.map((s) => Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: _sizeBtn(s, isDarkMode, true), 
+                  )
+                )).toList(),
+              )
+            : Builder(
+                builder: (context) {
+                  final gridColumns = ResponsiveHelper.getGridCrossAxisCount(context, portrait: 2);
+                  final spacing = ResponsiveHelper.getSpacing(context, portrait: 12);
+                  return GridView.count(
+                    padding: EdgeInsets.zero, 
+                    crossAxisCount: gridColumns, 
+                    shrinkWrap: true, 
+                    physics: const NeverScrollableScrollPhysics(),
+                    childAspectRatio: 2.5, 
+                    mainAxisSpacing: spacing, 
+                    crossAxisSpacing: spacing,
+                    children: _sizes.map((s) => _sizeBtn(s, isDarkMode, false)).toList(),
+                  );
+                }
+              ),
           const SizedBox(height: 32),
           Text(
             'QUANTITY', 
@@ -366,23 +424,27 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ),
           ]),
           const SizedBox(height: 32),
+          // primary commerce actions
           Row(children: [
             Expanded(
               child: CustomButton(
                 text: 'ADD TO CART', 
                 onPressed: () {
                   final auth = Provider.of<AuthProvider>(context, listen: false);
+                  // validates authenticated context
                   if (!auth.isAuthenticated) {
                     _showLoginRequiredAlert();
                     return;
                   }
 
+                  // persists selection to cart state
                   cartProvider.addToCart(
                     widget.product, 
                     quantity: _quantity, 
                     size: _selectedSize, 
                     price: _currentPrice
                   );
+                  // modal confirmation of successful action
                   final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
                   QuickAlert.show(
                     context: context,
@@ -396,34 +458,35 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     showCancelBtn: false,
                     widget: Column(
                       children: [
-                        const SizedBox(height: 24),
+                        SizedBox(height: isLandscape ? 8 : 24),
                         Row(
                           children: [
+                            // allows further exploration
                             Expanded(
                               child: CustomButton(
                                 text: 'CONTINUE',
                                 fontSize: 10,
-                                verticalPadding: 12,
+                                verticalPadding: isLandscape ? 8 : 12,
                                 backgroundColor: isDarkMode ? Colors.grey.withOpacity(0.2) : Colors.grey.shade200,
                                 foregroundColor: isDarkMode ? Colors.white : Colors.grey.shade800,
                                 onPressed: () {
-                                  Navigator.pop(context); // Close alert
-                                  Navigator.pop(context); // Close details screen
-                                  // Continue shopping implies going back to list, which we usually are at
+                                  Navigator.pop(context); 
+                                  Navigator.pop(context); 
                                 },
                               ),
                             ),
                             const SizedBox(width: 12),
+                            // redirects to conversion tunnel
                             Expanded(
                               child: CustomButton(
                                 text: 'VIEW CART',
                                 fontSize: 10,
-                                verticalPadding: 12,
-                                backgroundColor: Colors.blue, // Match QuickAlert blue
+                                verticalPadding: isLandscape ? 8 : 12,
+                                backgroundColor: Colors.blue, 
                                 foregroundColor: Colors.white,
                                 onPressed: () {
-                                  Navigator.pop(context); // Close alert
-                                  Navigator.pop(context); // Close details screen
+                                  Navigator.pop(context); 
+                                  Navigator.pop(context); 
                                   Provider.of<NavigationProvider>(context, listen: false).setSelectedIndex(2);
                                 },
                               ),
@@ -432,7 +495,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         ),
                       ],
                     ),
-                    onConfirmBtnTap: () {}, // Not used but required if showConfirmBtn is true
+                    onConfirmBtnTap: () {}, 
                   );
                 }, 
                 type: CustomButtonType.secondary
@@ -446,7 +509,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _sizeBtn(String size, bool isDarkMode) {
+  // builds singular interactive size selection button
+  Widget _sizeBtn(String size, bool isDarkMode, [bool isSmall = false]) {
     final bool sel = size == _selectedSize;
     return InkWell(
       onTap: () {
@@ -457,6 +521,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       },
       child: Container(
         alignment: Alignment.center,
+        padding: isSmall ? const EdgeInsets.symmetric(vertical: 8) : null,
         decoration: BoxDecoration(
           color: sel ? const Color(0xFF27AE60).withOpacity(0.1) : Colors.transparent, 
           border: Border.all(
@@ -466,8 +531,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         ),
         child: Text(
           size, 
+          textAlign: TextAlign.center,
           style: GoogleFonts.inter(
-            fontSize: 12, 
+            fontSize: isSmall ? 10 : 12, 
             fontWeight: FontWeight.bold, 
             color: sel ? const Color(0xFF27AE60) : (isDarkMode ? Colors.white : Colors.black)
           )
@@ -476,12 +542,14 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
+  // builds the persistence control for favorites
   Widget _favBtn() {
     return Consumer2<FavoritesProvider, AuthProvider>(
       builder: (context, favoritesProvider, authProvider, child) {
         final isLiked = favoritesProvider.isFavorite(widget.product.id);
         return InkWell(
           onTap: () {
+            // requires verification for mutation
             if (!authProvider.isAuthenticated) {
               _showLoginRequiredAlert();
               return;
@@ -505,35 +573,45 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  // Detailed description and technical stats
-  Widget _buildStory(Color textColor) {
+  // builds the philosophical and technical background section
+  Widget _buildStory(Color textColor, [bool isLandscape = false]) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionTitle(title: 'Behind the Lens', color: textColor),
         const SizedBox(height: 24),
+        // capture narrative
         Text(
           widget.product.description ?? "Every photograph in our collection is a testament to the untamed beauty of the natural world, captured with patience and respect.", 
           style: GoogleFonts.inter(fontSize: 14, height: 1.8, color: Colors.grey.shade600)
         ),
         const SizedBox(height: 24),
-        GridView.count(
-          padding: EdgeInsets.zero, 
-          crossAxisCount: 2, 
-          shrinkWrap: true, 
-          physics: const NeverScrollableScrollPhysics(), 
-          childAspectRatio: 3.0,
-          children: [
-            _stat('APERTURE', 'f/5.6', textColor), 
-            _stat('SHUTTER', '1/4000s', textColor), 
-            _stat('ISO', '800', textColor), 
-            _stat('FOCAL', '85mm', textColor)
-          ],
+        // grid visualization of camera parameters
+        Builder(
+          builder: (context) {
+            final gridColumns = isLandscape ? 2 : ResponsiveHelper.getGridCrossAxisCount(context, portrait: 2);
+            return GridView.count(
+              padding: EdgeInsets.zero, 
+              crossAxisCount: gridColumns, 
+              shrinkWrap: true, 
+              physics: const NeverScrollableScrollPhysics(), 
+              childAspectRatio: 3.0,
+              mainAxisSpacing: 16, 
+              crossAxisSpacing: 16,
+              children: [
+                _stat('APERTURE', 'f/5.6', textColor), 
+                _stat('SHUTTER', '1/4000s', textColor), 
+                _stat('ISO', '800', textColor), 
+                _stat('FOCAL', '85mm', textColor)
+              ],
+            );
+          }
         ),
       ],
     );
   }
   
+  // builds singular technical parameter label
   Widget _stat(String l, String v, Color c) => Column(
     crossAxisAlignment: CrossAxisAlignment.start, 
     children: [
@@ -542,7 +620,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     ]
   );
 
-  // Profile of the photographer who captured the shot
+  // builds the biography for the originating photographer
   Widget _buildPhotographerProfile() {
     final product = _fullProduct ?? widget.product;
     return PhotographerCard(
@@ -557,25 +635,28 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  Widget _buildSimilarWorks(Color textColor) {
+  // builds a cross-sell grid of related artistic entities
+  Widget _buildSimilarWorks(Color textColor, [bool isLandscape = false]) {
     return Consumer2<ProductsProvider, FavoritesProvider>(
       builder: (context, productsProvider, favoritesProvider, child) {
-        // 1. Get products from the same category (excluding current)
+        final int itemCount = isLandscape ? 6 : 4;
+
+        // filters for entities within the same philosophical category
         final List<Product> sameCategory = productsProvider.products
             .where((p) => p.category == widget.product.category && p.id != widget.product.id)
             .toList();
 
-        // 2. If we have less than 4, get other products to fill the slots
+        // fills recommendation slots if category proximity is low
         final List<Product> similar = [...sameCategory];
-        if (similar.length < 4) {
+        if (similar.length < itemCount) {
           final otherProducts = productsProvider.products
               .where((p) => p.id != widget.product.id && !similar.any((s) => s.id == p.id))
               .toList();
           
-          similar.addAll(otherProducts.take(4 - similar.length));
+          similar.addAll(otherProducts.take(itemCount - similar.length));
         }
 
-        final displayItems = similar.take(4).toList();
+        final displayItems = similar.take(itemCount).toList();
 
         if (displayItems.isEmpty) return const SizedBox();
 
@@ -586,33 +667,41 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               style: GoogleFonts.playfairDisplay(fontSize: 26, fontStyle: FontStyle.italic, color: textColor)
             ),
             const SizedBox(height: 32),
-            GridView.builder(
-              padding: EdgeInsets.zero, 
-              shrinkWrap: true, 
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, 
-                mainAxisSpacing: 24, 
-                crossAxisSpacing: 16, 
-                childAspectRatio: 0.7
-              ),
-              itemCount: displayItems.length,
-              itemBuilder: (context, index) {
-                final p = displayItems[index];
-                return ProductCard(
-                  imageUrl: p.imageUrl,
-                  category: p.category,
-                  title: p.title,
-                  author: p.author,
-                  price: '\$${p.price.toStringAsFixed(2)}',
-                  isLiked: favoritesProvider.isFavorite(p.id),
-                  onLikeToggle: () => favoritesProvider.toggleFavorite(p),
-                  onTap: () => Navigator.pushReplacement(
-                    context, 
-                    MaterialPageRoute(builder: (_) => ProductDetailsScreen(product: p))
+            // adaptive grid for recommendations
+            Builder(
+              builder: (context) {
+                final gridColumns = isLandscape ? 3 : ResponsiveHelper.getGridCrossAxisCount(context, portrait: 2);
+                final spacing = ResponsiveHelper.getSpacing(context, portrait: 16);
+                final aspectRatio = ResponsiveHelper.getGridChildAspectRatio(context, portrait: 0.7);
+                return GridView.builder(
+                  padding: EdgeInsets.zero, 
+                  shrinkWrap: true, 
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: gridColumns, 
+                    mainAxisSpacing: 24, 
+                    crossAxisSpacing: spacing, 
+                    childAspectRatio: aspectRatio
                   ),
+                  itemCount: displayItems.length,
+                  itemBuilder: (context, index) {
+                    final p = displayItems[index];
+                    return ProductCard(
+                      imageUrl: p.imageUrl,
+                      category: p.category,
+                      title: p.title,
+                      author: p.author,
+                      price: '\$${p.price.toStringAsFixed(2)}',
+                      isLiked: favoritesProvider.isFavorite(p.id),
+                      onLikeToggle: () => favoritesProvider.toggleFavorite(p),
+                      onTap: () => Navigator.pushReplacement(
+                        context, 
+                        MaterialPageRoute(builder: (_) => ProductDetailsScreen(product: p))
+                      ),
+                    );
+                  },
                 );
-              },
+              }
             ),
           ],
         );
@@ -620,3 +709,4 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 }
+

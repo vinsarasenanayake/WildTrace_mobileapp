@@ -27,7 +27,7 @@ class Photographer {
       achievement: json['achievement'] ?? '',
       quote: json['quote'] ?? '',
       post: json['post'],
-      imageUrl: json['image_url'] ?? json['image'] ?? 'assets/images/placeholder.jpg',
+      imageUrl: (json['image_url'] ?? json['image'] ?? '').toString(),
     );
   }
 }

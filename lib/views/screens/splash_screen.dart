@@ -1,10 +1,11 @@
-// Animated splash screen for initial app loading and state restoration
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/products_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/content_provider.dart';
 import '../../main_wrapper.dart';
 
+// app launch screen
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -13,35 +14,41 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+  // animation controllers
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
 
-  // Setup animations and begin data pre-fetching
+  // initializes animations and starts data loading
   @override
   void initState() {
     super.initState();
+    
+    // setup animation controller
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 2000),
     );
 
+    // fade in animation
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.5, curve: Curves.easeIn)),
     );
 
+    // scale up animation
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.5, curve: Curves.easeOutBack)),
     );
 
+    // start animations
     _controller.forward();
     _navigateToHome();
   }
 
-  // Handle app initialization and navigation to main screen
+  // loads initial data and navigates to main screen
   void _navigateToHome() async {
     try {
-      // Wait for AuthProvider to restore session
+      // wait for auth session restoration
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       int retryCount = 0;
       while (authProvider.isLoading && retryCount < 20) {
@@ -49,45 +56,49 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         retryCount++;
       }
 
-      // Start fetching products
+      // fetch products and content concurrently
       final productsProvider = Provider.of<ProductsProvider>(context, listen: false);
-      final fetchFuture = productsProvider.fetchProducts();
+      final contentProvider = Provider.of<ContentProvider>(context, listen: false);
       
-      // Minimum wait time for splash - reduced from 3s to 1.5s for better UX
+      final fetchFuture = productsProvider.fetchProducts();
+      final contentFuture = contentProvider.fetchContent();
+      
+      // minimum splash display time
       final waitFuture = Future.delayed(const Duration(milliseconds: 1500));
       
-      // Wait for both, but we can set a timeout for fetching if needed
+      // wait for all data to load
       await Future.wait([
-        fetchFuture.timeout(const Duration(seconds: 5), onTimeout: () {
-          return;
-        }), 
+        fetchFuture.timeout(const Duration(seconds: 10), onTimeout: () {}), 
+        contentFuture.timeout(const Duration(seconds: 10), onTimeout: () {}),
         waitFuture
       ]);
 
+      // navigate to main app
       if (mounted) {
-
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MainWrapper()),
+          MaterialPageRoute(builder: (context) => MainWrapper()),
         );
       }
     } catch (e) {
-
+      // navigate even if data fetch fails
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MainWrapper()),
+          MaterialPageRoute(builder: (context) => MainWrapper()),
         );
       }
     }
   }
 
+  // cleanup animation controller
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  // builds animated splash screen ui
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -103,6 +114,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // app logo
                     Image.asset(
                       'assets/images/logo.png',
                       height: 120,
@@ -113,6 +125,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       ),
                     ),
                     const SizedBox(height: 24),
+                    // app title
                     const Text(
                       'WILD TRACE',
                       style: TextStyle(
@@ -123,6 +136,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       ),
                     ),
                     const SizedBox(height: 8),
+                    // app tagline
                     const Text(
                       'UNTAMED • TIMELESS',
                       style: TextStyle(
@@ -132,6 +146,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       ),
                     ),
                     const SizedBox(height: 48),
+                    // loading indicator
                     const SizedBox(
                       width: 40,
                       height: 40,
@@ -150,6 +165,3 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     );
   }
 }
-
-
-

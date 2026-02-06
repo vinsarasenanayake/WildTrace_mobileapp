@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../services/api_service.dart';
 
+// artist profile display card
 class PhotographerCard extends StatelessWidget {
+  // photographer details
   final String imagePath;
   final String name;
   final String role;
@@ -19,20 +22,25 @@ class PhotographerCard extends StatelessWidget {
     this.badgeText,
   });
 
+  // builds photographer profile card with image and details
   @override
   Widget build(BuildContext context) {
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    
+    // card container with background image
     return Container(
-      height: 520,
+      height: isLandscape ? 320 : 520,
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
         image: DecorationImage(
-          image: imagePath.startsWith('http') 
-              ? NetworkImage(imagePath) as ImageProvider
-              : AssetImage(imagePath),
+          image: NetworkImage(
+            imagePath.startsWith('http') ? imagePath : '${ApiService.baseHost}/$imagePath'
+          ) as ImageProvider,
           fit: BoxFit.cover,
         ),
       ),
+      // gradient overlay for text readability
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(32),
@@ -43,7 +51,7 @@ class PhotographerCard extends StatelessWidget {
             stops: const [0.4, 1.0],
           ),
         ),
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(isLandscape ? 16 : 24),
         child: Stack(
           children: [
             if (badgeText != null)
@@ -51,7 +59,10 @@ class PhotographerCard extends StatelessWidget {
                 top: 0,
                 right: 0,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isLandscape ? 12 : 16, 
+                    vertical: isLandscape ? 6 : 8
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFF27AE60),
                     borderRadius: BorderRadius.circular(20),
@@ -59,7 +70,7 @@ class PhotographerCard extends StatelessWidget {
                   child: Text(
                     badgeText!,
                     style: GoogleFonts.inter(
-                      fontSize: 10,
+                      fontSize: isLandscape ? 9 : 10,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.0,
                       color: Colors.white,
@@ -74,44 +85,44 @@ class PhotographerCard extends StatelessWidget {
                 Text(
                   name,
                   style: GoogleFonts.playfairDisplay(
-                    fontSize: 36, 
+                    fontSize: isLandscape ? 24 : 36, 
                     fontWeight: FontWeight.w400,
                     fontStyle: FontStyle.italic,
                     color: Colors.white,
                     height: 1.1,
                   ),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: isLandscape ? 4 : 8),
                 Text(
                     role.toUpperCase(),
                   style: GoogleFonts.inter(
-                    fontSize: 10,
+                    fontSize: isLandscape ? 8 : 10,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 2.0,
                     color: const Color(0xFF27AE60),
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: isLandscape ? 12 : 24),
                 Container(
-                  padding: const EdgeInsets.only(left: 16),
-                  decoration: const BoxDecoration(
-                    border: Border(left: BorderSide(color: Color(0xFF27AE60), width: 2)),
+                  padding: EdgeInsets.only(left: isLandscape ? 12 : 16),
+                  decoration: BoxDecoration(
+                    border: Border(left: BorderSide(color: const Color(0xFF27AE60), width: isLandscape ? 1.5 : 2)),
                   ),
                   child: Text(
                     '"$quote"',
                     style: GoogleFonts.inter(
-                      fontSize: 14,
+                      fontSize: isLandscape ? 11 : 14,
                       fontStyle: FontStyle.italic,
                       color: Colors.white.withOpacity(0.9),
                       height: 1.5,
                     ),
                   ),
                 ),
-                const SizedBox(height: 32),
+                SizedBox(height: isLandscape ? 16 : 32),
                 Text(
                   achievement.toUpperCase(),
                   style: GoogleFonts.inter(
-                    fontSize: 10,
+                    fontSize: isLandscape ? 8 : 10,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 2.0,
                     color: Colors.white,
@@ -125,4 +136,3 @@ class PhotographerCard extends StatelessWidget {
     );
   }
 }
-

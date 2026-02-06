@@ -1,9 +1,9 @@
-// Secure login interface for existing collectors joined to the platform
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../main_wrapper.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/responsive_helper.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 import '../widgets/common/custom_text_field.dart';
@@ -11,6 +11,7 @@ import '../widgets/common/wildtrace_logo.dart';
 import '../widgets/common/custom_button.dart';
 import 'package:quickalert/quickalert.dart';
 
+// user login screen
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -19,11 +20,15 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  // UI state for credential visibility
   bool _obscurePassword = true;
+  // controllers for user input
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  // manages the authentication submission process
   Future<void> _handleLogin(AuthProvider authProvider, bool isDarkMode) async {
+    // validates that both fields are populated
     if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
       QuickAlert.show(
         context: context,
@@ -50,17 +55,20 @@ class _LoginScreenState extends State<LoginScreen> {
     }
     
     try {
+      // attempts authentication via the provider
       final success = await authProvider.login(
         _emailController.text, 
         _passwordController.text
       );
+      // navigates to main platform upon success
       if (success && mounted) {
         Navigator.pushAndRemoveUntil(
           context, 
-          MaterialPageRoute(builder: (context) => const MainWrapper()), 
+          MaterialPageRoute(builder: (context) => MainWrapper()), 
           (route) => false
         );
       } else if (mounted) {
+        // handles generic authentication failure
         QuickAlert.show(
           context: context,
           type: QuickAlertType.error,
@@ -78,6 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
+      // provides granular error feedback from the backend
       if (mounted) {
         String errorMessage = e.toString().replaceAll('Exception: ', '');
         QuickAlert.show(
@@ -99,9 +108,12 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // builds the visual login workflow
   @override
   Widget build(BuildContext context) {
+    // theme and adaptive layout detection
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     
     return Scaffold(
       backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
@@ -110,6 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
+        // session exit navigation
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(
@@ -124,6 +137,8 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
       body: SafeArea(
+        left: false,
+        right: false,
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Consumer<AuthProvider>(
@@ -132,11 +147,13 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 40),
+                  // platform branding navigation
                   GestureDetector(
-                    onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainWrapper()), (route) => false),
+                    onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainWrapper()), (route) => false),
                     child: const WildTraceLogo()
                   ),
                   const SizedBox(height: 24),
+                  // page identification
                   Text(
                     'Welcome Back',
                     style: GoogleFonts.playfairDisplay(
@@ -151,7 +168,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     style: GoogleFonts.inter(fontSize: 12, letterSpacing: 1.5, fontWeight: FontWeight.w600, color: isDarkMode ? Colors.white70 : Colors.grey[600]),
                   ),
                   const SizedBox(height: 48),
+                  // credentials input container
                   Container(
+                    width: isLandscape ? MediaQuery.of(context).size.width * 0.6 : null, 
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
@@ -161,29 +180,63 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CustomTextField(
-                          label: 'EMAIL ADDRESS', 
-                          controller: _emailController, 
-                          hintText: 'name@example.com',
-                          textInputAction: TextInputAction.next,
-                        ),
-                        const SizedBox(height: 24),
-                        CustomTextField(
-                          label: 'PASSWORD', 
-                          controller: _passwordController, 
-                          hintText: '........', 
-                          isObscure: _obscurePassword, 
-                          hasToggle: true, 
-                          onToggleVisibility: () => setState(() => _obscurePassword = !_obscurePassword),
-                          textInputAction: TextInputAction.done,
-                          onSubmitted: (_) => _handleLogin(authProvider, isDarkMode),
-                        ),
+                        // adapts input field layout based on screen orientation
+                        isLandscape
+                          ? Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: CustomTextField(
+                                    label: 'EMAIL ADDRESS', 
+                                    controller: _emailController, 
+                                    hintText: 'name@example.com',
+                                    textInputAction: TextInputAction.next,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: CustomTextField(
+                                    label: 'PASSWORD', 
+                                    controller: _passwordController, 
+                                    hintText: '........', 
+                                    isObscure: _obscurePassword, 
+                                    hasToggle: true, 
+                                    onToggleVisibility: () => setState(() => _obscurePassword = !_obscurePassword),
+                                    textInputAction: TextInputAction.done,
+                                    onSubmitted: (_) => _handleLogin(authProvider, isDarkMode),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Column(
+                              children: [
+                                CustomTextField(
+                                  label: 'EMAIL ADDRESS', 
+                                  controller: _emailController, 
+                                  hintText: 'name@example.com',
+                                  textInputAction: TextInputAction.next,
+                                ),
+                                const SizedBox(height: 24),
+                                CustomTextField(
+                                  label: 'PASSWORD', 
+                                  controller: _passwordController, 
+                                  hintText: '........', 
+                                  isObscure: _obscurePassword, 
+                                  hasToggle: true, 
+                                  onToggleVisibility: () => setState(() => _obscurePassword = !_obscurePassword),
+                                  textInputAction: TextInputAction.done,
+                                  onSubmitted: (_) => _handleLogin(authProvider, isDarkMode),
+                                ),
+                              ],
+                            ),
                         const SizedBox(height: 32),
+                        // main action trigger with loading state feedback
                         CustomButton(
                           text: authProvider.isLoading ? 'SIGNING IN...' : 'SIGN IN', 
                           onPressed: authProvider.isLoading ? () {} : () => _handleLogin(authProvider, isDarkMode)
                         ),
                         const SizedBox(height: 24),
+                        // secondary navigation options
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -204,12 +257,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 48),
+                  // branding and copyright attribution
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text('Copyright © 2026 ', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
                       InkWell(
-                        onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const MainWrapper()), (route) => false),
+                        onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainWrapper()), (route) => false),
                         child: Text('WILDTRACE', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF27AE60)))
                       ),
                       Text('. All Rights Reserved.', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
@@ -225,3 +279,4 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+

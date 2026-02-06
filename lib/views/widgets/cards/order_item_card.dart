@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// individual order item display
 class OrderItem extends StatelessWidget {
+  // item details
   final String image;
   final String title;
   final int quantity;
@@ -17,6 +19,7 @@ class OrderItem extends StatelessWidget {
     this.subtitle,
   });
 
+  // builds order item row with image and details
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -26,6 +29,7 @@ class OrderItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
+          // product image
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: image.startsWith('http')
@@ -39,6 +43,7 @@ class OrderItem extends StatelessWidget {
                 ),
           ),
           const SizedBox(width: 16),
+          // product title and quantity info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,6 +68,7 @@ class OrderItem extends StatelessWidget {
               ],
             ),
           ),
+          // total price
           Text(
             '\$${(price * quantity).toStringAsFixed(2)}',
             style: GoogleFonts.inter(

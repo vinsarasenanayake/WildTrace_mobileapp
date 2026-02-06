@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 // quantity adjustment controls
 class QuantitySelector extends StatelessWidget {
+  // quantity state and callbacks
   final int quantity;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
@@ -14,6 +15,7 @@ class QuantitySelector extends StatelessWidget {
     required this.onDecrement,
   });
 
+  // builds quantity selector with increment/decrement buttons
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -54,7 +56,7 @@ class QuantitySelector extends StatelessWidget {
     );
   }
 
-  // button builder helper
+  // creates increment or decrement button
   Widget _buildButton(IconData icon, VoidCallback onTap, bool isDarkMode) {
     return InkWell(
       onTap: onTap,

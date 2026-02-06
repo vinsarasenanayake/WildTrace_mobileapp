@@ -1,20 +1,18 @@
-// ============================================================================
-// IMPORTS
-// ============================================================================
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../common/custom_button.dart';
 import 'order_item_card.dart';
 
-// ============================================================================
-// ORDER SUMMARY CARD WIDGET
-// ============================================================================
+// financial breakdown and action card
 class OrderSummaryCard extends StatelessWidget {
+  // summary content
   final String? title;
   final List<Widget>? items;
   final String totalLabel;
   final String totalValue;
   final String? subtitle;
+  
+  // action buttons
   final String primaryButtonLabel;
   final VoidCallback primaryButtonOnTap;
   final String? secondaryButtonLabel;
@@ -37,7 +35,7 @@ class OrderSummaryCard extends StatelessWidget {
     this.footerText,
   });
 
-  // --- Build Method ---
+  // builds summary card with items, total, and action buttons
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;

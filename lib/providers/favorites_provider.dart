@@ -40,8 +40,8 @@ class FavoritesProvider with ChangeNotifier {
   }
 
   // toggles favorite status
-  Future<void> toggleFavorite(Product product) async {
-    final tokenToUse = _token;
+  Future<void> toggleFavorite(Product product, {String? token}) async {
+    final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
     try {
       final index = _favorites.indexWhere((p) => p.id == product.id);

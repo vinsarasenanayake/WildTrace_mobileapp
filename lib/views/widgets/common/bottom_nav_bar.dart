@@ -4,10 +4,11 @@ import 'package:provider/provider.dart';
 import '../../../../providers/navigation_provider.dart';
 import '../../../../providers/cart_provider.dart';
 
-// app bottom navigation bar
+// main app navigation bar
 class WildTraceBottomNavBar extends StatelessWidget {
   const WildTraceBottomNavBar({super.key});
 
+  // builds bottom navigation bar with cart badge
   @override
   Widget build(BuildContext context) {
     final navProvider = Provider.of<NavigationProvider>(context);
@@ -23,13 +24,6 @@ class WildTraceBottomNavBar extends StatelessWidget {
         return Container(
           decoration: BoxDecoration(
             color: backgroundColor,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, -2),
-              ),
-            ],
           ),
           child: SafeArea(
             top: false, 

@@ -1,9 +1,9 @@
-// Imports
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/responsive_helper.dart';
 import '../widgets/cards/order_summary_card.dart';
 import 'checkout_screen.dart';
 import '../widgets/common/section_title.dart';
@@ -16,7 +16,7 @@ import 'register_screen.dart';
 import '../widgets/common/wildtrace_logo.dart';
 import '../../main_wrapper.dart';
 
-// Cart Screen
+// shopping cart screen
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
 
@@ -25,7 +25,7 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  // Initialize cart data on start
+  // initializes cart data retrieval
   @override
   void initState() {
     super.initState();
@@ -37,19 +37,28 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
-  // Main build method for cart UI
+  // builds the visual representation of the cart
   @override
   Widget build(BuildContext context) {
     return Consumer<CartProvider>(
       builder: (context, cartProvider, child) {
+        // determines current theme state
         final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
         final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
         final cartItems = cartProvider.items;
+        final authProvider = Provider.of<AuthProvider>(context);
+        final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+        final padding = MediaQuery.of(context).padding;
+        final double sidePadding = (padding.left > padding.right ? padding.left : padding.right) + 20.0;
 
+        // returns the scaffold with cart content support
         return Scaffold(
           backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
           body: SafeArea(
+            left: false,
+            right: false,
             child: RefreshIndicator(
+              // enables pull-to-refresh functionality
               onRefresh: () async {
                 final authProvider = Provider.of<AuthProvider>(context, listen: false);
                 if (authProvider.token != null) {
@@ -58,8 +67,11 @@ class _CartScreenState extends State<CartScreen> {
               },
               color: const Color(0xFF27AE60),
               child: CustomScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
+                physics: (isLandscape && authProvider.token == null) 
+                    ? const NeverScrollableScrollPhysics() 
+                    : const AlwaysScrollableScrollPhysics(),
                 slivers: [
+                  // transparent app bar for consistent spacing
                   const SliverAppBar(
                     backgroundColor: Colors.transparent,
                     elevation: 0,
@@ -71,13 +83,14 @@ class _CartScreenState extends State<CartScreen> {
                     toolbarHeight: 40,
                     automaticallyImplyLeading: false,
                   ),
+                  // displays empty state or cart items
                   if (cartItems.isEmpty)
                     SliverFillRemaining(
                       hasScrollBody: false,
                       child: _buildEmptyState(context, cartProvider),
                     )
                   else
-                    ..._buildCartSlivers(context, cartProvider, textColor),
+                    ..._buildCartSlivers(context, cartProvider, textColor, isLandscape, sidePadding),
                 ],
               ),
             ),
@@ -87,31 +100,34 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  // Empty state UI when no logged in user
+  // builds the ui for empty cart scenarios
   Widget _buildEmptyState(BuildContext context, CartProvider cartProvider) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
 
+    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final padding = MediaQuery.of(context).padding;
+    final double sidePadding = (padding.left > padding.right ? padding.left : padding.right) + 24.0;
+
     if (authProvider.token == null) {
       return Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: EdgeInsets.symmetric(horizontal: sidePadding, vertical: isLandscape ? 4.0 : 24.0),
         child: Column(
           children: [
-            const SizedBox(height: 60),
-            const SizedBox(height: 20),
-            Icon(Icons.lock_outline, size: 64, color: Colors.grey.withOpacity(0.3)),
-            const SizedBox(height: 24),
+            SizedBox(height: isLandscape ? 0 : 60),
+            Icon(Icons.lock_outline, size: isLandscape ? 40 : 64, color: Colors.grey.withOpacity(0.3)),
+            SizedBox(height: isLandscape ? 12 : 24),
             Text(
               'Personalize Your Experience',
               textAlign: TextAlign.center,
               style: GoogleFonts.playfairDisplay(
-                fontSize: 22,
+                fontSize: isLandscape ? 18 : 22,
                 fontWeight: FontWeight.bold,
                 color: textColor,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: isLandscape ? 8 : 12),
             Text(
               'Sign in to view your cart items, manage orders, and checkout faster.',
               textAlign: TextAlign.center,
@@ -121,25 +137,54 @@ class _CartScreenState extends State<CartScreen> {
                 height: 1.5,
               ),
             ),
-            const SizedBox(height: 40),
-            CustomButton(
-              text: 'SIGN IN NOW',
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
-              type: CustomButtonType.secondary,
-              fontSize: 13,
-              verticalPadding: 18,
-            ),
-            const SizedBox(height: 16),
-            CustomButton(
-              text: 'REGISTER NOW',
-              onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())),
-              type: CustomButtonType.ghost,
-              fontSize: 13,
-              verticalPadding: 18,
-            ),
-            const SizedBox(height: 30),
+            SizedBox(height: isLandscape ? 20 : 40),
+            if (isLandscape)
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomButton(
+                      text: 'SIGN IN NOW',
+                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
+                      type: CustomButtonType.secondary,
+                      fontSize: 13,
+                      verticalPadding: 16,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: CustomButton(
+                      text: 'REGISTER NOW',
+                      onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())),
+                      type: CustomButtonType.ghost,
+                      fontSize: 13,
+                      verticalPadding: 16,
+                    ),
+                  ),
+                ],
+              )
+            else
+              Column(
+                children: [
+                  CustomButton(
+                    text: 'SIGN IN NOW',
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
+                    type: CustomButtonType.secondary,
+                    fontSize: 13,
+                    verticalPadding: 18,
+                  ),
+                  const SizedBox(height: 16),
+                  CustomButton(
+                    text: 'REGISTER NOW',
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())),
+                    type: CustomButtonType.ghost,
+                    fontSize: 13,
+                    verticalPadding: 18,
+                  ),
+                ],
+              ),
+            SizedBox(height: isLandscape ? 10 : 30),
             _buildFooter(),
-            const SizedBox(height: 20),
+            SizedBox(height: isLandscape ? 10 : 20),
           ],
         ),
       );
@@ -194,13 +239,119 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   // UI sections for the shopping cart items
-  List<Widget> _buildCartSlivers(BuildContext context, CartProvider cartProvider, Color textColor) {
+  List<Widget> _buildCartSlivers(BuildContext context, CartProvider cartProvider, Color textColor, bool isLandscape, double sidePadding) {
+    // accesses cart items from provider
     final cartItems = cartProvider.items;
     
+    // returns slivers optimized for landscape orientation
+    if (isLandscape) {
+      return [
+        // cart header section
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.only(left: sidePadding, right: sidePadding, top: 0, bottom: 8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SectionTitle(title: 'YOUR SELECTION', mainAxisAlignment: MainAxisAlignment.center),
+                const SizedBox(height: 12),
+                Text(
+                  'Collectors Cart', 
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 36, 
+                    fontWeight: FontWeight.w400, 
+                    fontStyle: FontStyle.italic, 
+                    color: textColor
+                  )
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+        ),
+        // cart items and summary side-by-side
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: sidePadding),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // scrolling list of items
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    children: cartItems.map((item) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16.0),
+                        child: CartItemCard(
+                          image: item.product.imageUrl, 
+                          category: item.product.category, 
+                          title: item.product.title, 
+                          price: item.price ?? item.product.price, 
+                          quantity: item.quantity,
+                          size: item.size,
+                          onIncrement: () => cartProvider.incrementQuantity(item),
+                          onDecrement: () => cartProvider.decrementQuantity(item),
+                          onDelete: () {
+                            if (item.id != null) {
+                              cartProvider.removeFromCart(item.id!);
+                            }
+                          },
+                          onDismissed: () {
+                            // handles item dismissal with feedback
+                            if (item.id != null) {
+                              final cartItemId = item.id!;
+                              final productName = item.product.title;
+                              cartProvider.removeFromCart(cartItemId);
+                              
+                              final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                              QuickAlert.show(
+                                context: context,
+                                type: QuickAlertType.info,
+                                title: 'Item Removed',
+                                text: '$productName removed from cart',
+                                backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                                titleColor: isDarkMode ? Colors.white : Colors.black,
+                                textColor: isDarkMode ? Colors.white70 : Colors.black87,
+                              );
+                            }
+                          },
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const SizedBox(width: 24),
+                // fixed summary card
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    children: [
+                      _buildSummaryCard(context, cartProvider),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        // landscape footer
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 30.0),
+            child: _buildFooter(),
+          ),
+        ),
+      ];
+    }
+
+    // returns slivers optimized for portrait orientation
     return [
+      // portrait header
       SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 0, bottom: 8.0),
+          padding: EdgeInsets.only(left: sidePadding, right: sidePadding, top: 0, bottom: 8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -220,8 +371,9 @@ class _CartScreenState extends State<CartScreen> {
           ),
         ),
       ),
+      // vertical list of items
       SliverPadding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        padding: EdgeInsets.symmetric(horizontal: sidePadding),
         sliver: SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
@@ -244,6 +396,7 @@ class _CartScreenState extends State<CartScreen> {
                   }
                 },
                 onDismissed: () {
+                  // dismisses item in portrait mode
                   if (item.id != null) {
                     final cartItemId = item.id!;
                     final productName = item.product.title;
@@ -267,9 +420,10 @@ class _CartScreenState extends State<CartScreen> {
           ),
         ),
       ),
+      // summary section at bottom
       SliverToBoxAdapter(
         child: Padding(
-          padding: const EdgeInsets.all(20.0),
+          padding: EdgeInsets.symmetric(horizontal: sidePadding, vertical: 20.0),
           child: Column(
             children: [
               const SizedBox(height: 40),
@@ -279,6 +433,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
         ),
       ),
+      // portrait footer
       SliverToBoxAdapter(
         child: Padding(
           padding: const EdgeInsets.only(bottom: 30.0),
@@ -288,7 +443,7 @@ class _CartScreenState extends State<CartScreen> {
     ];
   }
 
-  // Summary card with total price and checkout
+  // builds the summary view with checkout triggers
   Widget _buildSummaryCard(BuildContext context, CartProvider cartProvider) {
     return OrderSummaryCard(
       title: 'Cart Summary',
@@ -306,7 +461,8 @@ class _CartScreenState extends State<CartScreen> {
       isSecondaryOutlined: true,
     );
   }
-  // Footer section with copyright info
+
+  // builds the brand attribution footer
   Widget _buildFooter() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
