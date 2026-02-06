@@ -15,6 +15,8 @@ import 'login_screen.dart';
 import 'register_screen.dart';
 import '../widgets/common/wildtrace_logo.dart';
 import '../../main_wrapper.dart';
+import '../../providers/battery_provider.dart';
+import '../widgets/common/battery_status_indicator.dart';
 
 // shopping cart screen
 class CartScreen extends StatefulWidget {
@@ -52,49 +54,58 @@ class _CartScreenState extends State<CartScreen> {
         final double sidePadding = (padding.left > padding.right ? padding.left : padding.right) + 20.0;
 
         // returns the scaffold with cart content support
-        return Scaffold(
-          backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
-          body: SafeArea(
-            left: false,
-            right: false,
-            child: RefreshIndicator(
-              // enables pull-to-refresh functionality
-              onRefresh: () async {
-                final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                if (authProvider.token != null) {
-                  await cartProvider.fetchCart(authProvider.token!);
-                }
-              },
-              color: const Color(0xFF27AE60),
-              child: CustomScrollView(
-                physics: (isLandscape && authProvider.token == null) 
-                    ? const NeverScrollableScrollPhysics() 
-                    : const AlwaysScrollableScrollPhysics(),
-                slivers: [
-                  // transparent app bar for consistent spacing
-                  const SliverAppBar(
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    scrolledUnderElevation: 0,
-                    surfaceTintColor: Colors.transparent,
-                    floating: true,
-                    snap: true,
-                    pinned: false,
-                    toolbarHeight: 40,
-                    automaticallyImplyLeading: false,
+        return Stack(
+          children: [
+            Scaffold(
+              backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
+              body: SafeArea(
+                left: false,
+                right: false,
+                child: RefreshIndicator(
+                  // enables pull-to-refresh functionality
+                  onRefresh: () async {
+                    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                    if (authProvider.token != null) {
+                      await cartProvider.fetchCart(authProvider.token!);
+                    }
+                  },
+                  color: const Color(0xFF27AE60),
+                  child: CustomScrollView(
+                    physics: (isLandscape && authProvider.token == null) 
+                        ? const NeverScrollableScrollPhysics() 
+                        : const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      // transparent app bar for consistent spacing
+                      const SliverAppBar(
+                        backgroundColor: Colors.transparent,
+                        elevation: 0,
+                        scrolledUnderElevation: 0,
+                        surfaceTintColor: Colors.transparent,
+                        floating: true,
+                        snap: true,
+                        pinned: false,
+                        toolbarHeight: 40,
+                        automaticallyImplyLeading: false,
+                      ),
+                      // displays empty state or cart items
+                      if (cartItems.isEmpty)
+                        SliverFillRemaining(
+                          hasScrollBody: false,
+                          child: _buildEmptyState(context, cartProvider),
+                        )
+                      else
+                        ..._buildCartSlivers(context, cartProvider, textColor, isLandscape, sidePadding),
+                    ],
                   ),
-                  // displays empty state or cart items
-                  if (cartItems.isEmpty)
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: _buildEmptyState(context, cartProvider),
-                    )
-                  else
-                    ..._buildCartSlivers(context, cartProvider, textColor, isLandscape, sidePadding),
-                ],
+                ),
               ),
             ),
-          ),
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 10,
+              right: 20,
+              child: const BatteryStatusIndicator(),
+            ),
+          ],
         );
       },
     );
@@ -445,11 +456,15 @@ class _CartScreenState extends State<CartScreen> {
 
   // builds the summary view with checkout triggers
   Widget _buildSummaryCard(BuildContext context, CartProvider cartProvider) {
+    final batteryProvider = Provider.of<BatteryProvider>(context);
+    final isBatteryLow = batteryProvider.isBatteryLow;
+
     return OrderSummaryCard(
       title: 'Cart Summary',
       totalLabel: 'ORDER TOTAL',
       totalValue: '\$${cartProvider.total.toStringAsFixed(0)}',
-      primaryButtonLabel: 'PROCEED TO CHECKOUT',
+      primaryButtonLabel: isBatteryLow ? 'BATTERY LOW' : 'PROCEED TO CHECKOUT',
+      isPrimaryEnabled: !isBatteryLow,
       primaryButtonOnTap: () {
         Navigator.push(
           context,

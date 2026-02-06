@@ -11,6 +11,7 @@ import '../widgets/common/custom_button.dart';
 import 'product_details_screen.dart';
 import 'login_screen.dart';
 import 'package:quickalert/quickalert.dart';
+import '../widgets/common/battery_status_indicator.dart';
 
 // main product gallery
 class GalleryScreen extends StatefulWidget {
@@ -112,67 +113,66 @@ class _GalleryScreenState extends State<GalleryScreen> {
           end.clamp(0, products.length)
         ) : [];
 
-        return Scaffold(
-          key: _scaffoldKey,
-          // sidebar filter access for mobile/portrait
-          drawer: _buildFilterDrawer(context, isDarkMode, productsProvider),
-          backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
-          body: RefreshIndicator(
-            // reloads external data on gesture
-            onRefresh: () async {
-              await productsProvider.fetchProducts();
-              if (authProvider.token != null) {
-                await favoritesProvider.fetchFavorites(authProvider.token!);
-              }
-            },
-            color: const Color(0xFF27AE60),
-            child: CustomScrollView(
-              controller: _scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                // immersive brand banner
-                SliverToBoxAdapter(child: _buildHero()),
-                SliverToBoxAdapter(
-                  child: Column(
-                    children: [
-                      // search and filter controls
-                      _buildFilterTrigger(isDarkMode),
-                      
-                      // conditional rendering for empty states
-                      if (products.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.all(40.0),
-                          child: Column(
-                            children: [
-                              Text(
-                                'No products found.',
-                                style: GoogleFonts.inter(color: Colors.grey),
+        return Stack(
+          children: [
+            Scaffold(
+              key: _scaffoldKey,
+              drawer: _buildFilterDrawer(context, isDarkMode, productsProvider),
+              backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
+              body: RefreshIndicator(
+                onRefresh: () async {
+                  await productsProvider.fetchProducts();
+                  if (authProvider.token != null) {
+                    await favoritesProvider.fetchFavorites(authProvider.token!);
+                  }
+                },
+                color: const Color(0xFF27AE60),
+                child: CustomScrollView(
+                  controller: _scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    SliverToBoxAdapter(child: _buildHero()),
+                    SliverToBoxAdapter(
+                      child: Column(
+                        children: [
+                          _buildFilterTrigger(isDarkMode),
+                          if (products.isEmpty)
+                            Padding(
+                              padding: const EdgeInsets.all(40.0),
+                              child: Column(
+                                children: [
+                                  Text(
+                                    'No products found.',
+                                    style: GoogleFonts.inter(color: Colors.grey),
+                                  ),
+                                  const SizedBox(height: 20),
+                                  CustomButton(
+                                    text: 'REFRESH GALLERY',
+                                    onPressed: () => productsProvider.fetchProducts(),
+                                    type: CustomButtonType.secondary,
+                                    isFullWidth: false,
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 20),
-                              CustomButton(
-                                text: 'REFRESH GALLERY',
-                                onPressed: () => productsProvider.fetchProducts(),
-                                type: CustomButtonType.secondary,
-                                isFullWidth: false,
-                              ),
-                            ],
-                          ),
-                        )
-                      else 
-                        // product showcase grid
-                        _buildGrid(pageItems, favoritesProvider),
-                      
-                      // navigation between result pages
-                      if (products.isNotEmpty)
-                        _buildPagination(isDarkMode, end < products.length),
-                        
-                      const SizedBox(height: 20),
-                    ],
-                  ),
+                            )
+                          else 
+                            _buildGrid(pageItems, favoritesProvider),
+                          if (products.isNotEmpty)
+                            _buildPagination(isDarkMode, end < products.length),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
+            Positioned(
+              top: MediaQuery.of(context).padding.top + 10,
+              right: 20,
+              child: const BatteryStatusIndicator(),
+            ),
+          ],
         );
       },
     );

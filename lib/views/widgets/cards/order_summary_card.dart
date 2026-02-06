@@ -19,6 +19,8 @@ class OrderSummaryCard extends StatelessWidget {
   final VoidCallback? secondaryButtonOnTap;
   final bool isSecondaryOutlined;
   final String? footerText;
+  final bool isPrimaryEnabled;
+  final bool isSecondaryEnabled;
 
   const OrderSummaryCard({
     super.key,
@@ -33,6 +35,8 @@ class OrderSummaryCard extends StatelessWidget {
     this.secondaryButtonOnTap,
     this.isSecondaryOutlined = false,
     this.footerText,
+    this.isPrimaryEnabled = true,
+    this.isSecondaryEnabled = true,
   });
 
   // builds summary card with items, total, and action buttons
@@ -109,8 +113,8 @@ class OrderSummaryCard extends StatelessWidget {
           const SizedBox(height: 24),
           CustomButton(
             text: primaryButtonLabel,
-            type: CustomButtonType.secondary,
-            onPressed: primaryButtonOnTap,
+            type: isPrimaryEnabled ? CustomButtonType.secondary : CustomButtonType.ghost,
+            onPressed: isPrimaryEnabled ? primaryButtonOnTap : () {},
           ),
           if (secondaryButtonLabel != null) ...[
             const SizedBox(height: 16),
@@ -118,7 +122,7 @@ class OrderSummaryCard extends StatelessWidget {
               text: secondaryButtonLabel!,
               type: isSecondaryOutlined ? CustomButtonType.ghost : CustomButtonType.destructive,
               foregroundColor: isSecondaryOutlined ? const Color(0xFFE11D48) : Colors.white,
-              onPressed: secondaryButtonOnTap!,
+              onPressed: isSecondaryEnabled ? secondaryButtonOnTap! : () {},
             ),
           ],
           if (footerText != null) ...[

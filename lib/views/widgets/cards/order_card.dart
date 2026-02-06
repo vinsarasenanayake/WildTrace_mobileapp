@@ -163,11 +163,11 @@ class OrderCard extends StatelessWidget {
                     height: 36,
                     child: CustomButton(
                       text: 'PAY NOW',
-                      type: CustomButtonType.secondary,
+                      type: isPending ? CustomButtonType.secondary : CustomButtonType.ghost,
                       verticalPadding: 0,
                       backgroundColor: isPending ? const Color(0xFF16A34A) : const Color(0xFFE7E5E4),
                       foregroundColor: isPending ? Colors.white : const Color(0xFFA8A29E),
-                      onPressed: isPending ? onPayNow : null,
+                      onPressed: isPending ? onPayNow : () {},
                       fontSize: 10,
                     ),
                   ),

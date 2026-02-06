@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../main_wrapper.dart';
 import '../../providers/auth_provider.dart';
-import '../../utils/responsive_helper.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 import '../widgets/common/custom_text_field.dart';

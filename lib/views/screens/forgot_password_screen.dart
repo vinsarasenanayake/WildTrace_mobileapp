@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../main_wrapper.dart';
-import '../../utils/responsive_helper.dart';
 import 'login_screen.dart';
 import '../widgets/common/custom_text_field.dart';
 import '../widgets/common/wildtrace_logo.dart';
 import '../widgets/common/custom_button.dart';
 import 'package:quickalert/quickalert.dart';
-
 // recovery access screen
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});

@@ -17,6 +17,7 @@ import '../widgets/common/section_title.dart';
 import '../widgets/common/custom_button.dart';
 import '../widgets/cards/product_card.dart';
 import '../widgets/common/wild_trace_hero.dart';
+import '../widgets/common/battery_status_indicator.dart';
 
 // main home screen
 class HomeScreen extends StatelessWidget {
@@ -28,17 +29,27 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.black,
       extendBodyBehindAppBar: true,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // immersive entry banner
-            _buildHero(context),
-            // high-value product showcase
-            const FeaturedCollection(),
-            // philosophical and background content
-            const BehindTheLens(),
-          ],
-        ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                // immersive entry banner
+                _buildHero(context),
+                // high-value product showcase
+                const FeaturedCollection(),
+                // philosophical and background content
+                const BehindTheLens(),
+              ],
+            ),
+          ),
+          // battery hardware status overlay
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 10,
+            right: 20,
+            child: const BatteryStatusIndicator(),
+          ),
+        ],
       ),
     );
   }

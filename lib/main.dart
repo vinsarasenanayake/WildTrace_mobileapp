@@ -17,6 +17,7 @@ import 'providers/favorites_provider.dart';
 import 'providers/products_provider.dart';
 import 'providers/orders_provider.dart';
 import 'providers/content_provider.dart';
+import 'providers/battery_provider.dart';
 
 // Screens
 import 'views/screens/splash_screen.dart';
@@ -38,6 +39,7 @@ void main() async {
         // State management providers
         ChangeNotifierProvider(create: (_) => NavigationProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => BatteryProvider()),
         ChangeNotifierProxyProvider<AuthProvider, FavoritesProvider>(
           create: (_) => FavoritesProvider(),
           update: (_, auth, favorites) => favorites!..updateToken(auth.token),

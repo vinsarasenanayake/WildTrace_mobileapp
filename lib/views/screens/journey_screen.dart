@@ -8,6 +8,7 @@ import '../widgets/common/wild_trace_hero.dart';
 import '../widgets/common/section_title.dart';
 import '../widgets/cards/milestone_card.dart';
 import '../widgets/cards/photographer_card.dart';
+import '../widgets/common/battery_status_indicator.dart';
 
 // brand story and timeline
 class JourneyScreen extends StatelessWidget {
@@ -52,6 +53,11 @@ class JourneyScreen extends StatelessWidget {
                 ),
               ),
             ),
+          ),
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 10,
+            right: 20,
+            child: const BatteryStatusIndicator(),
           ),
         ],
       ),
