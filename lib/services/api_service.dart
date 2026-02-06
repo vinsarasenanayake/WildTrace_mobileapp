@@ -128,13 +128,7 @@ class ApiService {
     ).timeout(const Duration(seconds: 10));
 
     if (response.statusCode == 200) {
-      final decoded = json.decode(response.body);
-      if (decoded['image'] != null) {
-        decoded['image'] = _resolveImageUrl(decoded['image'].toString());
-      } else if (decoded['profile_photo_url'] != null) {
-        decoded['profile_photo_url'] = _resolveImageUrl(decoded['profile_photo_url'].toString());
-      }
-      return decoded;
+      return json.decode(response.body);
     } else {
       throw Exception('Failed to fetch user profile');
     }
@@ -186,10 +180,6 @@ class ApiService {
         final decoded = json.decode(responseBody);
         
         if (decoded['user'] != null) {
-          if (decoded['user']['image'] != null) {
-            decoded['user']['image'] = _resolveImageUrl(decoded['user']['image'].toString());
-          }
-          
           final userData = decoded['user'];
           final bool isAdmin = userData['role']?.toString().toLowerCase() == 'admin' || 
                              userData['role_id']?.toString() == '1' || 

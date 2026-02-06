@@ -8,7 +8,6 @@ class UserModel {
   final String? city;
   final String? postalCode;
   final String? country;
-  final String? profileImageUrl;
   final String? role;
 
   UserModel({
@@ -20,7 +19,6 @@ class UserModel {
     this.city,
     this.postalCode,
     this.country,
-    this.profileImageUrl,
     this.role,
   });
 
@@ -34,7 +32,6 @@ class UserModel {
     String? city,
     String? postalCode,
     String? country,
-    String? profileImageUrl,
     String? role,
   }) {
     return UserModel(
@@ -46,7 +43,6 @@ class UserModel {
       city: city ?? this.city,
       postalCode: postalCode ?? this.postalCode,
       country: country ?? this.country,
-      profileImageUrl: profileImageUrl ?? this.profileImageUrl,
       role: role ?? this.role,
     );
   }
@@ -62,7 +58,6 @@ class UserModel {
       'city': city,
       'postalCode': postalCode,
       'country': country,
-      'profileImageUrl': profileImageUrl,
       'role': role,
     };
   }
@@ -78,7 +73,6 @@ class UserModel {
       city: json['city']?.toString(),
       postalCode: (json['postal_code'] ?? json['postalCode'])?.toString(),
       country: json['country']?.toString(),
-      profileImageUrl: (json['profile_image_url'] ?? json['profileImageUrl'])?.toString(),
       role: json['role']?.toString(),
     );
   }
