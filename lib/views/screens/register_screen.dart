@@ -33,22 +33,59 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _postalCodeController = TextEditingController();
   final TextEditingController _countryController = TextEditingController();
 
+  // releases all controller resources when screen is removed
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _contactController.dispose();
+    _addressController.dispose();
+    _cityController.dispose();
+    _postalCodeController.dispose();
+    _countryController.dispose();
+    super.dispose();
+  }
+
   // manages the user onboarding workflow
   Future<void> _handleRegister(AuthController authProvider, bool isDarkMode) async {
+    // Basic field validation
+    if (_nameController.text.isEmpty || _emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.warning,
+        title: 'Missing Info',
+        text: 'Please fill in all required fields (Name, Email, Password)',
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        titleColor: isDarkMode ? Colors.white : Colors.black,
+        textColor: isDarkMode ? Colors.white70 : Colors.black87,
+      );
+      return;
+    }
+
+    // Email format validation
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(_emailController.text)) {
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.warning,
+        title: 'Invalid Email',
+        text: 'Please enter a valid email address',
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        titleColor: isDarkMode ? Colors.white : Colors.black,
+        textColor: isDarkMode ? Colors.white70 : Colors.black87,
+      );
+      return;
+    }
+
     // validates credential consistency
     if (_passwordController.text != _confirmPasswordController.text) {
       QuickAlert.show(
         context: context,
         type: QuickAlertType.warning,
         title: 'Mismatch',
-        widget: Text(
-          'Passwords do not match',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: isDarkMode ? Colors.white70 : Colors.black87,
-          ),
-        ),
+        text: 'Passwords do not match',
         backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         titleColor: isDarkMode ? Colors.white : Colors.black,
         confirmBtnText: 'Okay',
@@ -61,47 +98,59 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
     
-    // attempts credential persistence via the provider
-    final success = await authProvider.register(
-      name: _nameController.text,
-      email: _emailController.text,
-      password: _passwordController.text,
-      contactNumber: _contactController.text,
-      address: _addressController.text,
-      city: _cityController.text,
-      postalCode: _postalCodeController.text,
-    );
-    
-    // redirects to main platform upon successful account creation
-    if (success && mounted) {
-      Navigator.pushAndRemoveUntil(
-        context, 
-        MaterialPageRoute(builder: (context) => MainWrapper()), 
-        (route) => false
+    try {
+      // attempts credential persistence via the provider
+      final success = await authProvider.register(
+        name: _nameController.text,
+        email: _emailController.text,
+        password: _passwordController.text,
+        contactNumber: _contactController.text,
+        address: _addressController.text,
+        city: _cityController.text,
+        postalCode: _postalCodeController.text,
       );
-    } else if (mounted) {
+      
+      // redirects to login page upon successful account creation
+      if (success && mounted) {
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.success,
+          title: 'Registration Successful',
+          text: 'Account created! Please sign in to continue.',
+          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+          titleColor: isDarkMode ? Colors.white : Colors.black,
+          textColor: isDarkMode ? Colors.white70 : Colors.black87,
+          confirmBtnText: 'Go to Login',
+          confirmBtnColor: const Color(0xFF27AE60),
+          onConfirmBtnTap: () {
+            Navigator.pop(context); // Close alert
+            Navigator.pushReplacement(
+              context, 
+              MaterialPageRoute(builder: (context) => const LoginScreen()),
+            );
+          },
+        );
+      }
+    } catch (e) {
       // handles registration failures with granular feedback
-      QuickAlert.show(
-        context: context,
-        type: QuickAlertType.error,
-        title: 'Registration Failed',
-        widget: Text(
-          'Please check your details and try again.',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
+      if (mounted) {
+        String errorMessage = e.toString().replaceAll('Exception: ', '');
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Registration Error',
+          text: errorMessage,
+          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+          titleColor: isDarkMode ? Colors.white : Colors.black,
+          textColor: isDarkMode ? Colors.white70 : Colors.black87,
+          confirmBtnText: 'Okay',
+          confirmBtnTextStyle: GoogleFonts.inter(
             fontSize: 12,
-            color: isDarkMode ? Colors.white70 : Colors.black87,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
           ),
-        ),
-        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-        titleColor: isDarkMode ? Colors.white : Colors.black,
-        confirmBtnText: 'Okay',
-        confirmBtnTextStyle: GoogleFonts.inter(
-          fontSize: 12,
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
-      );
+        );
+      }
     }
   }
 
@@ -215,7 +264,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Copyright © 2026 ', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
+                      Text('Copyright © ${DateTime.now().year} ', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
                       InkWell(
                         onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainWrapper()), (route) => false),
                         child: Text('WILDTRACE', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF27AE60)))

@@ -197,7 +197,7 @@ class ProfileScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text('Copyright © 2026 ', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
+        Text('Copyright © ${DateTime.now().year} ', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
         // primary platform identifier with navigation
         InkWell(
           onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainWrapper()), (route) => false),

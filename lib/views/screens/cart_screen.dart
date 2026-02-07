@@ -456,8 +456,7 @@ class _CartScreenState extends State<CartScreen> {
 
   // builds the summary view with checkout triggers
   Widget _buildSummaryCard(BuildContext context, CartController cartProvider) {
-    final batteryProvider = Provider.of<BatteryController>(context);
-    final isBatteryLow = batteryProvider.isBatteryLow;
+    final isBatteryLow = context.select<BatteryController, bool>((p) => p.isBatteryLow);
 
     return OrderSummaryCard(
       title: 'Cart Summary',

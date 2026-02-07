@@ -216,7 +216,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               textColor: isDarkMode ? Colors.white70 : Colors.black87,
                               confirmBtnText: 'GO TO ORDER HISTORY',
                               confirmBtnTextStyle: GoogleFonts.inter(
-                                fontSize: 12,
+                                fontSize: 10,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),

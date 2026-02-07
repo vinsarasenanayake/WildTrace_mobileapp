@@ -64,33 +64,41 @@ class BatteryStatusIndicator extends StatelessWidget {
                 ),
               ),
               
-              // low battery warning message
-              if (isLow)
-                Padding(
-                  padding: const EdgeInsets.only(top: 4.0),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.9),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 10),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Battery Low – some features limited',
-                          style: GoogleFonts.inter(
-                            fontSize: 7,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+              // low battery warning message (fixed height to prevent layout jumps)
+              SizedBox(
+                height: 24, // Reserve space
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: isLow
+                      ? Padding(
+                          key: const ValueKey('warning'),
+                          padding: const EdgeInsets.only(top: 4.0),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.9),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 10),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'Battery Low – some features limited',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 7,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
+                        )
+                      : const SizedBox.shrink(),
                 ),
+              ),
             ],
           ),
         );

@@ -26,7 +26,7 @@ class LocationService {
       Position position = await Geolocator.getCurrentPosition(
         locationSettings: const LocationSettings(
           accuracy: LocationAccuracy.best,
-          timeLimit: Duration(seconds: 15),
+          timeLimit: Duration(seconds: 25),
         ),
       );
 
@@ -35,7 +35,7 @@ class LocationService {
         List<Placemark> placemarks = await placemarkFromCoordinates(
           position.latitude, 
           position.longitude
-        ).timeout(const Duration(seconds: 10));
+        ).timeout(const Duration(seconds: 15));
 
         if (placemarks.isNotEmpty) {
           Placemark place = placemarks[0];

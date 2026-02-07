@@ -29,13 +29,12 @@ class BatteryController with ChangeNotifier {
 
     // listen to state changes (charging, full, discharging)
     _batteryStateSubscription = _battery.onBatteryStateChanged.listen((BatteryState state) async {
-      _batteryState = state;
-      // level might change with state
       final level = await _battery.batteryLevel;
-      if (_batteryLevel != level) {
+      if (_batteryState != state || _batteryLevel != level) {
+        _batteryState = state;
         _batteryLevel = level;
+        notifyListeners();
       }
-      notifyListeners();
     });
 
     // periodic level check for accuracy when discharging

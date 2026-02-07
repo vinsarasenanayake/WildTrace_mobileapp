@@ -18,7 +18,6 @@ import '../../controllers/auth_controller.dart';
 import '../screens/login_screen.dart';
 import 'cart_screen.dart';
 import 'package:quickalert/quickalert.dart';
-import '../widgets/common/battery_status_indicator.dart';
 
 // product immersive details
 class ProductDetailsScreen extends StatefulWidget {
@@ -173,7 +172,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     }
   }
 
-  // builds the immersive product detail viewport
   @override
   Widget build(BuildContext context) {
     // theme and adaptive layout design tokens
@@ -181,93 +179,84 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
     
-    return Stack(
-      children: [
-        Scaffold(
-          backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
-          appBar: AppBar(
-            backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
-            elevation: 0, 
-            scrolledUnderElevation: 0,
-            surfaceTintColor: Colors.transparent,
-            // modal exit control
-            leading: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: Container(
-                padding: const EdgeInsets.all(12),
-                color: Colors.transparent,
-                child: Icon(
-                  Icons.arrow_back_ios_new_rounded,
-                  color: textColor,
-                  size: 20,
-                ),
-              ),
-            ),
-            title: Text(
-              widget.product.title,
-              style: GoogleFonts.inter(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: textColor,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ), 
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(24, 40, 24, 40),
-            child: Column(
-              children: [
-                // primary product identification
-                _buildHeading(textColor, isLandscape),
-                SizedBox(height: isLandscape ? 24 : 48),
-                // adapts visual weight based on orientation
-                isLandscape 
-                  ? Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: _buildMainImage(isLandscape)),
-                        const SizedBox(width: 24),
-                        Expanded(child: _buildPurchaseOptions(isDarkMode, textColor, isLandscape)),
-                      ],
-                    )
-                  : Column(
-                      children: [
-                        _buildMainImage(),
-                        const SizedBox(height: 48),
-                        _buildPurchaseOptions(isDarkMode, textColor),
-                      ],
-                    ),
-                const SizedBox(height: 48),
-                // secondary descriptive content
-                isLandscape
-                  ? Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(child: _buildStory(textColor, isLandscape)),
-                        const SizedBox(width: 24),
-                        Expanded(child: _buildPhotographerProfile()),
-                      ],
-                    )
-                  : Column(
-                      children: [
-                        _buildStory(textColor),
-                        const SizedBox(height: 48),
-                        _buildPhotographerProfile(),
-                      ],
-                    ),
-                const SizedBox(height: 60),
-                // cross-sell recommendations
-                _buildSimilarWorks(textColor, isLandscape),
-              ],
+    return Scaffold(
+      backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
+      appBar: AppBar(
+        backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
+        elevation: 0, 
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        // modal exit control
+        leading: GestureDetector(
+          onTap: () => Navigator.pop(context),
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            color: Colors.transparent,
+            child: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: textColor,
+              size: 20,
             ),
           ),
         ),
-        Positioned(
-          top: MediaQuery.of(context).padding.top + 10,
-          right: 20,
-          child: const BatteryStatusIndicator(),
+        title: Text(
+          widget.product.title,
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: textColor,
+          ),
+          overflow: TextOverflow.ellipsis,
         ),
-      ],
+      ), 
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(24, 40, 24, 40),
+        child: Column(
+          children: [
+            // primary product identification
+            _buildHeading(textColor, isLandscape),
+            SizedBox(height: isLandscape ? 24 : 48),
+            // adapts visual weight based on orientation
+            isLandscape 
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: _buildMainImage(isLandscape)),
+                    const SizedBox(width: 24),
+                    Expanded(child: _buildPurchaseOptions(isDarkMode, textColor, isLandscape)),
+                  ],
+                )
+              : Column(
+                  children: [
+                    _buildMainImage(),
+                    const SizedBox(height: 48),
+                    _buildPurchaseOptions(isDarkMode, textColor),
+                  ],
+                ),
+            const SizedBox(height: 48),
+            // secondary descriptive content
+            isLandscape
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: _buildStory(textColor, isLandscape)),
+                    const SizedBox(width: 24),
+                    Expanded(child: _buildPhotographerProfile()),
+                  ],
+                )
+              : Column(
+                  children: [
+                    _buildStory(textColor),
+                    const SizedBox(height: 48),
+                    _buildPhotographerProfile(),
+                  ],
+                ),
+            const SizedBox(height: 60),
+            // cross-sell recommendations
+            _buildSimilarWorks(textColor, isLandscape),
+          ],
+        ),
+      ),
     );
   }
 
@@ -332,7 +321,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(32), 
         child: Image.network(
-          widget.product.imageUrl.startsWith('http') ? widget.product.imageUrl : '${ApiService.baseHost}/${widget.product.imageUrl}', 
+          ApiService.resolveImageUrl(widget.product.imageUrl), 
           fit: BoxFit.cover, 
           errorBuilder: (_,__,___) => Container(
             color: Colors.grey[900],
@@ -451,7 +440,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     widget.product, 
                     quantity: _quantity, 
                     size: _selectedSize, 
-                    price: _currentPrice
                   );
                   // modal confirmation of successful action
                   final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -494,9 +482,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                 backgroundColor: Colors.blue, 
                                 foregroundColor: Colors.white,
                                 onPressed: () {
-                                  Navigator.pop(context); 
-                                  Navigator.pop(context); 
-                                  Provider.of<NavigationController>(context, listen: false).setSelectedIndex(2);
+                                  final navProvider = Provider.of<NavigationController>(context, listen: false);
+                                  Navigator.of(context).popUntil((route) => route.isFirst);
+                                  navProvider.setSelectedIndex(2);
                                 },
                               ),
                             ),
@@ -599,6 +587,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         Builder(
           builder: (context) {
             final gridColumns = isLandscape ? 2 : ResponsiveHelper.getGridCrossAxisCount(context, portrait: 2);
+            final camera = widget.product.options?['camera'] as Map<String, dynamic>?;
+            
             return GridView.count(
               padding: EdgeInsets.zero, 
               crossAxisCount: gridColumns, 
@@ -608,10 +598,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               mainAxisSpacing: 16, 
               crossAxisSpacing: 16,
               children: [
-                _stat('APERTURE', 'f/5.6', textColor), 
-                _stat('SHUTTER', '1/4000s', textColor), 
-                _stat('ISO', '800', textColor), 
-                _stat('FOCAL', '85mm', textColor)
+                _stat('APERTURE', (camera?['aperture'] ?? 'f/5.6').toString(), textColor), 
+                _stat('SHUTTER', (camera?['shutter'] ?? '1/4000s').toString(), textColor), 
+                _stat('ISO', (camera?['iso'] ?? '800').toString(), textColor), 
+                _stat('FOCAL', (camera?['focal'] ?? '85mm').toString(), textColor)
               ],
             );
           }

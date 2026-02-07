@@ -145,6 +145,8 @@ class _UserFormState extends State<UserForm> {
       controller: widget.contactController, 
       hintText: '77 123 4567',
       textInputAction: TextInputAction.next,
+      maxLength: 9,
+      keyboardType: TextInputType.phone,
       prefix: InkWell(
         onTap: () {
           showCountryPicker(

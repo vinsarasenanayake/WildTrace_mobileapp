@@ -43,7 +43,7 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
           ),
-          // battery hardware status overlay
+          // hardware status overlay (battery & light)
           Positioned(
             top: MediaQuery.of(context).padding.top + 10,
             right: 20,

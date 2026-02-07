@@ -68,18 +68,51 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   // processes profile detail updates
   Future<void> _handleUpdateProfile(AuthController authProvider) async {
     final currentUser = authProvider.currentUser;
-    if (currentUser != null) {
-      final updatedUser = UserModel(
-        id: currentUser.id,
-        name: _nameController.text,
-        email: _emailController.text,
-        contactNumber: _contactController.text,
-        address: _addressController.text,
-        city: _cityController.text,
-        postalCode: _postalCodeController.text,
-        country: _countryController.text,
+    if (currentUser == null) return;
+
+    // Basic validation
+    if (_nameController.text.isEmpty || _emailController.text.isEmpty) {
+      final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.warning,
+        title: 'Missing Info',
+        text: 'Name and Email cannot be empty',
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        titleColor: isDarkMode ? Colors.white : Colors.black,
+        textColor: isDarkMode ? Colors.white70 : Colors.black87,
       );
-      
+      return;
+    }
+
+    // Email format validation
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(_emailController.text)) {
+      final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.warning,
+        title: 'Invalid Email',
+        text: 'Please enter a valid email address',
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        titleColor: isDarkMode ? Colors.white : Colors.black,
+        textColor: isDarkMode ? Colors.white70 : Colors.black87,
+      );
+      return;
+    }
+
+    final updatedUser = UserModel(
+      id: currentUser.id,
+      name: _nameController.text,
+      email: _emailController.text,
+      contactNumber: _contactController.text,
+      address: _addressController.text,
+      city: _cityController.text,
+      postalCode: _postalCodeController.text,
+      country: _countryController.text,
+    );
+    
+    try {
       final success = await authProvider.updateProfile(updatedUser);
       if (mounted) {
         final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -88,6 +121,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           type: success ? QuickAlertType.success : QuickAlertType.error,
           title: success ? 'Profile Updated' : 'Update Failed',
           text: success ? 'Profile updated successfully' : 'Failed to update profile',
+          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+          titleColor: isDarkMode ? Colors.white : Colors.black,
+          textColor: isDarkMode ? Colors.white70 : Colors.black87,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+        String errorMessage = e.toString().replaceAll('Exception: ', '');
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType.error,
+          title: 'Update Error',
+          text: errorMessage,
           backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
           titleColor: isDarkMode ? Colors.white : Colors.black,
           textColor: isDarkMode ? Colors.white70 : Colors.black87,
@@ -147,7 +194,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       // segmented setting sections
                       _buildProfileSection(isDarkMode, authProvider, isLandscape),
                       const SizedBox(height: 40),
-                      _buildPasswordSection(isDarkMode),
+                      _buildPasswordSection(isDarkMode, authProvider),
                       const SizedBox(height: 40),
                       _buildTwoFactorSection(textColor),
                       const SizedBox(height: 40),
@@ -222,7 +269,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
   
   // builds the password management interface
-  Widget _buildPasswordSection(bool isDarkMode) {
+  Widget _buildPasswordSection(bool isDarkMode, AuthController authProvider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -288,18 +335,43 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 },
               ),
               const SizedBox(height: 24),
-              CustomButton(text: 'SAVE', onPressed: () {
-                final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-                QuickAlert.show(
-                  context: context,
-                  type: QuickAlertType.info,
-                  title: 'Info',
-                  text: 'Password update simulated',
-                  backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                  titleColor: isDarkMode ? Colors.white : Colors.black,
-                  textColor: isDarkMode ? Colors.white70 : Colors.black87,
-                );
-              }),
+              CustomButton(
+                text: authProvider.isLoading ? 'UPDATING...' : 'SAVE', 
+                onPressed: authProvider.isLoading ? () {} : () async {
+                  if (_newPass.text != _confPass.text) {
+                    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                    QuickAlert.show(
+                      context: context,
+                      type: QuickAlertType.warning,
+                      title: 'Mismatch',
+                      text: 'Passwords do not match',
+                      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                      titleColor: isDarkMode ? Colors.white : Colors.black,
+                      textColor: isDarkMode ? Colors.white70 : Colors.black87,
+                    );
+                    return;
+                  }
+                  
+                  final success = await authProvider.updatePassword(_currPass.text, _newPass.text);
+                  if (mounted) {
+                    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                    QuickAlert.show(
+                      context: context,
+                      type: success ? QuickAlertType.success : QuickAlertType.error,
+                      title: success ? 'Security Updated' : 'Update Failed',
+                      text: success ? 'Management of your credentials has been secured.' : 'Failed to update credentials.',
+                      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                      titleColor: isDarkMode ? Colors.white : Colors.black,
+                      textColor: isDarkMode ? Colors.white70 : Colors.black87,
+                    );
+                    if (success) {
+                      _currPass.clear();
+                      _newPass.clear();
+                      _confPass.clear();
+                    }
+                  }
+                }
+              ),
             ],
           ),
         ),
@@ -337,7 +409,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               const SizedBox(height: 12),
               Text("When two factor authentication is enabled, you will be prompted for a secure, random token during authentication.", style: GoogleFonts.inter(fontSize: 12, height: 1.5, color: Colors.grey.shade600)),
               const SizedBox(height: 24),
-              CustomButton(text: 'ENABLE', onPressed: () {}),
+              CustomButton(
+                text: 'ENABLE', 
+                onPressed: () {
+                  final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                  QuickAlert.show(
+                    context: context,
+                    type: QuickAlertType.info,
+                    title: 'Beta Feature',
+                    text: 'Two-factor authentication is currently in beta. Please stay tuned for our next update.',
+                    backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                    titleColor: isDarkMode ? Colors.white : Colors.black,
+                    textColor: isDarkMode ? Colors.white70 : Colors.black87,
+                  );
+                }
+              ),
             ],
           ),
         ),
@@ -377,7 +463,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               // active device indicator
               Row(
                 children: [
-                  Icon(Icons.desktop_windows_outlined, size: 32, color: Colors.grey.shade500),
+                   Icon(Icons.desktop_windows_outlined, size: 32, color: Colors.grey.shade500),
                   const SizedBox(width: 16),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -390,7 +476,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ],
               ),
               const SizedBox(height: 24),
-              CustomButton(text: 'LOG OUT OTHER BROWSER SESSIONS', onPressed: () {}),
+              CustomButton(
+                text: 'LOG OUT OTHER BROWSER SESSIONS', 
+                onPressed: () {
+                  final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                  QuickAlert.show(
+                    context: context,
+                    type: QuickAlertType.info,
+                    title: 'Active Sessions',
+                    text: 'You are currently only logged in on this device.',
+                    backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                    titleColor: isDarkMode ? Colors.white : Colors.black,
+                    textColor: isDarkMode ? Colors.white70 : Colors.black87,
+                  );
+                }
+              ),
             ],
           ),
         ),

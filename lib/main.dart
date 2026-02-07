@@ -1,15 +1,10 @@
-// ============================================================================
-// Main application entry point for WildTrace platform.
-// ============================================================================
-
-// Core Flutter and utility imports
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-// Controllers
 import 'controllers/navigation_controller.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/cart_controller.dart';
@@ -19,25 +14,30 @@ import 'controllers/orders_controller.dart';
 import 'controllers/content_controller.dart';
 import 'controllers/battery_controller.dart';
 
-// Screens
 import 'views/screens/splash_screen.dart';
 
-// App initialization
+// app initialization
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Setup environment
+  // setup environment
   await dotenv.load(fileName: ".env");
   
-  // Configure payments
+  // configure payments
   Stripe.publishableKey = dotenv.get('STRIPE_PUBLISHABLE_KEY');
   await Stripe.instance.applySettings();
+
+  debugPrint('--- WILDTRACE APP STARTING ---');
+  
+  // load saved navigation state
+  final prefs = await SharedPreferences.getInstance();
+  final initialNavIndex = prefs.getInt('last_nav_index') ?? 0;
 
   runApp(
     MultiProvider(
       providers: [
-        // State management controllers
-        ChangeNotifierProvider(create: (_) => NavigationController()),
+        // state management controllers
+        ChangeNotifierProvider(create: (_) => NavigationController(initialIndex: initialNavIndex)),
         ChangeNotifierProvider(create: (_) => AuthController()),
         ChangeNotifierProvider(create: (_) => BatteryController()),
         ChangeNotifierProxyProvider<AuthController, FavoritesController>(
@@ -72,7 +72,7 @@ class WildTraceApp extends StatelessWidget {
     return MaterialApp(
       title: 'Wild Trace',
       debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.dark,
       // Light theme settings
       theme: ThemeData(
         useMaterial3: true,

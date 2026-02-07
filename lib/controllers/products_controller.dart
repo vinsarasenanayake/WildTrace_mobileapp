@@ -34,7 +34,7 @@ class ProductsController with ChangeNotifier {
     }
   }
 
-  // loads products from server
+  // fetches products from api
   Future<void> fetchProducts() async {
     _isLoading = true;
     _error = '';
@@ -56,7 +56,7 @@ class ProductsController with ChangeNotifier {
   String get sortOption => _sortOption;
   String get searchQuery => _searchQuery;
 
-  // applies active filters
+  // handles product filtering and sorting
   List<Product> get filteredProducts {
     var filtered = _products.toList();
     if (_selectedCategory != 'All' && _selectedCategory != 'All Collections') {
@@ -88,7 +88,6 @@ class ProductsController with ChangeNotifier {
     return filtered;
   }
 
-  // finds product by id
   Product? getProductById(String id) {
     try {
       return _products.firstWhere((p) => p.id == id);
@@ -97,53 +96,21 @@ class ProductsController with ChangeNotifier {
     }
   }
 
-  // sets product list
-  void setProducts(List<Product> products) {
-    _products.clear();
-    _products.addAll(products);
-    notifyListeners();
-  }
-
-  // adds single product
-  void addProduct(Product product) {
-    _products.add(product);
-    notifyListeners();
-  }
-
-  // updates product data
-  void updateProduct(String id, Product updatedProduct) {
-    final index = _products.indexWhere((p) => p.id == id);
-    if (index >= 0) {
-      _products[index] = updatedProduct;
-      notifyListeners();
-    }
-  }
-
-  // deletes product
-  void removeProduct(String id) {
-    _products.removeWhere((p) => p.id == id);
-    notifyListeners();
-  }
-
-  // sets filter category
   void setCategory(String category) {
     _selectedCategory = category;
     notifyListeners();
   }
 
-  // sets filter author
   void setAuthor(String author) {
     _selectedAuthor = author;
     notifyListeners();
   }
 
-  // sets sorting method
   void setSortOption(String sortOption) {
     _sortOption = sortOption;
     notifyListeners();
   }
 
-  // updates search text
   void setSearchQuery(String query) {
     _searchQuery = query;
     notifyListeners();
@@ -158,7 +125,6 @@ class ProductsController with ChangeNotifier {
     notifyListeners();
   }
 
-  // gets unique categories
   List<String> get categories {
     final cats = _products.map((p) => 
         p.category.isNotEmpty 
@@ -170,7 +136,6 @@ class ProductsController with ChangeNotifier {
     return cats;
   }
 
-  // gets unique authors
   List<String> get authors {
     final list = _products.map((p) => p.author).toSet().toList();
     list.insert(0, 'All Photographers');

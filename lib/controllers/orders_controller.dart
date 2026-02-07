@@ -4,17 +4,19 @@ import '../models/cart_item.dart';
 import '../models/product.dart';
 import '../services/api_service.dart';
 
-// manages purchase records
+// manages user order history
 class OrdersController with ChangeNotifier {
   final ApiService _apiService = ApiService();
   final List<Order> _orders = [];
   String? _token;
+  bool _isLoading = false;
 
   List<Order> get orders => List.unmodifiable(_orders);
   int get count => _orders.length;
   bool get isEmpty => _orders.isEmpty;
+  bool get isLoading => _isLoading;
 
-  // updates session token
+  // synchronizes authentication state
   void updateToken(String? newToken, String? userId) {
     if (newToken != _token) {
       _token = newToken;
@@ -24,7 +26,6 @@ class OrdersController with ChangeNotifier {
     }
   }
 
-  // retrieves order by id
   Order? getOrderById(String id) {
     try {
       return _orders.firstWhere((o) => o.id == id);
@@ -33,7 +34,7 @@ class OrdersController with ChangeNotifier {
     }
   }
 
-  // submits new purchase data
+  // processes new order placement
   Future<bool> placeOrder({
     required String userId,
     required List<CartItem> items,
@@ -62,7 +63,6 @@ class OrdersController with ChangeNotifier {
       };
       final response = await _apiService.placeOrder(orderData, tokenToUse);
       final orderDate = DateTime.now();
-      final estimatedDeliveryDate = orderDate.add(const Duration(days: 3));
       
       final order = Order(
         id: (response['order']['id'] ?? 'ORD-${DateTime.now().millisecondsSinceEpoch}').toString(),
@@ -74,27 +74,19 @@ class OrdersController with ChangeNotifier {
         total: totalPrice,
         status: paymentStatus == 'paid' ? OrderStatus.paid : OrderStatus.pending,
         orderDate: orderDate,
-        estimatedDeliveryDate: estimatedDeliveryDate,
+        estimatedDeliveryDate: orderDate.add(const Duration(days: 3)),
         shippingAddress: shippingAddress,
       );
       _orders.insert(0, order);
       notifyListeners();
       return true;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('Place Order Error: $e');
       return false;
     }
   }
 
-  // sets order status
-  void updateOrderStatus(String orderId, OrderStatus status) {
-    final index = _orders.indexWhere((o) => o.id == orderId);
-    if (index >= 0) {
-      _orders[index] = _orders[index].copyWith(status: status);
-      notifyListeners();
-    }
-  }
-
-  // sends cancellation request
+  // handles order cancellation requests
   Future<bool> cancelOrder(String orderId) async {
     if (_token == null) return false;
     try {
@@ -106,12 +98,13 @@ class OrdersController with ChangeNotifier {
         return true;
       }
       return false;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('Cancel Order Error: $e');
       return false;
     }
   }
 
-  // updates payment status
+  // updates remote payment status
   Future<bool> updatePaymentStatus(String orderId, String status) async {
     if (_token == null) return false;
     try {
@@ -125,20 +118,13 @@ class OrdersController with ChangeNotifier {
         return true;
       }
       return false;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('Update Payment Error: $e');
       return false;
     }
   }
 
-  // filters orders by status
-  List<Order> getOrdersByStatus(OrderStatus status) {
-    return _orders.where((o) => o.status == status).toList();
-  }
-
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
-
-  // loads order history from server
+  // retrieves order history from api
   Future<void> loadOrders(String userId, String token) async {
     _isLoading = true;
     notifyListeners();
@@ -146,55 +132,51 @@ class OrdersController with ChangeNotifier {
       final List<dynamic> data = await _apiService.fetchOrders(token);
       _orders.clear();
       for (var item in data) {
-         final List<dynamic> apiItems = item['items'] ?? [];
+         final apiItems = item['items'] as List<dynamic>? ?? [];
          final List<CartItem> orderItems = apiItems.map((apiItem) {
            return CartItem(
              product: Product.fromJson(apiItem['product']),
              quantity: apiItem['quantity'] ?? 1,
            );
          }).toList();
+         
          final totalPrice = _parseNum(item['total_price']);
-         final subtotal = _parseNum(item['subtotal']) > 0 
-                         ? _parseNum(item['subtotal']) 
-                         : totalPrice * 0.8;
-         final tax = _parseNum(item['tax']) > 0 
-                    ? _parseNum(item['tax']) 
-                    : totalPrice * 0.1;
-         final shipping = _parseNum(item['shipping']) > 0 
-                         ? _parseNum(item['shipping']) 
-                         : totalPrice * 0.1;
-          final orderDate = DateTime.parse(item['created_at'] ?? DateTime.now().toString());
-          _orders.add(Order(
-            id: item['id'].toString(),
-            userId: item['user_id'].toString(),
-            items: orderItems,
-            subtotal: subtotal,
-            tax: tax,
-            shipping: shipping,
-            total: totalPrice,
-            status: _parseOrderStatus(item['status'], item['payment_status']),
-            orderDate: orderDate,
-            estimatedDeliveryDate: item['estimated_delivery_date'] != null 
-                ? DateTime.parse(item['estimated_delivery_date']) 
-                : orderDate.add(const Duration(days: 3)),
-            shippingAddress: item['shipping_address'],
-          ));
+         final subtotal = _parseNum(item['subtotal']);
+         final tax = _parseNum(item['tax']);
+         final shipping = _parseNum(item['shipping']);
+         
+         final orderDate = DateTime.parse(item['created_at'] ?? DateTime.now().toString());
+         
+         _orders.add(Order(
+           id: item['id'].toString(),
+           userId: item['user_id'].toString(),
+           items: orderItems,
+           subtotal: subtotal,
+           tax: tax,
+           shipping: shipping,
+           total: totalPrice,
+           status: _parseOrderStatus(item['status'], item['payment_status']),
+           orderDate: orderDate,
+           estimatedDeliveryDate: item['estimated_delivery_date'] != null 
+               ? DateTime.parse(item['estimated_delivery_date']) 
+               : orderDate.add(const Duration(days: 3)),
+           shippingAddress: item['shipping_address'],
+         ));
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('Load Orders Error: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  // helper to parse numbers
   double _parseNum(dynamic value) {
     if (value == null) return 0.0;
     if (value is num) return value.toDouble();
     return double.tryParse(value.toString()) ?? 0.0;
   }
 
-  // helper to parse order status
   OrderStatus _parseOrderStatus(String? status, String? paymentStatus) {
     switch (status?.toLowerCase()) {
       case 'pending': return OrderStatus.pending;

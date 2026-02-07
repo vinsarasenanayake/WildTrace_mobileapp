@@ -51,7 +51,7 @@ class ProductCard extends StatelessWidget {
             children: [
               // product image background
               Image.network(
-                imageUrl.startsWith('http') ? imageUrl : '${ApiService.baseHost}/$imageUrl',
+                ApiService.resolveImageUrl(imageUrl),
                 fit: BoxFit.cover,
                 cacheWidth: 800,
                 gaplessPlayback: true,

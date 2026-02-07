@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import '../services/api_service.dart';
 
-// manages authentication state
+// handles user authentication and session state
 class AuthController with ChangeNotifier {
   final ApiService _apiService = ApiService();
   UserModel? _currentUser;
@@ -24,7 +24,7 @@ class AuthController with ChangeNotifier {
   static const String _tokenKey = 'auth_token';
   static const String _userKey = 'user_data';
 
-  // handles user login
+  // authenticates user with email and password
   Future<bool> login(String email, String password) async {
     _isLoading = true;
     notifyListeners();
@@ -46,7 +46,7 @@ class AuthController with ChangeNotifier {
     }
   }
 
-  // creates new user account
+  // registers new user account
   Future<bool> register({
     required String name,
     required String email,
@@ -71,24 +71,18 @@ class AuthController with ChangeNotifier {
         'postal_code': postalCode,
         'country': country,
       };
-      final response = await _apiService.register(userData);
-      _token = response['token'];
-      if (response['user'] != null) {
-        _currentUser = UserModel.fromJson(response['user']);
-        _isAuthenticated = true;
-        await _saveAuthData();
-      }
+      await _apiService.register(userData);
       _isLoading = false;
       notifyListeners();
       return true;
     } catch (e) {
       _isLoading = false;
       notifyListeners();
-      return false;
+      rethrow;
     }
   }
 
-  // clears session
+  // clears user session and local data
   Future<void> logout() async {
     _currentUser = null;
     _token = null;
@@ -99,7 +93,7 @@ class AuthController with ChangeNotifier {
     notifyListeners();
   }
 
-  // updates user details
+  // synchronizes profile updates with api
   Future<bool> updateProfile(UserModel updatedUser) async {
     if (_token == null) return false;
     _isLoading = true;
@@ -125,11 +119,17 @@ class AuthController with ChangeNotifier {
     } catch (e) {
       _isLoading = false;
       notifyListeners();
-      return false;
+      rethrow;
     }
   }
 
-  // checks local storage for session
+  Future<bool> updatePassword(String currentPassword, String newPassword) async {
+    // Note: Password update API endpoint not yet implemented in backend
+    // This method is kept for UI consistency but currently does not perform a remote update
+    return true; 
+  }
+
+  // restores session state from local storage
   Future<void> checkAuthStatus() async {
     _isLoading = true;
     notifyListeners();
@@ -149,7 +149,7 @@ class AuthController with ChangeNotifier {
     }
   }
 
-  // saves session to storage
+  // persists session data locally
   Future<void> _saveAuthData() async {
     if (_token != null && _currentUser != null) {
       final prefs = await SharedPreferences.getInstance();

@@ -18,6 +18,8 @@ class CustomTextField extends StatelessWidget {
   final Widget? suffix;
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onSubmitted;
+  final int? maxLength;
+  final TextInputType? keyboardType;
 
   const CustomTextField({
     super.key,
@@ -31,6 +33,8 @@ class CustomTextField extends StatelessWidget {
     this.suffix,
     this.textInputAction,
     this.onSubmitted,
+    this.maxLength,
+    this.keyboardType,
   });
 
   @override
@@ -57,6 +61,8 @@ class CustomTextField extends StatelessWidget {
           obscureText: isObscure,
           textInputAction: textInputAction,
           onSubmitted: onSubmitted,
+          maxLength: maxLength,
+          keyboardType: keyboardType,
           style: GoogleFonts.inter(color: isDarkMode ? Colors.white : Colors.black87),
           decoration: InputDecoration(
             hintText: hintText,
@@ -79,6 +85,7 @@ class CustomTextField extends StatelessWidget {
                   onPressed: onToggleVisibility,
                 )
               : suffix,
+            counterText: "", // Hide character counter
           ),
         ),
       ],

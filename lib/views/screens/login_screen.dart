@@ -33,22 +33,25 @@ class _LoginScreenState extends State<LoginScreen> {
         context: context,
         type: QuickAlertType.warning,
         title: 'Missing Details',
-        widget: Text(
-          'Please enter your credentials and sign in',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: isDarkMode ? Colors.white70 : Colors.black87,
-          ),
-        ),
+        text: 'Please enter your credentials and sign in',
         backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         titleColor: isDarkMode ? Colors.white : Colors.black,
-        confirmBtnText: 'Okay',
-        confirmBtnTextStyle: GoogleFonts.inter(
-          fontSize: 12,
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
+        textColor: isDarkMode ? Colors.white70 : Colors.black87,
+      );
+      return;
+    }
+
+    // Email format validation
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(_emailController.text.trim())) {
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.warning,
+        title: 'Invalid Email',
+        text: 'Please enter a valid email address',
+        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+        titleColor: isDarkMode ? Colors.white : Colors.black,
+        textColor: isDarkMode ? Colors.white70 : Colors.black87,
       );
       return;
     }
@@ -260,7 +263,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Copyright © 2026 ', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
+                      Text('Copyright © ${DateTime.now().year} ', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
                       InkWell(
                         onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainWrapper()), (route) => false),
                         child: Text('WILDTRACE', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF27AE60)))
