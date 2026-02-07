@@ -54,7 +54,9 @@ class MilestoneCard extends StatelessWidget {
             description,
             style: GoogleFonts.inter(
               fontSize: 13,
-              color: isDarkMode ? Colors.white.withOpacity(0.7) : Colors.grey.shade700,
+              color: isDarkMode
+                  ? Colors.white.withAlpha((0.7 * 255).round())
+                  : Colors.grey.shade700,
               height: 1.6,
             ),
           ),
@@ -63,4 +65,3 @@ class MilestoneCard extends StatelessWidget {
     );
   }
 }
-

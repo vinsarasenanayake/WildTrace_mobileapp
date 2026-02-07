@@ -8,7 +8,6 @@ import 'order_history_screen.dart';
 import 'favourites_screen.dart';
 import 'edit_profile_screen.dart';
 import '../widgets/cards/dashboard_card.dart';
-import '../widgets/common/wildtrace_logo.dart';
 import '../widgets/common/custom_button.dart';
 import '../../main_wrapper.dart';
 import '../widgets/common/battery_status_indicator.dart';
@@ -22,12 +21,16 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // theme and adaptive layout configuration
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final Color backgroundColor = isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9);
+    final Color backgroundColor = isDarkMode
+        ? const Color(0xFF121212)
+        : const Color(0xFFF9FBF9);
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     const Color accentGreen = Color(0xFF27AE60);
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
     final padding = MediaQuery.of(context).padding;
-    final sidePadding = (padding.left > padding.right ? padding.left : padding.right) + 24.0;
+    final sidePadding =
+        (padding.left > padding.right ? padding.left : padding.right) + 24.0;
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -35,7 +38,9 @@ class ProfileScreen extends StatelessWidget {
       body: Consumer<AuthController>(
         builder: (context, authProvider, child) {
           final user = authProvider.currentUser;
-          final initials = user?.name.isNotEmpty == true ? user!.name[0].toUpperCase() : 'U';
+          final initials = user?.name.isNotEmpty == true
+              ? user!.name[0].toUpperCase()
+              : 'U';
 
           return Stack(
             children: [
@@ -44,8 +49,8 @@ class ProfileScreen extends StatelessWidget {
                 right: false,
                 child: CustomScrollView(
                   // restricts scrolling for minimal guest views
-                  physics: (isLandscape && !authProvider.isAuthenticated) 
-                      ? const NeverScrollableScrollPhysics() 
+                  physics: (isLandscape && !authProvider.isAuthenticated)
+                      ? const NeverScrollableScrollPhysics()
                       : const AlwaysScrollableScrollPhysics(),
                   slivers: [
                     // floating navigation integration
@@ -62,13 +67,22 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     SliverToBoxAdapter(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: sidePadding, vertical: isLandscape ? 4.0 : 24.0),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: sidePadding,
+                          vertical: isLandscape ? 4.0 : 24.0,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // bifurcates UI based on session state
                             if (authProvider.isAuthenticated) ...[
-                              _buildHeader(textColor, accentGreen, initials, user?.name ?? '', user?.email ?? ''),
+                              _buildHeader(
+                                textColor,
+                                accentGreen,
+                                initials,
+                                user?.name ?? '',
+                                user?.email ?? '',
+                              ),
                               const SizedBox(height: 40),
                               _buildDashboard(context),
                               const SizedBox(height: 40),
@@ -94,41 +108,62 @@ class ProfileScreen extends StatelessWidget {
                 ),
             ],
           );
-        }
+        },
       ),
     );
   }
 
   // builds the visual identification header
-  Widget _buildHeader(Color textColor, Color accentGreen, String initials, String name, String email) {
+  Widget _buildHeader(
+    Color textColor,
+    Color accentGreen,
+    String initials,
+    String name,
+    String email,
+  ) {
     return Center(
       child: Column(
         children: [
           // branded avatar container
           Container(
             padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: accentGreen, width: 2)),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: accentGreen, width: 2),
+            ),
             child: CircleAvatar(
               radius: 50,
               backgroundColor: Colors.grey.shade800,
               child: Text(
-                initials, 
-                style: GoogleFonts.playfairDisplay(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white)
+                initials,
+                style: GoogleFonts.playfairDisplay(
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
           const SizedBox(height: 16),
           // primary user identification
           Text(
-            name, 
-            style: GoogleFonts.playfairDisplay(fontSize: 24, fontWeight: FontWeight.bold, color: textColor)
+            name,
+            style: GoogleFonts.playfairDisplay(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: textColor,
+            ),
           ),
           const SizedBox(height: 4),
           // secondary contact metadata
           if (email.isNotEmpty)
             Text(
-              email, 
-              style: GoogleFonts.inter(fontSize: 12, color: Colors.grey.shade500, fontWeight: FontWeight.w500)
+              email,
+              style: GoogleFonts.inter(
+                fontSize: 12,
+                color: Colors.grey.shade500,
+                fontWeight: FontWeight.w500,
+              ),
             ),
         ],
       ),
@@ -141,14 +176,25 @@ class ProfileScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // section identifier
-        Text('DASHBOARD', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 2.0, color: Colors.grey.shade500)),
+        Text(
+          'DASHBOARD',
+          style: GoogleFonts.inter(
+            fontSize: 10,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 2.0,
+            color: Colors.grey.shade500,
+          ),
+        ),
         const SizedBox(height: 16),
         // order tracking gateway
         DashboardCard(
           icon: Icons.shopping_bag_outlined,
           title: 'Order History',
           subtitle: 'View your past purchases',
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const OrderHistoryScreen())),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const OrderHistoryScreen()),
+          ),
         ),
         const SizedBox(height: 16),
         // wishlist persistence gateway
@@ -156,7 +202,10 @@ class ProfileScreen extends StatelessWidget {
           icon: Icons.favorite_border,
           title: 'Favourites',
           subtitle: 'Your curated wishlist',
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const FavouritesScreen())),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const FavouritesScreen()),
+          ),
         ),
         const SizedBox(height: 16),
         // account metadata mutation gateway
@@ -164,7 +213,10 @@ class ProfileScreen extends StatelessWidget {
           icon: Icons.person_outline,
           title: 'Edit Profile',
           subtitle: 'Update your personal info',
-          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const EditProfileScreen())),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const EditProfileScreen()),
+          ),
         ),
       ],
     );
@@ -180,9 +232,9 @@ class ProfileScreen extends StatelessWidget {
         authProvider.logout();
         // redirects to entry point
         Navigator.pushAndRemoveUntil(
-          context, 
-          MaterialPageRoute(builder: (context) => const LoginScreen()), 
-          (route) => false
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+          (route) => false,
         );
       },
       backgroundColor: const Color(0xFF351010),
@@ -197,26 +249,48 @@ class ProfileScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text('Copyright © ${DateTime.now().year} ', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
+        Text(
+          'Copyright © ${DateTime.now().year} ',
+          style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600),
+        ),
         // primary platform identifier with navigation
         InkWell(
-          onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainWrapper()), (route) => false),
-          child: Text('WILDTRACE', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF27AE60)))
+          onTap: () => Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => MainWrapper()),
+            (route) => false,
+          ),
+          child: Text(
+            'WILDTRACE',
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF27AE60),
+            ),
+          ),
         ),
-        Text('. All Rights Reserved.', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
+        Text(
+          '. All Rights Reserved.',
+          style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600),
+        ),
       ],
     );
   }
 
   // builds the call-to-action viewport for unauthorized sessions
   Widget _buildGuestView(BuildContext context, Color textColor) {
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
 
     return Column(
       children: [
         SizedBox(height: isLandscape ? 0 : 60),
         // visual status indicator
-        Icon(Icons.lock_outline, size: isLandscape ? 40 : 64, color: Colors.grey.withOpacity(0.3)),
+        Icon(
+          Icons.lock_outline,
+          size: isLandscape ? 40 : 64,
+          color: Colors.grey.withAlpha((0.3 * 255).round()),
+        ),
         SizedBox(height: isLandscape ? 12 : 24),
         // value proposition messaging
         Text(
@@ -247,7 +321,12 @@ class ProfileScreen extends StatelessWidget {
               Expanded(
                 child: CustomButton(
                   text: 'SIGN IN NOW',
-                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  ),
                   type: CustomButtonType.secondary,
                   verticalPadding: 16,
                   fontSize: 13,
@@ -257,7 +336,12 @@ class ProfileScreen extends StatelessWidget {
               Expanded(
                 child: CustomButton(
                   text: 'REGISTER NOW',
-                  onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const RegisterScreen(),
+                    ),
+                  ),
                   type: CustomButtonType.ghost,
                   verticalPadding: 16,
                   fontSize: 13,
@@ -271,7 +355,10 @@ class ProfileScreen extends StatelessWidget {
               // primary redirection
               CustomButton(
                 text: 'SIGN IN NOW',
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                ),
                 type: CustomButtonType.secondary,
                 verticalPadding: 18,
                 fontSize: 13,
@@ -280,7 +367,12 @@ class ProfileScreen extends StatelessWidget {
               // secondary onboarding
               CustomButton(
                 text: 'REGISTER NOW',
-                onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen())),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const RegisterScreen(),
+                  ),
+                ),
                 type: CustomButtonType.ghost,
                 verticalPadding: 18,
                 fontSize: 13,
@@ -291,4 +383,3 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 }
-

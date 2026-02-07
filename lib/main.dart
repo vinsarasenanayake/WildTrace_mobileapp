@@ -19,16 +19,16 @@ import 'views/screens/splash_screen.dart';
 // app initialization
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // setup environment
   await dotenv.load(fileName: ".env");
-  
+
   // configure payments
   Stripe.publishableKey = dotenv.get('STRIPE_PUBLISHABLE_KEY');
   await Stripe.instance.applySettings();
 
   debugPrint('--- WILDTRACE APP STARTING ---');
-  
+
   // load saved navigation state
   final prefs = await SharedPreferences.getInstance();
   final initialNavIndex = prefs.getInt('last_nav_index') ?? 0;
@@ -37,7 +37,9 @@ void main() async {
     MultiProvider(
       providers: [
         // state management controllers
-        ChangeNotifierProvider(create: (_) => NavigationController(initialIndex: initialNavIndex)),
+        ChangeNotifierProvider(
+          create: (_) => NavigationController(initialIndex: initialNavIndex),
+        ),
         ChangeNotifierProvider(create: (_) => AuthController()),
         ChangeNotifierProvider(create: (_) => BatteryController()),
         ChangeNotifierProxyProvider<AuthController, FavoritesController>(
@@ -54,9 +56,12 @@ void main() async {
         ),
         ChangeNotifierProxyProvider<AuthController, OrdersController>(
           create: (_) => OrdersController(),
-          update: (_, auth, orders) => orders!..updateToken(auth.token, auth.currentUser?.id),
+          update: (_, auth, orders) =>
+              orders!..updateToken(auth.token, auth.currentUser?.id),
         ),
-        ChangeNotifierProvider(create: (_) => ContentController()..fetchContent()),
+        ChangeNotifierProvider(
+          create: (_) => ContentController()..fetchContent(),
+        ),
       ],
       child: const WildTraceApp(),
     ),
@@ -90,30 +95,18 @@ class WildTraceApp extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             splashFactory: NoSplash.splashFactory,
             elevation: 0,
-          ).copyWith(
-            overlayColor: MaterialStateProperty.all(Colors.transparent),
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
             splashFactory: NoSplash.splashFactory,
-          ).copyWith(
-            overlayColor: MaterialStateProperty.all(Colors.transparent),
           ),
         ),
         textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(
-            splashFactory: NoSplash.splashFactory,
-          ).copyWith(
-            overlayColor: MaterialStateProperty.all(Colors.transparent),
-          ),
+          style: TextButton.styleFrom(splashFactory: NoSplash.splashFactory),
         ),
         iconButtonTheme: IconButtonThemeData(
-          style: IconButton.styleFrom(
-            splashFactory: NoSplash.splashFactory,
-          ).copyWith(
-            overlayColor: MaterialStateProperty.all(Colors.transparent),
-          ),
+          style: IconButton.styleFrom(splashFactory: NoSplash.splashFactory),
         ),
       ),
       // Dark theme settings
@@ -135,30 +128,18 @@ class WildTraceApp extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             splashFactory: NoSplash.splashFactory,
             elevation: 0,
-          ).copyWith(
-            overlayColor: MaterialStateProperty.all(Colors.transparent),
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
             splashFactory: NoSplash.splashFactory,
-          ).copyWith(
-            overlayColor: MaterialStateProperty.all(Colors.transparent),
           ),
         ),
         textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(
-            splashFactory: NoSplash.splashFactory,
-          ).copyWith(
-            overlayColor: MaterialStateProperty.all(Colors.transparent),
-          ),
+          style: TextButton.styleFrom(splashFactory: NoSplash.splashFactory),
         ),
         iconButtonTheme: IconButtonThemeData(
-          style: IconButton.styleFrom(
-            splashFactory: NoSplash.splashFactory,
-          ).copyWith(
-            overlayColor: MaterialStateProperty.all(Colors.transparent),
-          ),
+          style: IconButton.styleFrom(splashFactory: NoSplash.splashFactory),
         ),
       ),
       home: const SplashScreen(),
@@ -170,9 +151,13 @@ class WildTraceApp extends StatelessWidget {
 // Scroll behavior configuration
 class NoGlowScrollBehavior extends ScrollBehavior {
   const NoGlowScrollBehavior();
-  
+
   @override
-  Widget buildOverscrollIndicator(BuildContext context, Widget child, ScrollableDetails details) {
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
     return child;
   }
 }

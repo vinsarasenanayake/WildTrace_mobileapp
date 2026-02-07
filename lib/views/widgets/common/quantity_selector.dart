@@ -23,10 +23,10 @@ class QuantitySelector extends StatelessWidget {
       decoration: BoxDecoration(
         color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+        border: Border.all(color: Colors.grey.withAlpha((0.1 * 255).round())),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withAlpha((0.02 * 255).round()),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -66,7 +66,9 @@ class QuantitySelector extends StatelessWidget {
         height: 32,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: isDarkMode ? Colors.white.withOpacity(0.05) : Colors.grey.shade50,
+          color: isDarkMode
+              ? Colors.white.withAlpha((0.05 * 255).round())
+              : Colors.grey.shade50,
         ),
         child: Icon(
           icon,

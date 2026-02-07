@@ -17,7 +17,7 @@ class UserForm extends StatefulWidget {
   final TextEditingController? countryController;
   final TextEditingController? passwordController;
   final TextEditingController? confirmPasswordController;
-  
+
   // form configuration
   final String addressLabel;
   final String contactLabel;
@@ -53,7 +53,6 @@ class UserForm extends StatefulWidget {
   State<UserForm> createState() => _UserFormState();
 }
 
-
 class _UserFormState extends State<UserForm> {
   // location detection state
   Country _selectedCountry = Country.parse('LK');
@@ -63,14 +62,16 @@ class _UserFormState extends State<UserForm> {
   // detects user location and populates address fields
   Future<void> _detectLocation() async {
     setState(() => _isDetecting = true);
-    
+
     try {
       // Wrap the entire process in a hard 45-second timeout
       final addressData = await _locationService.getCurrentAddress().timeout(
         const Duration(seconds: 45),
-        onTimeout: () => throw Exception('Location request timed out. Please ensure GPS is active and a location point is set in emulator settings.'),
+        onTimeout: () => throw Exception(
+          'Location request timed out. Please ensure GPS is active and a location point is set in emulator settings.',
+        ),
       );
-      
+
       if (addressData != null) {
         widget.addressController.text = addressData['address'] ?? '';
         widget.cityController.text = addressData['city'] ?? '';
@@ -80,39 +81,64 @@ class _UserFormState extends State<UserForm> {
         }
       } else {
         if (mounted) {
-           QuickAlert.show(
+          QuickAlert.show(
             context: context,
             type: QuickAlertType.error,
             title: 'Detection Failed',
-            text: 'Could not fetch your location. Please check your GPS settings and permissions.',
-            backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
-            titleColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
-            textColor: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.black87,
+            text:
+                'Could not fetch your location. Please check your GPS settings and permissions.',
+            backgroundColor: Theme.of(context).brightness == Brightness.dark
+                ? const Color(0xFF1E1E1E)
+                : Colors.white,
+            titleColor: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white
+                : Colors.black,
+            textColor: Theme.of(context).brightness == Brightness.dark
+                ? Colors.white70
+                : Colors.black87,
             confirmBtnText: 'Okay',
-            confirmBtnTextStyle: GoogleFonts.inter(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
+            confirmBtnTextStyle: GoogleFonts.inter(
+              fontSize: 12,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           );
         }
       }
     } catch (e) {
-       if (mounted) {
-          String errorMsg = 'We couldn\'t detect your location. Please make sure your GPS is turned on and try again.';
-          
-          if (e.toString().contains('Timeout') || e.toString().contains('timed out')) {
-            errorMsg = 'Location detection took too long. Please ensure you have a clear signal and try again.';
-          }
-          
-          QuickAlert.show(
-            context: context,
-            type: QuickAlertType.warning, // Changed to warning for a less "scary" look
-            title: 'Location Unavailable',
-            text: errorMsg,
-            backgroundColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
-            titleColor: Theme.of(context).brightness == Brightness.dark ? Colors.white : Colors.black,
-            textColor: Theme.of(context).brightness == Brightness.dark ? Colors.white70 : Colors.black87,
-            confirmBtnText: 'Okay',
-            confirmBtnTextStyle: GoogleFonts.inter(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
-          );
-       }
+      if (mounted) {
+        String errorMsg =
+            'We couldn\'t detect your location. Please make sure your GPS is turned on and try again.';
+
+        if (e.toString().contains('Timeout') ||
+            e.toString().contains('timed out')) {
+          errorMsg =
+              'Location detection took too long. Please ensure you have a clear signal and try again.';
+        }
+
+        QuickAlert.show(
+          context: context,
+          type: QuickAlertType
+              .warning, // Changed to warning for a less "scary" look
+          title: 'Location Unavailable',
+          text: errorMsg,
+          backgroundColor: Theme.of(context).brightness == Brightness.dark
+              ? const Color(0xFF1E1E1E)
+              : Colors.white,
+          titleColor: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white
+              : Colors.black,
+          textColor: Theme.of(context).brightness == Brightness.dark
+              ? Colors.white70
+              : Colors.black87,
+          confirmBtnText: 'Okay',
+          confirmBtnTextStyle: GoogleFonts.inter(
+            fontSize: 12,
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        );
+      }
     } finally {
       if (mounted) {
         setState(() => _isDetecting = false);
@@ -124,25 +150,25 @@ class _UserFormState extends State<UserForm> {
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     // Define fields
     final nameField = CustomTextField(
-      label: 'FULL NAME', 
-      controller: widget.nameController, 
+      label: 'FULL NAME',
+      controller: widget.nameController,
       hintText: 'Full Name',
       textInputAction: TextInputAction.next,
     );
-    
+
     final emailField = CustomTextField(
-      label: 'EMAIL ADDRESS', 
-      controller: widget.emailController, 
+      label: 'EMAIL ADDRESS',
+      controller: widget.emailController,
       hintText: 'Enter Your Email Address',
       textInputAction: TextInputAction.next,
     );
-    
+
     final contactField = CustomTextField(
-      label: widget.contactLabel, 
-      controller: widget.contactController, 
+      label: widget.contactLabel,
+      controller: widget.contactController,
       hintText: '77 123 4567',
       textInputAction: TextInputAction.next,
       maxLength: 9,
@@ -156,13 +182,23 @@ class _UserFormState extends State<UserForm> {
               setState(() => _selectedCountry = country);
             },
             countryListTheme: CountryListThemeData(
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
-              backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-              textStyle: GoogleFonts.inter(color: isDarkMode ? Colors.white : Colors.black),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
+              backgroundColor: isDarkMode
+                  ? const Color(0xFF1E1E1E)
+                  : Colors.white,
+              textStyle: GoogleFonts.inter(
+                color: isDarkMode ? Colors.white : Colors.black,
+              ),
               inputDecoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search),
                 hintText: 'Search Country',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
                 filled: true,
               ),
             ),
@@ -173,51 +209,63 @@ class _UserFormState extends State<UserForm> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-               Text(_selectedCountry.flagEmoji, style: const TextStyle(fontSize: 18)),
+              Text(
+                _selectedCountry.flagEmoji,
+                style: const TextStyle(fontSize: 18),
+              ),
               const SizedBox(width: 4),
               Text(
-                '+${_selectedCountry.phoneCode}', 
+                '+${_selectedCountry.phoneCode}',
                 style: GoogleFonts.inter(
-                  fontSize: 14, 
+                  fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: isDarkMode ? Colors.white : Colors.black87,
-                )
+                ),
               ),
-              Icon(Icons.keyboard_arrow_down_rounded, size: 16, color: Colors.grey.shade400),
+              Icon(
+                Icons.keyboard_arrow_down_rounded,
+                size: 16,
+                color: Colors.grey.shade400,
+              ),
               const SizedBox(width: 8),
-              Container(width: 1, height: 24, color: Colors.grey.withOpacity(0.2)),
+              Container(
+                width: 1,
+                height: 24,
+                color: Colors.grey.withAlpha((0.2 * 255).round()),
+              ),
             ],
           ),
         ),
       ),
     );
-    
+
     Widget? passField;
     Widget? confirmField;
-    if (widget.passwordController != null && widget.confirmPasswordController != null) {
+    if (widget.passwordController != null &&
+        widget.confirmPasswordController != null) {
       passField = CustomTextField(
-        label: 'PASSWORD', 
-        controller: widget.passwordController!, 
-        hintText: '........', 
-        isObscure: widget.isPasswordObscure, 
-        hasToggle: true, 
+        label: 'PASSWORD',
+        controller: widget.passwordController!,
+        hintText: '........',
+        isObscure: widget.isPasswordObscure,
+        hasToggle: true,
         onToggleVisibility: widget.onPasswordToggle,
         textInputAction: TextInputAction.next,
       );
       confirmField = CustomTextField(
-        label: 'CONFIRM PASSWORD', 
-        controller: widget.confirmPasswordController!, 
-        hintText: '........', 
-        isObscure: widget.isConfirmPasswordObscure, 
-        hasToggle: true, 
+        label: 'CONFIRM PASSWORD',
+        controller: widget.confirmPasswordController!,
+        hintText: '........',
+        isObscure: widget.isConfirmPasswordObscure,
+        hasToggle: true,
         onToggleVisibility: widget.onConfirmPasswordToggle,
         textInputAction: TextInputAction.next,
       );
     }
-    
+
     final addressField = CustomTextField(
-      label: widget.addressLabel, 
-      controller: widget.addressController, 
+      label: widget.addressLabel,
+      controller: widget.addressController,
       hintText: 'Street address',
       textInputAction: TextInputAction.next,
       suffix: TextButton(
@@ -227,69 +275,90 @@ class _UserFormState extends State<UserForm> {
           minimumSize: Size.zero,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
-        child: _isDetecting 
-          ? const SizedBox(
-              width: 16, 
-              height: 16, 
-              child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF27AE60))
-            )
-          : Text(
-              'DETECT',
-              style: GoogleFonts.inter(
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF27AE60),
+        child: _isDetecting
+            ? const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Color(0xFF27AE60),
+                ),
+              )
+            : Text(
+                'DETECT',
+                style: GoogleFonts.inter(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF27AE60),
+                ),
               ),
-            ),
       ),
     );
-    
+
     final cityField = CustomTextField(
-      label: 'CITY', 
-      controller: widget.cityController, 
+      label: 'CITY',
+      controller: widget.cityController,
       hintText: 'City',
       textInputAction: TextInputAction.next,
     );
-    
+
     final postalField = CustomTextField(
-      label: 'POSTAL CODE', 
-      controller: widget.postalCodeController, 
+      label: 'POSTAL CODE',
+      controller: widget.postalCodeController,
       hintText: '10100',
-      textInputAction: widget.countryController == null ? TextInputAction.done : TextInputAction.next,
+      textInputAction: widget.countryController == null
+          ? TextInputAction.done
+          : TextInputAction.next,
       onSubmitted: widget.countryController == null ? widget.onSubmitted : null,
     );
-    
+
     Widget? countryField;
     if (widget.countryController != null) {
       countryField = GestureDetector(
         onTap: () {
-           showCountryPicker(
+          showCountryPicker(
             context: context,
             onSelect: (Country country) {
               setState(() {
-                 widget.countryController!.text = country.name;
+                widget.countryController!.text = country.name;
               });
             },
             countryListTheme: CountryListThemeData(
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
-              backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-              textStyle: GoogleFonts.inter(color: isDarkMode ? Colors.white : Colors.black),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(24),
+                topRight: Radius.circular(24),
+              ),
+              backgroundColor: isDarkMode
+                  ? const Color(0xFF1E1E1E)
+                  : Colors.white,
+              textStyle: GoogleFonts.inter(
+                color: isDarkMode ? Colors.white : Colors.black,
+              ),
               inputDecoration: InputDecoration(
                 prefixIcon: const Icon(Icons.search),
                 hintText: 'Search Country',
-                labelStyle: TextStyle(color: isDarkMode ? Colors.white70 : Colors.black54),
-                hintStyle: TextStyle(color: isDarkMode ? Colors.white30 : Colors.black26),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                labelStyle: TextStyle(
+                  color: isDarkMode ? Colors.white70 : Colors.black54,
+                ),
+                hintStyle: TextStyle(
+                  color: isDarkMode ? Colors.white30 : Colors.black26,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
                 filled: true,
-                fillColor: isDarkMode ? const Color(0xFF2C2C2C) : Colors.grey.shade100,
+                fillColor: isDarkMode
+                    ? const Color(0xFF2C2C2C)
+                    : Colors.grey.shade100,
               ),
             ),
           );
         },
         child: AbsorbPointer(
           child: CustomTextField(
-            label: 'COUNTRY', 
-            controller: widget.countryController!, 
+            label: 'COUNTRY',
+            controller: widget.countryController!,
             hintText: 'Select Country',
             suffix: const Icon(Icons.keyboard_arrow_down_rounded),
             textInputAction: TextInputAction.done,
@@ -302,35 +371,56 @@ class _UserFormState extends State<UserForm> {
     // Helper for rows
     Widget row(Widget a, Widget b) => Row(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [Expanded(child: a), const SizedBox(width: 16), Expanded(child: b)],
+      children: [
+        Expanded(child: a),
+        const SizedBox(width: 16),
+        Expanded(child: b),
+      ],
     );
 
     return Column(
       children: [
-        widget.isLandscape ? row(nameField, emailField) : Column(children: [nameField, const SizedBox(height: 20), emailField]),
+        widget.isLandscape
+            ? row(nameField, emailField)
+            : Column(
+                children: [nameField, const SizedBox(height: 20), emailField],
+              ),
         const SizedBox(height: 20),
-        
+
         contactField,
         const SizedBox(height: 20),
-        
+
         if (passField != null && confirmField != null) ...[
-          widget.isLandscape ? row(passField, confirmField) : Column(children: [passField, const SizedBox(height: 20), confirmField]),
+          widget.isLandscape
+              ? row(passField, confirmField)
+              : Column(
+                  children: [
+                    passField,
+                    const SizedBox(height: 20),
+                    confirmField,
+                  ],
+                ),
           const SizedBox(height: 20),
         ],
-        
-        widget.isLandscape 
-          ? row(addressField, cityField)
-          : Column(children: [addressField, const SizedBox(height: 20), row(cityField, postalField)]),
-          
+
+        widget.isLandscape
+            ? row(addressField, cityField)
+            : Column(
+                children: [
+                  addressField,
+                  const SizedBox(height: 20),
+                  row(cityField, postalField),
+                ],
+              ),
+
         const SizedBox(height: 20),
 
         if (widget.isLandscape) ...[
-            row(postalField, countryField ?? const SizedBox()),
+          row(postalField, countryField ?? const SizedBox()),
         ] else ...[
-            if (countryField != null) countryField, 
+          if (countryField != null) countryField,
         ],
       ],
     );
   }
 }
-

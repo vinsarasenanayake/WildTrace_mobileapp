@@ -19,7 +19,9 @@ class JourneyScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // theme and layout configuration
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final Color backgroundColor = isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9);
+    final Color backgroundColor = isDarkMode
+        ? const Color(0xFF121212)
+        : const Color(0xFFF9FBF9);
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -70,18 +72,21 @@ class JourneyScreen extends StatelessWidget {
       builder: (context) {
         final isLandscape = ResponsiveHelper.isLandscape(context);
         final screenHeight = MediaQuery.of(context).size.height;
-        
+
         return WildTraceHero(
           imagePath: 'assets/images/heroimageaboutus.jpg',
           title: 'OUR STORY',
           mainText1: 'INTO THE',
           mainText2: 'WILD',
-          description: 'WildTrace began with a single shutter click in the heart of Sri Lanka. Today, we are\na bunch of photographers dedicated to preserving the wild through art.',
+          description:
+              'WildTrace began with a single shutter click in the heart of Sri Lanka. Today, we are\na bunch of photographers dedicated to preserving the wild through art.',
           height: isLandscape ? screenHeight * 0.85 : 500,
           alignment: Alignment.centerRight,
-          verticalAlignment: isLandscape ? MainAxisAlignment.center : MainAxisAlignment.center,
+          verticalAlignment: isLandscape
+              ? MainAxisAlignment.center
+              : MainAxisAlignment.center,
         );
-      }
+      },
     );
   }
 
@@ -91,11 +96,16 @@ class JourneyScreen extends StatelessWidget {
       builder: (context, contentProvider, child) {
         // provides feedback for content synchronization
         if (contentProvider.isLoading && contentProvider.milestones.isEmpty) {
-          return const Center(child: Padding(padding: EdgeInsets.all(20), child: CircularProgressIndicator(color: Color(0xFF27AE60))));
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(20),
+              child: CircularProgressIndicator(color: Color(0xFF27AE60)),
+            ),
+          );
         }
-        
+
         final milestones = contentProvider.milestones;
-        
+
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
           child: Stack(
@@ -107,21 +117,25 @@ class JourneyScreen extends StatelessWidget {
                 bottom: 0,
                 child: Container(
                   width: 1,
-                  color: Colors.grey.withOpacity(0.3),
+                  color: Colors.grey.withAlpha((0.3 * 255).round()),
                 ),
               ),
               // list of historical markers
               Column(
-                children: milestones.map((event) => _buildTimelineItem(
-                      year: event.year,
-                      title: event.title,
-                      description: event.description,
-                    )).toList(),
+                children: milestones
+                    .map(
+                      (event) => _buildTimelineItem(
+                        year: event.year,
+                        title: event.title,
+                        description: event.description,
+                      ),
+                    )
+                    .toList(),
               ),
             ],
           ),
         );
-      }
+      },
     );
   }
 
@@ -138,7 +152,7 @@ class JourneyScreen extends StatelessWidget {
         children: [
           // visual status indicator
           Container(
-            margin: const EdgeInsets.only(top: 5), 
+            margin: const EdgeInsets.only(top: 5),
             width: 9,
             height: 9,
             decoration: const BoxDecoration(
@@ -165,9 +179,7 @@ class JourneyScreen extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 60),
-      decoration: const BoxDecoration(
-        color: Color(0xFF1B1B1B),
-      ),
+      decoration: const BoxDecoration(color: Color(0xFF1B1B1B)),
       child: Column(
         children: [
           const SectionTitle(title: 'PHOTOGRAPHERS'),
@@ -191,7 +203,7 @@ class JourneyScreen extends StatelessWidget {
               textAlign: TextAlign.center,
               style: GoogleFonts.inter(
                 fontSize: 13,
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withAlpha((0.7 * 255).round()),
               ),
             ),
           ),
@@ -204,14 +216,22 @@ class JourneyScreen extends StatelessWidget {
                 height: isLandscape ? 320 : 520,
                 child: Consumer<ContentController>(
                   builder: (context, contentProvider, child) {
-                    if (contentProvider.isLoading && contentProvider.photographers.isEmpty) {
-                       return const Center(child: CircularProgressIndicator(color: Colors.white));
+                    if (contentProvider.isLoading &&
+                        contentProvider.photographers.isEmpty) {
+                      return const Center(
+                        child: CircularProgressIndicator(color: Colors.white),
+                      );
                     }
-                    
+
                     final photographers = contentProvider.photographers;
-                    
+
                     if (photographers.isEmpty) {
-                      return const Center(child: Text('No photographers found', style: TextStyle(color: Colors.white)));
+                      return const Center(
+                        child: Text(
+                          'No photographers found',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      );
                     }
 
                     // renders biographies in a scrollable list
@@ -226,10 +246,10 @@ class JourneyScreen extends StatelessWidget {
                           margin: const EdgeInsets.only(right: 20),
                           child: PhotographerCard(
                             name: p.name,
-                            role: p.profession, 
+                            role: p.profession,
                             quote: p.quote,
                             achievement: p.achievement,
-                            badgeText: p.post ?? '', 
+                            badgeText: p.post ?? '',
                             imagePath: p.imageUrl,
                           ),
                         );
@@ -238,7 +258,7 @@ class JourneyScreen extends StatelessWidget {
                   },
                 ),
               );
-            }
+            },
           ),
         ],
       ),
@@ -251,8 +271,11 @@ class JourneyScreen extends StatelessWidget {
       builder: (context) {
         final isLandscape = ResponsiveHelper.isLandscape(context);
         final int gridColumns = 2;
-        final double spacing = ResponsiveHelper.getSpacing(context, portrait: 16);
-        
+        final double spacing = ResponsiveHelper.getSpacing(
+          context,
+          portrait: 16,
+        );
+
         return Container(
           width: double.infinity,
           decoration: const BoxDecoration(
@@ -264,7 +287,7 @@ class JourneyScreen extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.92),
+              color: Colors.black.withAlpha((0.92 * 255).round()),
             ),
             child: Column(
               children: [
@@ -272,7 +295,9 @@ class JourneyScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 // mission identifier
                 Text(
-                  isLandscape ? 'Empowering Locals, Protecting Nature' : 'Empowering Locals,\nProtecting Nature',
+                  isLandscape
+                      ? 'Empowering Locals, Protecting Nature'
+                      : 'Empowering Locals,\nProtecting Nature',
                   textAlign: TextAlign.center,
                   style: GoogleFonts.playfairDisplay(
                     fontSize: 32,
@@ -289,14 +314,16 @@ class JourneyScreen extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: GoogleFonts.inter(
                     fontSize: 13,
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withAlpha((0.9 * 255).round()),
                     height: 1.6,
                   ),
                 ),
                 const SizedBox(height: 40),
                 // core contributions grid
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: isLandscape ? 60 : 0),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isLandscape ? 60 : 0,
+                  ),
                   child: GridView.count(
                     crossAxisCount: gridColumns,
                     shrinkWrap: true,
@@ -307,9 +334,15 @@ class JourneyScreen extends StatelessWidget {
                     padding: EdgeInsets.zero,
                     children: [
                       _buildImpactCard('Reforestation projects', isLandscape),
-                      _buildImpactCard('Wildlife photography workshops', isLandscape),
+                      _buildImpactCard(
+                        'Wildlife photography workshops',
+                        isLandscape,
+                      ),
                       _buildImpactCard('Calendar sponsorships', isLandscape),
-                      _buildImpactCard('Wildlife department collaboration', isLandscape),
+                      _buildImpactCard(
+                        'Wildlife department collaboration',
+                        isLandscape,
+                      ),
                     ],
                   ),
                 ),
@@ -317,7 +350,7 @@ class JourneyScreen extends StatelessWidget {
             ),
           ),
         );
-      }
+      },
     );
   }
 
@@ -325,14 +358,14 @@ class JourneyScreen extends StatelessWidget {
   Widget _buildImpactCard(String text, bool isLandscape) {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: isLandscape ? 6 : 16, 
-        vertical: isLandscape ? 4 : 12
+        horizontal: isLandscape ? 6 : 16,
+        vertical: isLandscape ? 4 : 12,
       ),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.4),
+        color: Colors.black.withAlpha((0.4 * 255).round()),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFF27AE60).withOpacity(0.3),
+          color: const Color(0xFF27AE60).withAlpha((0.3 * 255).round()),
           width: 1,
         ),
       ),
@@ -373,4 +406,3 @@ class JourneyScreen extends StatelessWidget {
     );
   }
 }
-

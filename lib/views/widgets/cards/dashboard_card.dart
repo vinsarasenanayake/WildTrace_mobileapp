@@ -24,7 +24,7 @@ class DashboardCard extends StatelessWidget {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     final Color cardColor = isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
-    
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
@@ -35,7 +35,7 @@ class DashboardCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withAlpha((0.05 * 255).round()),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -85,4 +85,3 @@ class DashboardCard extends StatelessWidget {
     );
   }
 }
-

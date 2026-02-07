@@ -26,7 +26,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _contactController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _cityController = TextEditingController();
@@ -49,9 +50,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   // manages the user onboarding workflow
-  Future<void> _handleRegister(AuthController authProvider, bool isDarkMode) async {
+  Future<void> _handleRegister(
+    AuthController authProvider,
+    bool isDarkMode,
+  ) async {
     // Basic field validation
-    if (_nameController.text.isEmpty || _emailController.text.isEmpty || _passwordController.text.isEmpty) {
+    if (_nameController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _passwordController.text.isEmpty) {
       QuickAlert.show(
         context: context,
         type: QuickAlertType.warning,
@@ -97,7 +103,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
       return;
     }
-    
+
     try {
       // attempts credential persistence via the provider
       final success = await authProvider.register(
@@ -109,7 +115,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         city: _cityController.text,
         postalCode: _postalCodeController.text,
       );
-      
+
       // redirects to login page upon successful account creation
       if (success && mounted) {
         QuickAlert.show(
@@ -125,7 +131,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           onConfirmBtnTap: () {
             Navigator.pop(context); // Close alert
             Navigator.pushReplacement(
-              context, 
+              context,
               MaterialPageRoute(builder: (context) => const LoginScreen()),
             );
           },
@@ -159,10 +165,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     // theme and layout design tokens
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
     return Scaffold(
-      backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
+      backgroundColor: isDarkMode
+          ? const Color(0xFF121212)
+          : const Color(0xFFF9FBF9),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -195,8 +204,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 40),
                   // branded visual anchor
                   GestureDetector(
-                    onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainWrapper()), (route) => false),
-                    child: const WildTraceLogo()
+                    onTap: () => Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => MainWrapper()),
+                      (route) => false,
+                    ),
+                    child: const WildTraceLogo(),
                   ),
                   const SizedBox(height: 24),
                   // section identifiers
@@ -205,23 +218,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     style: GoogleFonts.playfairDisplay(
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
-                      color: isDarkMode ? Colors.white : const Color(0xFF1B4332),
+                      color: isDarkMode
+                          ? Colors.white
+                          : const Color(0xFF1B4332),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'CREATE YOUR ACCOUNT',
-                    style: GoogleFonts.inter(fontSize: 12, letterSpacing: 1.5, fontWeight: FontWeight.w600, color: isDarkMode ? Colors.white70 : Colors.grey[600]),
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      letterSpacing: 1.5,
+                      fontWeight: FontWeight.w600,
+                      color: isDarkMode ? Colors.white70 : Colors.grey[600],
+                    ),
                   ),
                   const SizedBox(height: 40),
                   // adaptive form container
                   Container(
-                    width: isLandscape ? MediaQuery.of(context).size.width * 0.7 : null,
+                    width: isLandscape
+                        ? MediaQuery.of(context).size.width * 0.7
+                        : null,
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
+                      color: isDarkMode
+                          ? const Color(0xFF1E1E1E)
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(24),
-                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 10))],
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withAlpha((0.05 * 255).round()),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,30 +259,55 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         // modular user information collector
                         UserForm(
                           isLandscape: isLandscape,
-                          nameController: _nameController, emailController: _emailController,
-                          contactController: _contactController, addressController: _addressController,
-                          cityController: _cityController, postalCodeController: _postalCodeController,
+                          nameController: _nameController,
+                          emailController: _emailController,
+                          contactController: _contactController,
+                          addressController: _addressController,
+                          cityController: _cityController,
+                          postalCodeController: _postalCodeController,
                           countryController: _countryController,
-                          passwordController: _passwordController, confirmPasswordController: _confirmPasswordController,
-                          isPasswordObscure: _obscurePassword, isConfirmPasswordObscure: _obscureConfirmPassword,
-                          onPasswordToggle: () => setState(() => _obscurePassword = !_obscurePassword),
-                          onConfirmPasswordToggle: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
-                          onSubmitted: (_) => _handleRegister(authProvider, isDarkMode),
+                          passwordController: _passwordController,
+                          confirmPasswordController: _confirmPasswordController,
+                          isPasswordObscure: _obscurePassword,
+                          isConfirmPasswordObscure: _obscureConfirmPassword,
+                          onPasswordToggle: () => setState(
+                            () => _obscurePassword = !_obscurePassword,
+                          ),
+                          onConfirmPasswordToggle: () => setState(
+                            () => _obscureConfirmPassword =
+                                !_obscureConfirmPassword,
+                          ),
+                          onSubmitted: (_) =>
+                              _handleRegister(authProvider, isDarkMode),
                         ),
                         const SizedBox(height: 32),
                         // primary submission action with progression feedback
                         CustomButton(
-                          text: authProvider.isLoading ? 'CREATING ACCOUNT...' : 'COMPLETE REGISTRATION', 
-                          onPressed: authProvider.isLoading ? () {} : () => _handleRegister(authProvider, isDarkMode)
+                          text: authProvider.isLoading
+                              ? 'CREATING ACCOUNT...'
+                              : 'COMPLETE REGISTRATION',
+                          onPressed: authProvider.isLoading
+                              ? () {}
+                              : () => _handleRegister(authProvider, isDarkMode),
                         ),
                         const SizedBox(height: 24),
                         // secondary navigation to alternate onboarding flow
                         Center(
                           child: TextButton(
-                            onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen())),
+                            onPressed: () => Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LoginScreen(),
+                              ),
+                            ),
                             child: Text(
                               'ALREADY REGISTERED? SIGN IN',
-                              style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.grey[500], letterSpacing: 0.5),
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[500],
+                                letterSpacing: 0.5,
+                              ),
                             ),
                           ),
                         ),
@@ -264,22 +319,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Copyright © ${DateTime.now().year} ', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
-                      InkWell(
-                        onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainWrapper()), (route) => false),
-                        child: Text('WILDTRACE', style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, color: const Color(0xFF27AE60)))
+                      Text(
+                        'Copyright © ${DateTime.now().year} ',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          color: Colors.grey.shade600,
+                        ),
                       ),
-                      Text('. All Rights Reserved.', style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600)),
+                      InkWell(
+                        onTap: () => Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MainWrapper(),
+                          ),
+                          (route) => false,
+                        ),
+                        child: Text(
+                          'WILDTRACE',
+                          style: GoogleFonts.inter(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF27AE60),
+                          ),
+                        ),
+                      ),
+                      Text(
+                        '. All Rights Reserved.',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
                 ],
               );
-            }
+            },
           ),
         ),
       ),
     );
   }
 }
-

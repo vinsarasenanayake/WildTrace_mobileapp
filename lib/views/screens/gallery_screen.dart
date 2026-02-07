@@ -26,11 +26,11 @@ class _GalleryScreenState extends State<GalleryScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _filterKey = GlobalKey();
-  
+
   // page and layout state
   int _currentPage = 1;
   final int _pageSize = 9;
-  bool _showFiltersInLandscape = false; 
+  bool _showFiltersInLandscape = false;
 
   // restricts access to member-only interactions
   Future<void> _showLoginRequiredAlert() async {
@@ -56,10 +56,14 @@ class _GalleryScreenState extends State<GalleryScreen> {
                   text: 'LATER',
                   fontSize: 10,
                   verticalPadding: 12,
-                  backgroundColor: isDarkMode ? Colors.grey.withOpacity(0.2) : Colors.grey.shade200,
-                  foregroundColor: isDarkMode ? Colors.white : Colors.grey.shade800,
+                  backgroundColor: isDarkMode
+                      ? Colors.grey.withAlpha((0.2 * 255).round())
+                      : Colors.grey.shade200,
+                  foregroundColor: isDarkMode
+                      ? Colors.white
+                      : Colors.grey.shade800,
                   onPressed: () {
-                    Navigator.pop(context); 
+                    Navigator.pop(context);
                   },
                 ),
               ),
@@ -70,13 +74,15 @@ class _GalleryScreenState extends State<GalleryScreen> {
                   text: 'LOGIN',
                   fontSize: 10,
                   verticalPadding: 12,
-                  backgroundColor: const Color(0xFF3498DB), 
+                  backgroundColor: const Color(0xFF3498DB),
                   foregroundColor: Colors.white,
                   onPressed: () {
-                    Navigator.pop(context); 
+                    Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const LoginScreen(),
+                      ),
                     );
                   },
                 ),
@@ -92,89 +98,108 @@ class _GalleryScreenState extends State<GalleryScreen> {
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     // consumes multiple providers for product and user state
     return Consumer3<ProductsController, FavoritesController, AuthController>(
-      builder: (context, productsProvider, favoritesProvider, authProvider, child) {
-        final products = productsProvider.filteredProducts;
+      builder:
+          (context, productsProvider, favoritesProvider, authProvider, child) {
+            final products = productsProvider.filteredProducts;
 
-        // calculates pagination offsets
-        final int start = (_currentPage - 1) * _pageSize;
-        // ensures page index validity after filter changes
-        if (start >= products.length && _currentPage > 1) {
-           WidgetsBinding.instance.addPostFrameCallback((_) {
-             if (mounted) setState(() => _currentPage = 1);
-           });
-        }
-        
-        final int end = (start + _pageSize < products.length) ? start + _pageSize : products.length;
-        final pageItems = products.isNotEmpty ? products.sublist(
-          start.clamp(0, products.length), 
-          end.clamp(0, products.length)
-        ) : [];
+            // calculates pagination offsets
+            final int start = (_currentPage - 1) * _pageSize;
+            // ensures page index validity after filter changes
+            if (start >= products.length && _currentPage > 1) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) setState(() => _currentPage = 1);
+              });
+            }
 
-        return Stack(
-          children: [
-            Scaffold(
-              key: _scaffoldKey,
-              drawer: _buildFilterDrawer(context, isDarkMode, productsProvider),
-              backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
-              body: RefreshIndicator(
-                onRefresh: () async {
-                  await productsProvider.fetchProducts();
-                  if (authProvider.token != null) {
-                    await favoritesProvider.fetchFavorites(authProvider.token!);
-                  }
-                },
-                color: const Color(0xFF27AE60),
-                child: CustomScrollView(
-                  controller: _scrollController,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  slivers: [
-                    SliverToBoxAdapter(child: _buildHero()),
-                    SliverToBoxAdapter(
-                      child: Column(
-                        children: [
-                          _buildFilterTrigger(isDarkMode),
-                          if (products.isEmpty)
-                            Padding(
-                              padding: const EdgeInsets.all(40.0),
-                              child: Column(
-                                children: [
-                                  Text(
-                                    'No products found.',
-                                    style: GoogleFonts.inter(color: Colors.grey),
+            final int end = (start + _pageSize < products.length)
+                ? start + _pageSize
+                : products.length;
+            final pageItems = products.isNotEmpty
+                ? products.sublist(
+                    start.clamp(0, products.length),
+                    end.clamp(0, products.length),
+                  )
+                : [];
+
+            return Stack(
+              children: [
+                Scaffold(
+                  key: _scaffoldKey,
+                  drawer: _buildFilterDrawer(
+                    context,
+                    isDarkMode,
+                    productsProvider,
+                  ),
+                  backgroundColor: isDarkMode
+                      ? const Color(0xFF121212)
+                      : const Color(0xFFF9FBF9),
+                  body: RefreshIndicator(
+                    onRefresh: () async {
+                      await productsProvider.fetchProducts();
+                      if (authProvider.token != null) {
+                        await favoritesProvider.fetchFavorites(
+                          authProvider.token!,
+                        );
+                      }
+                    },
+                    color: const Color(0xFF27AE60),
+                    child: CustomScrollView(
+                      controller: _scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      slivers: [
+                        SliverToBoxAdapter(child: _buildHero()),
+                        SliverToBoxAdapter(
+                          child: Column(
+                            children: [
+                              _buildFilterTrigger(isDarkMode),
+                              if (products.isEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.all(40.0),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        'No products found.',
+                                        style: GoogleFonts.inter(
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 20),
+                                      CustomButton(
+                                        text: 'REFRESH GALLERY',
+                                        onPressed: () =>
+                                            productsProvider.fetchProducts(),
+                                        type: CustomButtonType.secondary,
+                                        isFullWidth: false,
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(height: 20),
-                                  CustomButton(
-                                    text: 'REFRESH GALLERY',
-                                    onPressed: () => productsProvider.fetchProducts(),
-                                    type: CustomButtonType.secondary,
-                                    isFullWidth: false,
-                                  ),
-                                ],
-                              ),
-                            )
-                          else 
-                            _buildGrid(pageItems, favoritesProvider),
-                          if (products.isNotEmpty)
-                            _buildPagination(isDarkMode, end < products.length),
-                          const SizedBox(height: 20),
-                        ],
-                      ),
+                                )
+                              else
+                                _buildGrid(pageItems, favoritesProvider),
+                              if (products.isNotEmpty)
+                                _buildPagination(
+                                  isDarkMode,
+                                  end < products.length,
+                                ),
+                              const SizedBox(height: 20),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 10,
-              right: 20,
-              child: const BatteryStatusIndicator(),
-            ),
-          ],
-        );
-      },
+                Positioned(
+                  top: MediaQuery.of(context).padding.top + 10,
+                  right: 20,
+                  child: const BatteryStatusIndicator(),
+                ),
+              ],
+            );
+          },
     );
   }
 
@@ -185,7 +210,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
       title: 'THE GALLERY',
       mainText1: 'BRING THE',
       mainText2: 'WILD HOME',
-      description: 'Explore our curated collection of fine art wildlife photography.',
+      description:
+          'Explore our curated collection of fine art wildlife photography.',
       verticalAlignment: MainAxisAlignment.center,
     );
   }
@@ -194,14 +220,23 @@ class _GalleryScreenState extends State<GalleryScreen> {
   void _scrollToFilters() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_filterKey.currentContext != null) {
-        final RenderBox? renderBox = _filterKey.currentContext!.findRenderObject() as RenderBox?;
+        final RenderBox? renderBox =
+            _filterKey.currentContext!.findRenderObject() as RenderBox?;
         if (renderBox != null) {
           final position = _scrollController.position;
-          final targetOffset = renderBox.localToGlobal(Offset.zero, ancestor: null).dy;
-          final scrollOffset = position.pixels + targetOffset - 100; // maintains visibility offset
-          
+          final targetOffset = renderBox
+              .localToGlobal(Offset.zero, ancestor: null)
+              .dy;
+          final scrollOffset =
+              position.pixels +
+              targetOffset -
+              100; // maintains visibility offset
+
           _scrollController.animateTo(
-            scrollOffset.clamp(position.minScrollExtent, position.maxScrollExtent),
+            scrollOffset.clamp(
+              position.minScrollExtent,
+              position.maxScrollExtent,
+            ),
             duration: const Duration(milliseconds: 600),
             curve: Curves.easeInOutSine,
           );
@@ -212,23 +247,31 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
   // manages the display and interaction of filter entry points
   Widget _buildFilterTrigger(bool isDarkMode) {
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+
     if (isLandscape) {
       // provides inline horizontal controls for wide screens
       return Consumer<ProductsController>(
         builder: (context, provider, child) {
-          final Color txtColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
+          final Color txtColor = isDarkMode
+              ? Colors.white
+              : const Color(0xFF1B4332);
           final Color accentGreen = const Color(0xFF27AE60);
-          
+
           if (_showFiltersInLandscape) {
             // renders expanded horizontal filter toolbar
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
-                color: isDarkMode ? const Color(0xFF1A1A1A) : const Color(0xFFEEEEEE),
+                color: isDarkMode
+                    ? const Color(0xFF1A1A1A)
+                    : const Color(0xFFEEEEEE),
                 border: Border(
-                  bottom: BorderSide(color: txtColor.withOpacity(0.1), width: 1),
+                  bottom: BorderSide(
+                    color: txtColor.withAlpha((0.1 * 255).round()),
+                    width: 1,
+                  ),
                 ),
               ),
               child: Row(
@@ -269,7 +312,12 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     child: _buildHorizontalFilterItem(
                       'SORT BY',
                       provider.sortOption,
-                      ['Latest Arrivals', 'Price: Low to High', 'Price: High to Low', 'Name: A-Z'],
+                      [
+                        'Latest Arrivals',
+                        'Price: Low to High',
+                        'Price: High to Low',
+                        'Name: A-Z',
+                      ],
                       (val) => provider.setSortOption(val!),
                       txtColor,
                       accentGreen,
@@ -290,7 +338,9 @@ class _GalleryScreenState extends State<GalleryScreen> {
                         height: 40,
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
-                          border: Border.all(color: txtColor.withOpacity(0.2)),
+                          border: Border.all(
+                            color: txtColor.withAlpha((0.2 * 255).round()),
+                          ),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         alignment: Alignment.center,
@@ -349,7 +399,11 @@ class _GalleryScreenState extends State<GalleryScreen> {
           onTap: () => _scaffoldKey.currentState?.openDrawer(),
           child: Row(
             children: [
-              Icon(Icons.tune, size: 20, color: isDarkMode ? Colors.white : const Color(0xFF1B4332)),
+              Icon(
+                Icons.tune,
+                size: 20,
+                color: isDarkMode ? Colors.white : const Color(0xFF1B4332),
+              ),
               const SizedBox(width: 8),
               Text(
                 'FILTERS',
@@ -394,15 +448,17 @@ class _GalleryScreenState extends State<GalleryScreen> {
           height: 40,
           padding: const EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
-            border: Border.all(color: txtColor.withOpacity(0.1)),
+            border: Border.all(color: txtColor.withAlpha((0.1 * 255).round())),
             borderRadius: BorderRadius.circular(8),
-            color: txtColor.withOpacity(0.05),
+            color: txtColor.withAlpha((0.05 * 255).round()),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: options.contains(value) ? value : options.first,
               isExpanded: true,
-              dropdownColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
+              dropdownColor: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF1E1E1E)
+                  : Colors.white,
               icon: Icon(Icons.keyboard_arrow_down, size: 16, color: txtColor),
               style: GoogleFonts.inter(
                 fontSize: 11,
@@ -428,12 +484,18 @@ class _GalleryScreenState extends State<GalleryScreen> {
   }
 
   // builds the dedicated drawer for comprehensive filtering in portrait mode
-  Widget _buildFilterDrawer(BuildContext context, bool isDarkMode, ProductsController provider) {
+  Widget _buildFilterDrawer(
+    BuildContext context,
+    bool isDarkMode,
+    ProductsController provider,
+  ) {
     final Color txtColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     final Color accentGreen = const Color(0xFF27AE60);
 
     return Drawer(
-      backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
+      backgroundColor: isDarkMode
+          ? const Color(0xFF121212)
+          : const Color(0xFFF9FBF9),
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -451,48 +513,53 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 ),
               ),
             ),
-            Divider(height: 1, color: txtColor.withOpacity(0.1)),
+            Divider(height: 1, color: txtColor.withAlpha((0.1 * 255).round())),
             // vertical list of filter options
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.all(24),
                 children: [
                   _drawerFilterItem(
-                    'PHOTOGRAPHER', 
-                    provider.selectedAuthor, 
+                    'PHOTOGRAPHER',
+                    provider.selectedAuthor,
                     provider.authors,
                     (val) {
                       provider.setAuthor(val!);
                       setState(() => _currentPage = 1);
                     },
-                    txtColor, 
-                    accentGreen
+                    txtColor,
+                    accentGreen,
                   ),
                   const SizedBox(height: 32),
                   _drawerFilterItem(
-                    'CATEGORY', 
-                    provider.selectedCategory, 
+                    'CATEGORY',
+                    provider.selectedCategory,
                     provider.categories,
                     (val) {
                       provider.setCategory(val!);
                       setState(() => _currentPage = 1);
                     },
-                    txtColor, 
-                    accentGreen
+                    txtColor,
+                    accentGreen,
                   ),
                   const SizedBox(height: 32),
                   _drawerFilterItem(
-                    'SORT BY', 
-                    provider.sortOption, 
-                    ['Latest Arrivals', 'Price: Low to High', 'Price: High to Low', 'Name: A-Z'],
+                    'SORT BY',
+                    provider.sortOption,
+                    [
+                      'Latest Arrivals',
+                      'Price: Low to High',
+                      'Price: High to Low',
+                      'Name: A-Z',
+                    ],
                     (val) => provider.setSortOption(val!),
-                    txtColor, 
-                    accentGreen
+                    txtColor,
+                    accentGreen,
                   ),
                 ],
               ),
             ),
-            Divider(height: 1, color: txtColor.withOpacity(0.1)),
+            Divider(height: 1, color: txtColor.withAlpha((0.1 * 255).round())),
             // reset mechanism
             Padding(
               padding: const EdgeInsets.all(24),
@@ -506,7 +573,9 @@ class _GalleryScreenState extends State<GalleryScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    border: Border.all(color: txtColor.withOpacity(0.2)),
+                    border: Border.all(
+                      color: txtColor.withAlpha((0.2 * 255).round()),
+                    ),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -528,7 +597,14 @@ class _GalleryScreenState extends State<GalleryScreen> {
   }
 
   // builds a vertical filter selector for the side drawer
-  Widget _drawerFilterItem(String label, String value, List<String> options, ValueChanged<String?> onChanged, Color txtColor, Color labelColor) {
+  Widget _drawerFilterItem(
+    String label,
+    String value,
+    List<String> options,
+    ValueChanged<String?> onChanged,
+    Color txtColor,
+    Color labelColor,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -545,15 +621,17 @@ class _GalleryScreenState extends State<GalleryScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            border: Border.all(color: txtColor.withOpacity(0.1)),
+            border: Border.all(color: txtColor.withAlpha((0.1 * 255).round())),
             borderRadius: BorderRadius.circular(12),
-            color: txtColor.withOpacity(0.05),
+            color: txtColor.withAlpha((0.05 * 255).round()),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: options.contains(value) ? value : options.first,
               isExpanded: true,
-              dropdownColor: Theme.of(context).brightness == Brightness.dark ? const Color(0xFF1E1E1E) : Colors.white,
+              dropdownColor: Theme.of(context).brightness == Brightness.dark
+                  ? const Color(0xFF1E1E1E)
+                  : Colors.white,
               icon: Icon(Icons.keyboard_arrow_down, size: 20, color: txtColor),
               style: GoogleFonts.inter(
                 fontSize: 14,
@@ -575,36 +653,39 @@ class _GalleryScreenState extends State<GalleryScreen> {
   }
 
   // builds a responsive grid of product cards
-  Widget _buildGrid(List<dynamic> pageItems, FavoritesController favoritesProvider) {
+  Widget _buildGrid(
+    List<dynamic> pageItems,
+    FavoritesController favoritesProvider,
+  ) {
     final isLandscape = ResponsiveHelper.isLandscape(context);
-    final crossAxisCount = isLandscape ? 3 : 1; 
+    final crossAxisCount = isLandscape ? 3 : 1;
     final spacing = ResponsiveHelper.getSpacing(context, portrait: 24);
     final padding = ResponsiveHelper.getScreenPadding(context);
-    
+
     return Consumer<AuthController>(
       builder: (context, authProvider, child) {
         return Padding(
           padding: padding,
           child: GridView.builder(
-            padding: EdgeInsets.zero, 
-            shrinkWrap: true, 
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: crossAxisCount,
-              mainAxisSpacing: spacing, 
+              mainAxisSpacing: spacing,
               crossAxisSpacing: isLandscape ? spacing : 0,
-              childAspectRatio: isLandscape ? 0.85 : 0.8
+              childAspectRatio: isLandscape ? 0.85 : 0.8,
             ),
             itemCount: pageItems.length,
             itemBuilder: (context, index) {
               final p = pageItems[index];
               final isFavorite = favoritesProvider.isFavorite(p.id);
-              
+
               return ProductCard(
-                imageUrl: p.imageUrl, 
-                category: p.category, 
-                title: p.title, 
-                author: p.author, 
+                imageUrl: p.imageUrl,
+                category: p.category,
+                title: p.title,
+                author: p.author,
                 price: '\$${p.price.toStringAsFixed(2)}',
                 isLiked: isFavorite,
                 onLikeToggle: () {
@@ -612,10 +693,18 @@ class _GalleryScreenState extends State<GalleryScreen> {
                   if (authProvider.token == null) {
                     _showLoginRequiredAlert();
                   } else {
-                    favoritesProvider.toggleFavorite(p, token: authProvider.token);
+                    favoritesProvider.toggleFavorite(
+                      p,
+                      token: authProvider.token,
+                    );
                   }
                 },
-                onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsScreen(product: p))),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ProductDetailsScreen(product: p),
+                  ),
+                ),
               );
             },
           ),
@@ -637,8 +726,12 @@ class _GalleryScreenState extends State<GalleryScreen> {
           }),
           const SizedBox(width: 20),
           Text(
-            'PAGE $_currentPage', 
-            style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.grey.shade500)
+            'PAGE $_currentPage',
+            style: GoogleFonts.inter(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey.shade500,
+            ),
           ),
           const SizedBox(width: 20),
           _pageBtn('NEXT', hasNext, () {
@@ -652,22 +745,28 @@ class _GalleryScreenState extends State<GalleryScreen> {
 
   // builds a singular pagination button with active/disabled states
   Widget _pageBtn(String label, bool active, VoidCallback onTap) {
-    final Color color = Theme.of(context).brightness == Brightness.dark ? Colors.white : const Color(0xFF1B4332);
+    final Color color = Theme.of(context).brightness == Brightness.dark
+        ? Colors.white
+        : const Color(0xFF1B4332);
     return InkWell(
       onTap: active ? onTap : null,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          border: Border.all(color: active ? color.withOpacity(0.3) : color.withOpacity(0.1)), 
-          borderRadius: BorderRadius.circular(30)
+          border: Border.all(
+            color: active
+                ? color.withAlpha((0.3 * 255).round())
+                : color.withAlpha((0.1 * 255).round()),
+          ),
+          borderRadius: BorderRadius.circular(30),
         ),
         child: Text(
-          label, 
+          label,
           style: GoogleFonts.inter(
-            fontSize: 11, 
-            fontWeight: FontWeight.bold, 
-            color: active ? color : color.withOpacity(0.3)
-          )
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: active ? color : color.withAlpha((0.3 * 255).round()),
+          ),
         ),
       ),
     );
@@ -680,4 +779,3 @@ class _GalleryScreenState extends State<GalleryScreen> {
     super.dispose();
   }
 }
-

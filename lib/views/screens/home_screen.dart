@@ -13,7 +13,6 @@ import '../../utils/responsive_helper.dart';
 import 'journey_screen.dart';
 import 'product_details_screen.dart';
 import 'login_screen.dart';
-import '../widgets/common/section_title.dart';
 import '../widgets/common/custom_button.dart';
 import '../widgets/cards/product_card.dart';
 import '../widgets/common/wild_trace_hero.dart';
@@ -22,7 +21,7 @@ import '../widgets/common/battery_status_indicator.dart';
 // main home screen
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
-  
+
   // builds the main application landing page
   @override
   Widget build(BuildContext context) {
@@ -68,7 +67,8 @@ class HomeScreen extends StatelessWidget {
       // initiates shopping navigation
       footer: CustomButton(
         text: 'EXPLORE COLLECTION',
-        onPressed: () => context.read<NavigationController>().setSelectedIndex(1),
+        onPressed: () =>
+            context.read<NavigationController>().setSelectedIndex(1),
         type: CustomButtonType.secondary,
         isFullWidth: false,
         fontSize: 12,
@@ -76,7 +76,6 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
-
 }
 
 // Featured Collection Widget
@@ -117,10 +116,14 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
                   text: 'LATER',
                   fontSize: 10,
                   verticalPadding: 12,
-                  backgroundColor: isDarkMode ? Colors.grey.withOpacity(0.2) : Colors.grey.shade200,
-                  foregroundColor: isDarkMode ? Colors.white : Colors.grey.shade800,
+                  backgroundColor: isDarkMode
+                      ? Colors.grey.withAlpha((0.2 * 255).round())
+                      : Colors.grey.shade200,
+                  foregroundColor: isDarkMode
+                      ? Colors.white
+                      : Colors.grey.shade800,
                   onPressed: () {
-                    Navigator.pop(context); 
+                    Navigator.pop(context);
                   },
                 ),
               ),
@@ -131,13 +134,15 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
                   text: 'LOGIN',
                   fontSize: 10,
                   verticalPadding: 12,
-                  backgroundColor: const Color(0xFF3498DB), 
+                  backgroundColor: const Color(0xFF3498DB),
                   foregroundColor: Colors.white,
                   onPressed: () {
-                    Navigator.pop(context); 
+                    Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const LoginScreen(),
+                      ),
                     );
                   },
                 ),
@@ -170,7 +175,10 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
     if (itemCount > 0) {
       _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
         if (_pageController.hasClients) {
-          _pageController.nextPage(duration: const Duration(milliseconds: 800), curve: Curves.fastOutSlowIn);
+          _pageController.nextPage(
+            duration: const Duration(milliseconds: 800),
+            curve: Curves.fastOutSlowIn,
+          );
         }
       });
     }
@@ -183,70 +191,95 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final bool isLandscape = ResponsiveHelper.isLandscape(context);
     final padding = ResponsiveHelper.getScreenPadding(context);
-    
+
     // synchronizes with product and authentication state
     return Consumer3<ProductsController, FavoritesController, AuthController>(
-      builder: (context, productsProvider, favoritesProvider, authProvider, child) {
-        // selects top-tier products for the showcase
-        final allProducts = List<Product>.from(productsProvider.products); 
-        allProducts.sort((a, b) => b.price.compareTo(a.price)); 
-        final featuredItems = allProducts.take(5).toList();
-        
-        // triggers autoplay sequence
-        if (_timer == null && featuredItems.isNotEmpty) {
-           _currentIndex = 1000 % featuredItems.length;
-           _startAutoPlay(featuredItems.length);
-        }
+      builder:
+          (context, productsProvider, favoritesProvider, authProvider, child) {
+            // selects top-tier products for the showcase
+            final allProducts = List<Product>.from(productsProvider.products);
+            allProducts.sort((a, b) => b.price.compareTo(a.price));
+            final featuredItems = allProducts.take(5).toList();
 
-        if (featuredItems.isEmpty) return const SizedBox();
+            // triggers autoplay sequence
+            if (_timer == null && featuredItems.isNotEmpty) {
+              _currentIndex = 1000 % featuredItems.length;
+              _startAutoPlay(featuredItems.length);
+            }
 
-        return Container(
-          width: double.infinity,
-          padding: EdgeInsets.symmetric(vertical: isLandscape ? 30 : 40, horizontal: padding.left),
-          color: isDarkMode ? const Color(0xFF1B1B1B) : const Color(0xFFF9FBF9),
-          child: Column(
-            children: [
-              // section branding
-              Text(
-                'FEATURED COLLECTION', 
-                style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, letterSpacing: 2.0, color: const Color(0xFF27AE60))
+            if (featuredItems.isEmpty) return const SizedBox();
+
+            return Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(
+                vertical: isLandscape ? 30 : 40,
+                horizontal: padding.left,
               ),
-              const SizedBox(height: 12),
-              // adaptive heading
-              Builder(
-                builder: (context) {
-                  final isLandscape = ResponsiveHelper.isLandscape(context);
-                  return Text(
-                    isLandscape ? 'Famous Wildlife Editions' : 'Famous Wildlife\nEditions', 
-                    textAlign: TextAlign.center, 
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 36, 
-                      fontWeight: FontWeight.w400, 
-                      fontStyle: FontStyle.italic, 
-                      color: isDarkMode ? Colors.white : const Color(0xFF1B4332), 
-                      height: 1.1
-                    )
-                  );
-                }
+              color: isDarkMode
+                  ? const Color(0xFF1B1B1B)
+                  : const Color(0xFFF9FBF9),
+              child: Column(
+                children: [
+                  // section branding
+                  Text(
+                    'FEATURED COLLECTION',
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2.0,
+                      color: const Color(0xFF27AE60),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // adaptive heading
+                  Builder(
+                    builder: (context) {
+                      final isLandscape = ResponsiveHelper.isLandscape(context);
+                      return Text(
+                        isLandscape
+                            ? 'Famous Wildlife Editions'
+                            : 'Famous Wildlife\nEditions',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.playfairDisplay(
+                          fontSize: 36,
+                          fontWeight: FontWeight.w400,
+                          fontStyle: FontStyle.italic,
+                          color: isDarkMode
+                              ? Colors.white
+                              : const Color(0xFF1B4332),
+                          height: 1.1,
+                        ),
+                      );
+                    },
+                  ),
+                  SizedBox(height: isLandscape ? 24 : 40),
+                  // main interaction point
+                  _buildSlideshow(
+                    featuredItems,
+                    isLandscape,
+                    favoritesProvider,
+                    authProvider,
+                  ),
+                  SizedBox(height: isLandscape ? 20 : 30),
+                  // progression feedback
+                  _buildIndicators(featuredItems.length),
+                ],
               ),
-              SizedBox(height: isLandscape ? 24 : 40),
-              // main interaction point
-              _buildSlideshow(featuredItems, isLandscape, favoritesProvider, authProvider),
-              SizedBox(height: isLandscape ? 20 : 30),
-              // progression feedback
-              _buildIndicators(featuredItems.length),
-            ],
-          ),
-        );
-      }
+            );
+          },
     );
   }
 
   // builds the singular product carousel viewport
-  Widget _buildSlideshow(List<Product> items, bool isLandscape, FavoritesController favoritesProvider, AuthController authProvider) {
+  Widget _buildSlideshow(
+    List<Product> items,
+    bool isLandscape,
+    FavoritesController favoritesProvider,
+    AuthController authProvider,
+  ) {
     final double slideshowHeight = isLandscape ? 280 : 500;
     final double marginHorizontal = isLandscape ? 40 : 24;
-    
+
     return Container(
       height: slideshowHeight,
       margin: EdgeInsets.symmetric(horizontal: marginHorizontal),
@@ -256,11 +289,12 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
         // manages interactive flipping of products
         child: PageView.builder(
           controller: _pageController,
-          onPageChanged: (index) => setState(() => _currentIndex = index % items.length),
+          onPageChanged: (index) =>
+              setState(() => _currentIndex = index % items.length),
           itemBuilder: (context, index) {
             final item = items[index % items.length];
             final isFavorite = favoritesProvider.isFavorite(item.id);
-            
+
             return ProductCard(
               imageUrl: item.imageUrl,
               category: item.category,
@@ -273,15 +307,20 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
                 if (authProvider.token == null) {
                   _showLoginRequiredAlert();
                 } else {
-                  favoritesProvider.toggleFavorite(item, token: authProvider.token);
+                  favoritesProvider.toggleFavorite(
+                    item,
+                    token: authProvider.token,
+                  );
                 }
               },
               onTap: () {
-                 // navigates to deep product detail
-                 Navigator.push(
-                    context, 
-                    MaterialPageRoute(builder: (_) => ProductDetailsScreen(product: item))
-                 );
+                // navigates to deep product detail
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ProductDetailsScreen(product: item),
+                  ),
+                );
               },
             );
           },
@@ -302,8 +341,10 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
           height: 8,
           width: isActive ? 32 : 8,
           decoration: BoxDecoration(
-            color: isActive ? const Color(0xFF27AE60) : Colors.grey.withOpacity(0.3), 
-            borderRadius: BorderRadius.circular(4)
+            color: isActive
+                ? const Color(0xFF27AE60)
+                : Colors.grey.withAlpha((0.3 * 255).round()),
+            borderRadius: BorderRadius.circular(4),
           ),
         );
       }),
@@ -318,14 +359,16 @@ class BehindTheLens extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final Color backgroundColor = isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9);
+    final Color backgroundColor = isDarkMode
+        ? const Color(0xFF121212)
+        : const Color(0xFFF9FBF9);
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     const Color accentGreen = Color(0xFF27AE60);
     return Container(
       color: backgroundColor,
       padding: EdgeInsets.symmetric(
-        vertical: ResponsiveHelper.isLandscape(context) ? 40 : 60, 
-        horizontal: 24
+        vertical: ResponsiveHelper.isLandscape(context) ? 40 : 60,
+        horizontal: 24,
       ),
       child: Column(
         children: [
@@ -360,15 +403,28 @@ class BehindTheLens extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(width: 40, height: 1, color: accentGreen.withOpacity(0.5)),
+        Container(
+          width: 40,
+          height: 1,
+          color: accentGreen.withAlpha((0.5 * 255).round()),
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
             'BEHIND THE LENS',
-            style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 2.0, color: accentGreen),
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 2.0,
+              color: accentGreen,
+            ),
           ),
         ),
-        Container(width: 40, height: 1, color: accentGreen.withOpacity(0.5)),
+        Container(
+          width: 40,
+          height: 1,
+          color: accentGreen.withAlpha((0.5 * 255).round()),
+        ),
       ],
     );
   }
@@ -379,11 +435,19 @@ class BehindTheLens extends StatelessWidget {
       builder: (context) {
         final isLandscape = ResponsiveHelper.isLandscape(context);
         return Text(
-          isLandscape ? 'Capturing the Untamed Spirit.' : 'Capturing the\nUntamed Spirit.',
+          isLandscape
+              ? 'Capturing the Untamed Spirit.'
+              : 'Capturing the\nUntamed Spirit.',
           textAlign: TextAlign.center,
-          style: GoogleFonts.playfairDisplay(fontSize: 42, fontWeight: FontWeight.w400, fontStyle: FontStyle.italic, color: textColor, height: 1.1),
+          style: GoogleFonts.playfairDisplay(
+            fontSize: 42,
+            fontWeight: FontWeight.w400,
+            fontStyle: FontStyle.italic,
+            color: textColor,
+            height: 1.1,
+          ),
         );
-      }
+      },
     );
   }
 
@@ -392,10 +456,21 @@ class BehindTheLens extends StatelessWidget {
     return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(
-        style: GoogleFonts.inter(fontSize: 15, height: 1.6, color: textColor.withOpacity(0.8)),
+        style: GoogleFonts.inter(
+          fontSize: 15,
+          height: 1.6,
+          color: textColor.withAlpha((0.8 * 255).round()),
+        ),
         children: [
-          const TextSpan(text: 'Every photograph in this gallery is captured ethically in the wild without disturbing the dignity of the animal. When you acquire a WildTrace print, you are supporting the preservation of these magnificent creatures—\n'),
-          TextSpan(text: '10% of every sale is donated directly to wildlife conservation efforts.', style: TextStyle(color: accentGreen, fontWeight: FontWeight.w600)),
+          const TextSpan(
+            text:
+                'Every photograph in this gallery is captured ethically in the wild without disturbing the dignity of the animal. When you acquire a WildTrace print, you are supporting the preservation of these magnificent creatures—\n',
+          ),
+          TextSpan(
+            text:
+                '10% of every sale is donated directly to wildlife conservation efforts.',
+            style: TextStyle(color: accentGreen, fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );
@@ -408,12 +483,13 @@ class BehindTheLens extends StatelessWidget {
         final isLandscape = ResponsiveHelper.isLandscape(context);
         return Container(
           height: isLandscape ? 200 : null,
-          decoration: BoxDecoration(
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(24)),
+          child: ClipRRect(
             borderRadius: BorderRadius.circular(24),
+            child: Image.asset('assets/images/team.jpg', fit: BoxFit.cover),
           ),
-          child: ClipRRect(borderRadius: BorderRadius.circular(24), child: Image.asset('assets/images/team.jpg', fit: BoxFit.cover)),
         );
-      }
+      },
     );
   }
 
@@ -421,7 +497,12 @@ class BehindTheLens extends StatelessWidget {
   Widget _buildFeaturedBanner(Color textColor) {
     return Text(
       'OUR PHOTOGRAPHERS ARE FEATURED IN',
-      style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 2.0, color: textColor.withOpacity(0.5)),
+      style: GoogleFonts.inter(
+        fontSize: 10,
+        fontWeight: FontWeight.bold,
+        letterSpacing: 2.0,
+        color: textColor.withAlpha((0.5 * 255).round()),
+      ),
     );
   }
 
@@ -431,9 +512,24 @@ class BehindTheLens extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        _buildLogo('assets/images/natgeo.png', 100, 50, 'https://www.nationalgeographic.com/'), 
-        _buildLogo('assets/images/bbcearth.jpg', 100, 50, 'https://www.bbcearth.com/'), 
-        _buildLogo('assets/images/nhmwpy.jpg', 100, 50, 'https://www.nhm.ac.uk/wpy'), 
+        _buildLogo(
+          'assets/images/natgeo.png',
+          100,
+          50,
+          'https://www.nationalgeographic.com/',
+        ),
+        _buildLogo(
+          'assets/images/bbcearth.jpg',
+          100,
+          50,
+          'https://www.bbcearth.com/',
+        ),
+        _buildLogo(
+          'assets/images/nhmwpy.jpg',
+          100,
+          50,
+          'https://www.nhm.ac.uk/wpy',
+        ),
       ],
     );
   }
@@ -452,7 +548,11 @@ class BehindTheLens extends StatelessWidget {
         child: Image.asset(
           assetPath,
           fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) => const Icon(Icons.broken_image, size: 40, color: Color(0xFF9E9E9E)),
+          errorBuilder: (context, error, stackTrace) => const Icon(
+            Icons.broken_image,
+            size: 40,
+            color: Color(0xFF9E9E9E),
+          ),
         ),
       ),
     );
@@ -463,17 +563,28 @@ class BehindTheLens extends StatelessWidget {
     return OutlinedButton(
       onPressed: () {
         // navigates to narrative journey screen
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const JourneyScreen()));
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const JourneyScreen()),
+        );
       },
       style: OutlinedButton.styleFrom(
-        side: BorderSide(color: textColor.withOpacity(0.3)),
+        side: BorderSide(color: textColor.withAlpha((0.3 * 255).round())),
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('LEARN MORE ABOUT OUR JOURNEY', style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.bold, letterSpacing: 1.0, color: textColor)),
+          Text(
+            'LEARN MORE ABOUT OUR JOURNEY',
+            style: GoogleFonts.inter(
+              fontSize: 11,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.0,
+              color: textColor,
+            ),
+          ),
           const SizedBox(width: 8),
           Icon(Icons.arrow_forward, size: 14, color: textColor),
         ],
@@ -481,4 +592,3 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 }
-

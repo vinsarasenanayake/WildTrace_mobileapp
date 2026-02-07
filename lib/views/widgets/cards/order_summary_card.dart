@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../common/custom_button.dart';
-import 'order_item_card.dart';
 
 // financial breakdown and action card
 class OrderSummaryCard extends StatelessWidget {
@@ -11,7 +10,7 @@ class OrderSummaryCard extends StatelessWidget {
   final String totalLabel;
   final String totalValue;
   final String? subtitle;
-  
+
   // action buttons
   final String primaryButtonLabel;
   final VoidCallback primaryButtonOnTap;
@@ -45,7 +44,7 @@ class OrderSummaryCard extends StatelessWidget {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     final Color cardBg = isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
-    
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -53,7 +52,7 @@ class OrderSummaryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withAlpha((0.05 * 255).round()),
             blurRadius: 24,
             offset: const Offset(0, 10),
           ),
@@ -78,7 +77,7 @@ class OrderSummaryCard extends StatelessWidget {
           if (items != null) ...[
             ...items!,
             const SizedBox(height: 16),
-            Divider(color: Colors.grey.withOpacity(0.1)),
+            Divider(color: Colors.grey.withAlpha((0.1 * 255).round())),
             const SizedBox(height: 16),
           ],
           Row(
@@ -107,21 +106,30 @@ class OrderSummaryCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               subtitle!,
-              style: GoogleFonts.inter(fontSize: 11, color: Colors.grey.shade400),
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                color: Colors.grey.shade400,
+              ),
             ),
           ],
           const SizedBox(height: 24),
           CustomButton(
             text: primaryButtonLabel,
-            type: isPrimaryEnabled ? CustomButtonType.secondary : CustomButtonType.ghost,
+            type: isPrimaryEnabled
+                ? CustomButtonType.secondary
+                : CustomButtonType.ghost,
             onPressed: isPrimaryEnabled ? primaryButtonOnTap : () {},
           ),
           if (secondaryButtonLabel != null) ...[
             const SizedBox(height: 16),
             CustomButton(
               text: secondaryButtonLabel!,
-              type: isSecondaryOutlined ? CustomButtonType.ghost : CustomButtonType.destructive,
-              foregroundColor: isSecondaryOutlined ? const Color(0xFFE11D48) : Colors.white,
+              type: isSecondaryOutlined
+                  ? CustomButtonType.ghost
+                  : CustomButtonType.destructive,
+              foregroundColor: isSecondaryOutlined
+                  ? const Color(0xFFE11D48)
+                  : Colors.white,
               onPressed: isSecondaryEnabled ? secondaryButtonOnTap! : () {},
             ),
           ],
@@ -148,4 +156,3 @@ class OrderSummaryCard extends StatelessWidget {
 // ============================================================================
 // ORDER ITEM WIDGET - Individual Item Display
 // ============================================================================
-

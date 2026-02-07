@@ -10,7 +10,7 @@ class ProductCard extends StatelessWidget {
   final String title;
   final String author;
   final String price;
-  
+
   // interaction callbacks
   final VoidCallback? onTap;
   final bool isLiked;
@@ -38,7 +38,7 @@ class ProductCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.15),
+              color: Colors.black.withAlpha((0.15 * 255).round()),
               blurRadius: 15,
               offset: const Offset(0, 8),
             ),
@@ -61,7 +61,11 @@ class ProductCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(24),
                   ),
                   child: const Center(
-                    child: Icon(Icons.image_not_supported_outlined, color: Colors.white24, size: 32),
+                    child: Icon(
+                      Icons.image_not_supported_outlined,
+                      color: Colors.white24,
+                      size: 32,
+                    ),
                   ),
                 ),
               ),
@@ -71,16 +75,16 @@ class ProductCard extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      Colors.black.withOpacity(0.1),
-                      Colors.black.withOpacity(0.4),
-                      Colors.black.withOpacity(0.8),
+                      Colors.black.withAlpha((0.1 * 255).round()),
+                      Colors.black.withAlpha((0.4 * 255).round()),
+                      Colors.black.withAlpha((0.8 * 255).round()),
                     ],
                     stops: const [0.0, 0.6, 1.0],
                   ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(16.0), 
+                padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -88,42 +92,42 @@ class ProductCard extends StatelessWidget {
                     Text(
                       category.toUpperCase(),
                       style: GoogleFonts.inter(
-                        fontSize: 9, 
+                        fontSize: 9,
                         fontWeight: FontWeight.bold,
                         letterSpacing: 2.0,
                         color: const Color(0xFF27AE60),
                       ),
                     ),
-                    const SizedBox(height: 6), 
+                    const SizedBox(height: 6),
                     Text(
                       title,
-                      maxLines: 1, 
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: GoogleFonts.playfairDisplay(
-                        fontSize: 20, 
+                        fontSize: 20,
                         fontWeight: FontWeight.w400,
                         fontStyle: FontStyle.italic,
                         color: Colors.white,
                         height: 1.1,
                       ),
                     ),
-                    const SizedBox(height: 2), 
+                    const SizedBox(height: 2),
                     Text(
                       'BY ${author.toUpperCase()}',
                       style: GoogleFonts.inter(
-                        fontSize: 9, 
+                        fontSize: 9,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 1.0,
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withAlpha((0.7 * 255).round()),
                       ),
                     ),
-                    const SizedBox(height: 12), 
+                    const SizedBox(height: 12),
                     Divider(
-                      color: Colors.white.withOpacity(0.2), 
-                      height: 1, 
-                      thickness: 1
+                      color: Colors.white.withAlpha((0.2 * 255).round()),
+                      height: 1,
+                      thickness: 1,
                     ),
-                    const SizedBox(height: 12), 
+                    const SizedBox(height: 12),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -136,10 +140,12 @@ class ProductCard extends StatelessWidget {
                                 fontSize: 8,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 1.0,
-                                color: Colors.white.withOpacity(0.6),
+                                color: Colors.white.withAlpha(
+                                  (0.6 * 255).round(),
+                                ),
                               ),
                             ),
-                            const SizedBox(height: 2), 
+                            const SizedBox(height: 2),
                             Text(
                               price,
                               style: GoogleFonts.inter(
@@ -158,8 +164,12 @@ class ProductCard extends StatelessWidget {
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Icon(
-                                isLiked ? Icons.favorite : Icons.favorite_border_rounded,
-                                color: isLiked ? const Color(0xFFE11D48) : Colors.white,
+                                isLiked
+                                    ? Icons.favorite
+                                    : Icons.favorite_border_rounded,
+                                color: isLiked
+                                    ? const Color(0xFFE11D48)
+                                    : Colors.white,
                                 size: 24,
                               ),
                             ),
@@ -177,4 +187,3 @@ class ProductCard extends StatelessWidget {
     );
   }
 }
-

@@ -17,13 +17,19 @@ class BatteryStatusIndicator extends StatelessWidget {
         final bool isCharging = state == BatteryState.charging;
         // suppress low battery warning/colors if charging
         final bool isLow = batteryProvider.isBatteryLow && !isCharging;
-        
+
         // icon logic
-        IconData batteryIcon = isCharging ? Icons.battery_charging_full : Icons.battery_full;
+        IconData batteryIcon = isCharging
+            ? Icons.battery_charging_full
+            : Icons.battery_full;
         if (!isCharging) {
-          if (level < 20) batteryIcon = Icons.battery_alert;
-          else if (level < 40) batteryIcon = Icons.battery_3_bar;
-          else if (level < 70) batteryIcon = Icons.battery_5_bar;
+          if (level < 20) {
+            batteryIcon = Icons.battery_alert;
+          } else if (level < 40) {
+            batteryIcon = Icons.battery_3_bar;
+          } else if (level < 70) {
+            batteryIcon = Icons.battery_5_bar;
+          }
         }
 
         return Material(
@@ -36,7 +42,7 @@ class BatteryStatusIndicator extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.6),
+                  color: Colors.black.withAlpha((0.6 * 255).round()),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isLow ? Colors.red : Colors.white24,
@@ -63,7 +69,7 @@ class BatteryStatusIndicator extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // low battery warning message (fixed height to prevent layout jumps)
               SizedBox(
                 height: 24, // Reserve space
@@ -74,15 +80,22 @@ class BatteryStatusIndicator extends StatelessWidget {
                           key: const ValueKey('warning'),
                           padding: const EdgeInsets.only(top: 4.0),
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
-                              color: Colors.red.withOpacity(0.9),
+                              color: Colors.red.withAlpha((0.9 * 255).round()),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 10),
+                                const Icon(
+                                  Icons.warning_amber_rounded,
+                                  color: Colors.white,
+                                  size: 10,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   'Battery Low – some features limited',

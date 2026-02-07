@@ -11,7 +11,7 @@ class CustomButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final CustomButtonType type;
   final bool isFullWidth;
-  
+
   // styling options
   final Color? backgroundColor;
   final Color? foregroundColor;
@@ -50,7 +50,9 @@ class CustomButton extends StatelessWidget {
     // apply colors based on button type
     switch (type) {
       case CustomButtonType.primary:
-        bg = backgroundColor ?? (isDarkMode ? Colors.white : const Color(0xFF1B1B1B));
+        bg =
+            backgroundColor ??
+            (isDarkMode ? Colors.white : const Color(0xFF1B1B1B));
         fg = foregroundColor ?? (isDarkMode ? Colors.black : Colors.white);
         break;
       case CustomButtonType.secondary:
@@ -63,8 +65,10 @@ class CustomButton extends StatelessWidget {
         break;
       case CustomButtonType.ghost:
         bg = Colors.transparent;
-        fg = foregroundColor ?? (isDarkMode ? Colors.white : const Color(0xFF1B4332));
-        border = BorderSide(color: fg.withOpacity(0.5));
+        fg =
+            foregroundColor ??
+            (isDarkMode ? Colors.white : const Color(0xFF1B4332));
+        border = BorderSide(color: fg.withAlpha((0.5 * 255).round()));
         break;
     }
 
@@ -73,45 +77,56 @@ class CustomButton extends StatelessWidget {
       foregroundColor: fg,
       padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: 24),
       side: border,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(borderRadius),
+      ),
       elevation: 0,
       splashFactory: NoSplash.splashFactory,
-      disabledBackgroundColor: bg.withOpacity(0.8), 
-      disabledForegroundColor: fg.withOpacity(0.8),
-    ).copyWith(
-      overlayColor: MaterialStateProperty.all(Colors.transparent),
-    );
+      disabledBackgroundColor: bg.withAlpha((0.8 * 255).round()),
+      disabledForegroundColor: fg.withAlpha((0.8 * 255).round()),
+    ).copyWith(overlayColor: WidgetStateProperty.all(Colors.transparent));
 
     // button content logic
-    Widget child = isLoading 
-      ? SizedBox(
-          width: fontSize + 4, 
-          height: fontSize + 4, 
-          child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(fg))
-        )
-      : Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (icon != null) ...[
-              Icon(icon, size: iconSize, color: fg),
-              const SizedBox(width: 8),
-            ],
-            Flexible(
-              child: Text(
-                text,
-                maxLines: 1,
-                softWrap: false,
-                overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.inter(fontSize: fontSize, fontWeight: FontWeight.bold, letterSpacing: 1.0),
-              ),
+    Widget child = isLoading
+        ? SizedBox(
+            width: fontSize + 4,
+            height: fontSize + 4,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              valueColor: AlwaysStoppedAnimation<Color>(fg),
             ),
-          ],
-        );
-        
+          )
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: iconSize, color: fg),
+                const SizedBox(width: 8),
+              ],
+              Flexible(
+                child: Text(
+                  text,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.inter(
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.0,
+                  ),
+                ),
+              ),
+            ],
+          );
+
     return SizedBox(
       width: isFullWidth ? double.infinity : null,
-      child: ElevatedButton(onPressed: effectiveOnPressed, style: buttonStyle, child: child),
+      child: ElevatedButton(
+        onPressed: effectiveOnPressed,
+        style: buttonStyle,
+        child: child,
+      ),
     );
   }
 }

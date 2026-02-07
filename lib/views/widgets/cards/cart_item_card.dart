@@ -11,7 +11,7 @@ class CartItemCard extends StatelessWidget {
   final double price;
   final int quantity;
   final String? size;
-  
+
   // action callbacks
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
@@ -48,7 +48,10 @@ class CartItemCard extends StatelessWidget {
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
-        decoration: BoxDecoration(color: const Color(0xFFE11D48), borderRadius: BorderRadius.circular(24)),
+        decoration: BoxDecoration(
+          color: const Color(0xFFE11D48),
+          borderRadius: BorderRadius.circular(24),
+        ),
         child: const Icon(Icons.delete_outline, color: Colors.white),
       ),
       child: Container(
@@ -56,7 +59,13 @@ class CartItemCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: cardBg,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20, offset: const Offset(0, 8))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha((0.05 * 255).round()),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -64,14 +73,36 @@ class CartItemCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(16),
               child: image.startsWith('http')
-                ? Image.network(
-                    image, width: 100, height: 100, fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(width: 100, height: 100, color: Colors.grey.shade200, child: const Icon(Icons.broken_image, color: Colors.grey)),
-                  )
-                : Image.asset(
-                    image, width: 100, height: 100, fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(width: 100, height: 100, color: Colors.grey.shade200, child: const Icon(Icons.broken_image, color: Colors.grey)),
-                  ),
+                  ? Image.network(
+                      image,
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 100,
+                        height: 100,
+                        color: Colors.grey.shade200,
+                        child: const Icon(
+                          Icons.broken_image,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    )
+                  : Image.asset(
+                      image,
+                      width: 100,
+                      height: 100,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 100,
+                        height: 100,
+                        color: Colors.grey.shade200,
+                        child: const Icon(
+                          Icons.broken_image,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
             ),
             const SizedBox(width: 16),
             // product details and controls
@@ -79,19 +110,49 @@ class CartItemCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(category.toUpperCase(), style: GoogleFonts.inter(fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.5, color: const Color(0xFF27AE60))),
+                  Text(
+                    category.toUpperCase(),
+                    style: GoogleFonts.inter(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                      color: const Color(0xFF27AE60),
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text(title, style: GoogleFonts.playfairDisplay(fontSize: 18, fontWeight: FontWeight.w600, fontStyle: FontStyle.italic, color: textColor)),
+                  Text(
+                    title,
+                    style: GoogleFonts.playfairDisplay(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      fontStyle: FontStyle.italic,
+                      color: textColor,
+                    ),
+                  ),
                   if (size != null) ...[
                     const SizedBox(height: 2),
-                    Text(size!, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500, color: Colors.grey.shade500)),
+                    Text(
+                      size!,
+                      style: GoogleFonts.inter(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
                   ],
                   const SizedBox(height: 8),
                   // price and quantity controls
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('\$${price.toStringAsFixed(2)}', style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.bold, color: textColor)),
+                      Text(
+                        '\$${price.toStringAsFixed(2)}',
+                        style: GoogleFonts.inter(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: textColor,
+                        ),
+                      ),
                       QuantitySelector(
                         quantity: quantity,
                         onIncrement: onIncrement,
@@ -108,4 +169,3 @@ class CartItemCard extends StatelessWidget {
     );
   }
 }
-

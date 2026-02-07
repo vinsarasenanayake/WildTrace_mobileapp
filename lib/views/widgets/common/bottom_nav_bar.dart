@@ -13,20 +13,24 @@ class WildTraceBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final navProvider = Provider.of<NavigationController>(context);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     // color palette
-    final Color backgroundColor = isDarkMode ? Colors.black : const Color(0xFFBFBFBF);
-    final Color selectedColor = isDarkMode ? const Color(0xFF27AE60) : const Color(0xFF1B4332);
-    final Color unselectedColor = isDarkMode ? Colors.white.withOpacity(0.5) : Colors.grey.shade800;
+    final Color backgroundColor = isDarkMode
+        ? Colors.black
+        : const Color(0xFFBFBFBF);
+    final Color selectedColor = isDarkMode
+        ? const Color(0xFF27AE60)
+        : const Color(0xFF1B4332);
+    final Color unselectedColor = isDarkMode
+        ? Colors.white.withAlpha((0.5 * 255).round())
+        : Colors.grey.shade800;
 
     return Consumer<CartController>(
       builder: (context, cartProvider, child) {
         return Container(
-          decoration: BoxDecoration(
-            color: backgroundColor,
-          ),
+          decoration: BoxDecoration(color: backgroundColor),
           child: SafeArea(
-            top: false, 
+            top: false,
             child: Theme(
               data: Theme.of(context).copyWith(
                 splashColor: Colors.transparent,
@@ -52,7 +56,7 @@ class WildTraceBottomNavBar extends StatelessWidget {
                 selectedLabelStyle: GoogleFonts.inter(
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
-                  height: 2.0, 
+                  height: 2.0,
                 ),
                 unselectedLabelStyle: GoogleFonts.inter(
                   fontSize: 11,
@@ -60,45 +64,48 @@ class WildTraceBottomNavBar extends StatelessWidget {
                   height: 2.0,
                 ),
                 items: [
-                   const BottomNavigationBarItem(
-                     icon: Padding(
-                       padding: EdgeInsets.only(top: 6),
-                       child: Icon(Icons.home_rounded, size: 24),
-                     ), 
-                     label: 'Home'
-                   ),
-                   const BottomNavigationBarItem(
-                     icon: Padding(
-                       padding: EdgeInsets.only(top: 6),
-                       child: Icon(Icons.photo_library_rounded, size: 24),
-                     ), 
-                     label: 'Gallery'
-                   ),
-                   BottomNavigationBarItem(
-                     icon: Padding(
-                       padding: const EdgeInsets.only(top: 6),
-                       child: Badge(
-                         isLabelVisible: cartProvider.itemCount > 0,
-                         label: Text(cartProvider.itemCount.toString()),
-                         backgroundColor: const Color(0xFFE11D48),
-                         child: const Icon(Icons.shopping_cart_rounded, size: 24),
-                       ),
-                     ), 
-                     label: 'Cart'
-                   ),
-                   const BottomNavigationBarItem(
-                     icon: Padding(
-                       padding: EdgeInsets.only(top: 6),
-                       child: Icon(Icons.person_rounded, size: 24),
-                     ), 
-                     label: 'Profile'
-                   ),
+                  const BottomNavigationBarItem(
+                    icon: Padding(
+                      padding: EdgeInsets.only(top: 6),
+                      child: Icon(Icons.home_rounded, size: 24),
+                    ),
+                    label: 'Home',
+                  ),
+                  const BottomNavigationBarItem(
+                    icon: Padding(
+                      padding: EdgeInsets.only(top: 6),
+                      child: Icon(Icons.photo_library_rounded, size: 24),
+                    ),
+                    label: 'Gallery',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Badge(
+                        isLabelVisible: cartProvider.itemCount > 0,
+                        label: Text(cartProvider.itemCount.toString()),
+                        backgroundColor: const Color(0xFFE11D48),
+                        child: const Icon(
+                          Icons.shopping_cart_rounded,
+                          size: 24,
+                        ),
+                      ),
+                    ),
+                    label: 'Cart',
+                  ),
+                  const BottomNavigationBarItem(
+                    icon: Padding(
+                      padding: EdgeInsets.only(top: 6),
+                      child: Icon(Icons.person_rounded, size: 24),
+                    ),
+                    label: 'Profile',
+                  ),
                 ],
               ),
             ),
           ),
         );
-      }
+      },
     );
   }
 }
