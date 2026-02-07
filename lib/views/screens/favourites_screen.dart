@@ -5,8 +5,8 @@ import '../../controllers/favorites_controller.dart';
 import '../../controllers/auth_controller.dart';
 import '../../utils/responsive_helper.dart';
 import 'product_details_screen.dart';
-import '../widgets/cards/product_card.dart';
-import '../widgets/common/custom_button.dart';
+import '../widgets/cards/card_widgets.dart';
+import '../widgets/common/common_widgets.dart';
 import '../../controllers/navigation_controller.dart';
 
 // favorites list screen

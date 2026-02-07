@@ -5,7 +5,7 @@ import 'views/screens/home_screen.dart';
 import 'views/screens/gallery_screen.dart';
 import 'views/screens/cart_screen.dart';
 import 'views/screens/profile_screen.dart';
-import 'views/widgets/common/bottom_nav_bar.dart';
+import 'views/widgets/common/common_widgets.dart';
 
 // Application wrapper
 class MainWrapper extends StatelessWidget {

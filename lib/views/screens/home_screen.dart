@@ -13,10 +13,8 @@ import '../../utils/responsive_helper.dart';
 import 'journey_screen.dart';
 import 'product_details_screen.dart';
 import 'login_screen.dart';
-import '../widgets/common/custom_button.dart';
-import '../widgets/cards/product_card.dart';
-import '../widgets/common/wild_trace_hero.dart';
-import '../widgets/common/battery_status_indicator.dart';
+import '../widgets/common/common_widgets.dart';
+import '../widgets/cards/card_widgets.dart';
 
 // main home screen
 class HomeScreen extends StatelessWidget {

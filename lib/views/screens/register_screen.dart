@@ -3,9 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../main_wrapper.dart';
 import '../../controllers/auth_controller.dart';
-import '../widgets/forms/user_form.dart';
-import '../widgets/common/wildtrace_logo.dart';
-import '../widgets/common/custom_button.dart';
+import '../widgets/forms/form_widgets.dart';
+import '../widgets/common/common_widgets.dart';
 import 'login_screen.dart';
 import 'package:quickalert/quickalert.dart';
 

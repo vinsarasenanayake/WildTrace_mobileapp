@@ -3,18 +3,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/cart_controller.dart';
 import '../../controllers/auth_controller.dart';
-import '../widgets/cards/order_summary_card.dart';
+import '../widgets/cards/card_widgets.dart';
 import 'checkout_screen.dart';
-import '../widgets/common/section_title.dart';
-import '../widgets/cards/cart_item_card.dart';
+import '../widgets/common/common_widgets.dart';
 import '../../controllers/navigation_controller.dart';
-import '../widgets/common/custom_button.dart';
 import 'package:quickalert/quickalert.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
 import '../../main_wrapper.dart';
 import '../../controllers/battery_controller.dart';
-import '../widgets/common/battery_status_indicator.dart';
 
 // shopping cart screen
 class CartScreen extends StatefulWidget {

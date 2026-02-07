@@ -5,9 +5,7 @@ import '../../main_wrapper.dart';
 import '../../controllers/auth_controller.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
-import '../widgets/common/custom_text_field.dart';
-import '../widgets/common/wildtrace_logo.dart';
-import '../widgets/common/custom_button.dart';
+import '../widgets/common/common_widgets.dart';
 import 'package:quickalert/quickalert.dart';
 
 // user login screen

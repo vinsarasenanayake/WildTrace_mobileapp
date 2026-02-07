@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../common/quantity_selector.dart';
+import '../common/common_widgets.dart';
 
 // shopping cart item card
 class CartItemCard extends StatelessWidget {

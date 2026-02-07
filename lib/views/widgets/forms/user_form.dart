@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../common/custom_text_field.dart';
+import '../common/common_widgets.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:wild_trace/services/location_service.dart';

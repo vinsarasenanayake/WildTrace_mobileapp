@@ -3,12 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/content_controller.dart';
 import '../../utils/responsive_helper.dart';
-import '../widgets/common/bottom_nav_bar.dart';
-import '../widgets/common/wild_trace_hero.dart';
-import '../widgets/common/section_title.dart';
-import '../widgets/cards/milestone_card.dart';
-import '../widgets/cards/photographer_card.dart';
-import '../widgets/common/battery_status_indicator.dart';
+import '../widgets/common/common_widgets.dart';
+import '../widgets/cards/card_widgets.dart';
 
 // brand story and timeline
 class JourneyScreen extends StatelessWidget {

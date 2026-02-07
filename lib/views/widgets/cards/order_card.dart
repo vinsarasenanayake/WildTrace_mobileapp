@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../common/custom_button.dart';
+import '../common/common_widgets.dart';
 
 // purchase order summary card
 class OrderCard extends StatelessWidget {

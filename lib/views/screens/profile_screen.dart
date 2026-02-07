@@ -7,10 +7,9 @@ import 'register_screen.dart';
 import 'order_history_screen.dart';
 import 'favourites_screen.dart';
 import 'edit_profile_screen.dart';
-import '../widgets/cards/dashboard_card.dart';
-import '../widgets/common/custom_button.dart';
+import '../widgets/cards/card_widgets.dart';
+import '../widgets/common/common_widgets.dart';
 import '../../main_wrapper.dart';
-import '../widgets/common/battery_status_indicator.dart';
 
 // user dashboard and settings
 class ProfileScreen extends StatelessWidget {

@@ -6,15 +6,13 @@ import '../../controllers/cart_controller.dart';
 import '../../controllers/orders_controller.dart';
 import '../../controllers/auth_controller.dart';
 import 'order_history_screen.dart';
-import '../widgets/forms/user_form.dart';
-import '../widgets/cards/order_summary_card.dart';
-import '../widgets/cards/order_item_card.dart';
-import '../widgets/common/section_title.dart';
+import '../widgets/forms/form_widgets.dart';
+import '../widgets/cards/card_widgets.dart';
+import '../widgets/common/common_widgets.dart';
 import '../../services/api_service.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:intl/intl.dart' as intl;
 import '../../controllers/battery_controller.dart';
-import '../widgets/common/battery_status_indicator.dart';
 
 // handles checkout process
 class CheckoutScreen extends StatefulWidget {

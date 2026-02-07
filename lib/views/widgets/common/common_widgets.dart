@@ -6,3 +6,4 @@ export 'quantity_selector.dart';
 export 'wildtrace_logo.dart';
 export 'wild_trace_hero.dart';
 export 'bottom_nav_bar.dart';
+export 'battery_status_indicator.dart';
