@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../main_wrapper.dart';
-import '../../providers/auth_provider.dart';
+import '../../controllers/auth_controller.dart';
 import '../widgets/forms/user_form.dart';
 import '../widgets/common/wildtrace_logo.dart';
 import '../widgets/common/custom_button.dart';
@@ -34,7 +34,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _countryController = TextEditingController();
 
   // manages the user onboarding workflow
-  Future<void> _handleRegister(AuthProvider authProvider, bool isDarkMode) async {
+  Future<void> _handleRegister(AuthController authProvider, bool isDarkMode) async {
     // validates credential consistency
     if (_passwordController.text != _confirmPasswordController.text) {
       QuickAlert.show(
@@ -138,7 +138,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         right: false,
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Consumer<AuthProvider>(
+          child: Consumer<AuthController>(
             builder: (context, authProvider, child) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.center,

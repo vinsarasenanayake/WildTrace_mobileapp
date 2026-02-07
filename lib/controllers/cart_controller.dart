@@ -4,7 +4,7 @@ import '../models/product.dart';
 import '../services/api_service.dart';
 
 // shopping cart state manager
-class CartProvider with ChangeNotifier {
+class CartController with ChangeNotifier {
   final ApiService _apiService = ApiService();
   final List<CartItem> _items = [];
   bool _isLoading = false;

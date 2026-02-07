@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../../../../providers/navigation_provider.dart';
-import '../../../../providers/cart_provider.dart';
+import '../../../../controllers/navigation_controller.dart';
+import '../../../../controllers/cart_controller.dart';
 
 // main app navigation bar
 class WildTraceBottomNavBar extends StatelessWidget {
@@ -11,7 +11,7 @@ class WildTraceBottomNavBar extends StatelessWidget {
   // builds bottom navigation bar with cart badge
   @override
   Widget build(BuildContext context) {
-    final navProvider = Provider.of<NavigationProvider>(context);
+    final navProvider = Provider.of<NavigationController>(context);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     
     // color palette
@@ -19,7 +19,7 @@ class WildTraceBottomNavBar extends StatelessWidget {
     final Color selectedColor = isDarkMode ? const Color(0xFF27AE60) : const Color(0xFF1B4332);
     final Color unselectedColor = isDarkMode ? Colors.white.withOpacity(0.5) : Colors.grey.shade600;
 
-    return Consumer<CartProvider>(
+    return Consumer<CartController>(
       builder: (context, cartProvider, child) {
         return Container(
           decoration: BoxDecoration(

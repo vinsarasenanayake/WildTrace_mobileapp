@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import '../../providers/cart_provider.dart';
-import '../../providers/orders_provider.dart';
-import '../../providers/auth_provider.dart';
+import '../../controllers/cart_controller.dart';
+import '../../controllers/orders_controller.dart';
+import '../../controllers/auth_controller.dart';
 import '../../models/order.dart';
 import '../../utils/responsive_helper.dart';
 import 'order_history_screen.dart';
@@ -15,7 +15,7 @@ import '../widgets/common/section_title.dart';
 import '../../services/api_service.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:intl/intl.dart' as intl;
-import '../../providers/battery_provider.dart';
+import '../../controllers/battery_controller.dart';
 import '../widgets/common/battery_status_indicator.dart';
 
 // handles checkout process
@@ -40,7 +40,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void initState() {
     super.initState();
-    final user = Provider.of<AuthProvider>(context, listen: false).currentUser;
+    final user = Provider.of<AuthController>(context, listen: false).currentUser;
     _nameController = TextEditingController(text: user?.name ?? '');
     _emailController = TextEditingController(text: user?.email ?? '');
     _contactController = TextEditingController(text: user?.contactNumber ?? '');
@@ -103,7 +103,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
             ),
           ),
-          body: Consumer2<CartProvider, OrdersProvider>(
+          body: Consumer2<CartController, OrdersController>(
             builder: (context, cartProvider, ordersProvider, child) {
               final cartItems = cartProvider.items;
               final totalAmount = cartProvider.total;
@@ -141,7 +141,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                  ],
               );
 
-              final batteryProvider = Provider.of<BatteryProvider>(context);
+              final batteryProvider = Provider.of<BatteryController>(context);
               final isBatteryLow = batteryProvider.isBatteryLow;
 
               // defines financial and item summary section
@@ -160,7 +160,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 isPrimaryEnabled: !isBatteryLow,
                 // initiates secure payment flow
                 primaryButtonOnTap: () async {
-                  final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                  final authProvider = Provider.of<AuthController>(context, listen: false);
                   final user = authProvider.currentUser;
                   final token = authProvider.token;
 

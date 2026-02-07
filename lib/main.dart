@@ -9,15 +9,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-// Providers
-import 'providers/navigation_provider.dart';
-import 'providers/auth_provider.dart';
-import 'providers/cart_provider.dart';
-import 'providers/favorites_provider.dart';
-import 'providers/products_provider.dart';
-import 'providers/orders_provider.dart';
-import 'providers/content_provider.dart';
-import 'providers/battery_provider.dart';
+// Controllers
+import 'controllers/navigation_controller.dart';
+import 'controllers/auth_controller.dart';
+import 'controllers/cart_controller.dart';
+import 'controllers/favorites_controller.dart';
+import 'controllers/products_controller.dart';
+import 'controllers/orders_controller.dart';
+import 'controllers/content_controller.dart';
+import 'controllers/battery_controller.dart';
 
 // Screens
 import 'views/screens/splash_screen.dart';
@@ -36,27 +36,27 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        // State management providers
-        ChangeNotifierProvider(create: (_) => NavigationProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => BatteryProvider()),
-        ChangeNotifierProxyProvider<AuthProvider, FavoritesProvider>(
-          create: (_) => FavoritesProvider(),
+        // State management controllers
+        ChangeNotifierProvider(create: (_) => NavigationController()),
+        ChangeNotifierProvider(create: (_) => AuthController()),
+        ChangeNotifierProvider(create: (_) => BatteryController()),
+        ChangeNotifierProxyProvider<AuthController, FavoritesController>(
+          create: (_) => FavoritesController(),
           update: (_, auth, favorites) => favorites!..updateToken(auth.token),
         ),
-        ChangeNotifierProxyProvider<AuthProvider, CartProvider>(
-          create: (_) => CartProvider(),
+        ChangeNotifierProxyProvider<AuthController, CartController>(
+          create: (_) => CartController(),
           update: (_, auth, cart) => cart!..updateToken(auth.token),
         ),
-        ChangeNotifierProxyProvider<AuthProvider, ProductsProvider>(
-          create: (_) => ProductsProvider(),
+        ChangeNotifierProxyProvider<AuthController, ProductsController>(
+          create: (_) => ProductsController(),
           update: (_, auth, products) => products!..updateToken(auth.token),
         ),
-        ChangeNotifierProxyProvider<AuthProvider, OrdersProvider>(
-          create: (_) => OrdersProvider(),
+        ChangeNotifierProxyProvider<AuthController, OrdersController>(
+          create: (_) => OrdersController(),
           update: (_, auth, orders) => orders!..updateToken(auth.token, auth.currentUser?.id),
         ),
-        ChangeNotifierProvider(create: (_) => ContentProvider()..fetchContent()),
+        ChangeNotifierProvider(create: (_) => ContentController()..fetchContent()),
       ],
       child: const WildTraceApp(),
     ),

@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../../providers/cart_provider.dart';
-import '../../providers/auth_provider.dart';
+import '../../controllers/cart_controller.dart';
+import '../../controllers/auth_controller.dart';
 import '../../utils/responsive_helper.dart';
 import '../widgets/cards/order_summary_card.dart';
 import 'checkout_screen.dart';
 import '../widgets/common/section_title.dart';
 import '../widgets/cards/cart_item_card.dart';
-import '../../providers/navigation_provider.dart';
+import '../../controllers/navigation_controller.dart';
 import '../widgets/common/custom_button.dart';
 import 'package:quickalert/quickalert.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
 import '../widgets/common/wildtrace_logo.dart';
 import '../../main_wrapper.dart';
-import '../../providers/battery_provider.dart';
+import '../../controllers/battery_controller.dart';
 import '../widgets/common/battery_status_indicator.dart';
 
 // shopping cart screen
@@ -32,9 +32,9 @@ class _CartScreenState extends State<CartScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final authProvider = Provider.of<AuthController>(context, listen: false);
       if (authProvider.token != null) {
-        Provider.of<CartProvider>(context, listen: false).fetchCart(authProvider.token!);
+        Provider.of<CartController>(context, listen: false).fetchCart(authProvider.token!);
       }
     });
   }
@@ -42,13 +42,13 @@ class _CartScreenState extends State<CartScreen> {
   // builds the visual representation of the cart
   @override
   Widget build(BuildContext context) {
-    return Consumer<CartProvider>(
+    return Consumer<CartController>(
       builder: (context, cartProvider, child) {
         // determines current theme state
         final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
         final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
         final cartItems = cartProvider.items;
-        final authProvider = Provider.of<AuthProvider>(context);
+        final authProvider = Provider.of<AuthController>(context);
         final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
         final padding = MediaQuery.of(context).padding;
         final double sidePadding = (padding.left > padding.right ? padding.left : padding.right) + 20.0;
@@ -64,7 +64,7 @@ class _CartScreenState extends State<CartScreen> {
                 child: RefreshIndicator(
                   // enables pull-to-refresh functionality
                   onRefresh: () async {
-                    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                    final authProvider = Provider.of<AuthController>(context, listen: false);
                     if (authProvider.token != null) {
                       await cartProvider.fetchCart(authProvider.token!);
                     }
@@ -112,8 +112,8 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   // builds the ui for empty cart scenarios
-  Widget _buildEmptyState(BuildContext context, CartProvider cartProvider) {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+  Widget _buildEmptyState(BuildContext context, CartController cartProvider) {
+    final authProvider = Provider.of<AuthController>(context, listen: false);
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
 
@@ -236,7 +236,7 @@ class _CartScreenState extends State<CartScreen> {
                 text: 'EXPLORE GALLERY',
                 type: CustomButtonType.secondary,
                 onPressed: () {
-                  Provider.of<NavigationProvider>(context, listen: false).setSelectedIndex(1);
+                  Provider.of<NavigationController>(context, listen: false).setSelectedIndex(1);
                 },
               ),
             ),
@@ -250,7 +250,7 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   // UI sections for the shopping cart items
-  List<Widget> _buildCartSlivers(BuildContext context, CartProvider cartProvider, Color textColor, bool isLandscape, double sidePadding) {
+  List<Widget> _buildCartSlivers(BuildContext context, CartController cartProvider, Color textColor, bool isLandscape, double sidePadding) {
     // accesses cart items from provider
     final cartItems = cartProvider.items;
     
@@ -455,8 +455,8 @@ class _CartScreenState extends State<CartScreen> {
   }
 
   // builds the summary view with checkout triggers
-  Widget _buildSummaryCard(BuildContext context, CartProvider cartProvider) {
-    final batteryProvider = Provider.of<BatteryProvider>(context);
+  Widget _buildSummaryCard(BuildContext context, CartController cartProvider) {
+    final batteryProvider = Provider.of<BatteryController>(context);
     final isBatteryLow = batteryProvider.isBatteryLow;
 
     return OrderSummaryCard(

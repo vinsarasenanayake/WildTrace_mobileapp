@@ -3,7 +3,7 @@ import '../models/product.dart';
 import '../services/api_service.dart';
 
 // favorite items manager
-class FavoritesProvider with ChangeNotifier {
+class FavoritesController with ChangeNotifier {
   final ApiService _apiService = ApiService();
   final List<Product> _favorites = [];
   bool _isLoading = false;

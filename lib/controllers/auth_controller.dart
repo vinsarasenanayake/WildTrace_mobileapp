@@ -5,7 +5,7 @@ import '../models/user.dart';
 import '../services/api_service.dart';
 
 // manages authentication state
-class AuthProvider with ChangeNotifier {
+class AuthController with ChangeNotifier {
   final ApiService _apiService = ApiService();
   UserModel? _currentUser;
   String? _token;
@@ -17,7 +17,7 @@ class AuthProvider with ChangeNotifier {
   bool get isAuthenticated => _isAuthenticated;
   bool get isLoading => _isLoading;
 
-  AuthProvider() {
+  AuthController() {
     checkAuthStatus();
   }
 

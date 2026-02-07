@@ -3,7 +3,7 @@ import '../models/product.dart';
 import '../services/api_service.dart';
 
 // manages product catalog
-class ProductsProvider with ChangeNotifier {
+class ProductsController with ChangeNotifier {
   final ApiService _apiService = ApiService();
   final List<Product> _products = [];
   bool _isLoading = false;

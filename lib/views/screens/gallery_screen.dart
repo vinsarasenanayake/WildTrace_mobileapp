@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../../providers/products_provider.dart';
-import '../../providers/favorites_provider.dart';
-import '../../providers/auth_provider.dart';
+import '../../controllers/products_controller.dart';
+import '../../controllers/favorites_controller.dart';
+import '../../controllers/auth_controller.dart';
 import '../../utils/responsive_helper.dart';
 import '../widgets/common/wild_trace_hero.dart';
 import '../widgets/cards/product_card.dart';
@@ -94,7 +94,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     
     // consumes multiple providers for product and user state
-    return Consumer3<ProductsProvider, FavoritesProvider, AuthProvider>(
+    return Consumer3<ProductsController, FavoritesController, AuthController>(
       builder: (context, productsProvider, favoritesProvider, authProvider, child) {
         final products = productsProvider.filteredProducts;
 
@@ -216,7 +216,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     
     if (isLandscape) {
       // provides inline horizontal controls for wide screens
-      return Consumer<ProductsProvider>(
+      return Consumer<ProductsController>(
         builder: (context, provider, child) {
           final Color txtColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
           final Color accentGreen = const Color(0xFF27AE60);
@@ -428,7 +428,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
   }
 
   // builds the dedicated drawer for comprehensive filtering in portrait mode
-  Widget _buildFilterDrawer(BuildContext context, bool isDarkMode, ProductsProvider provider) {
+  Widget _buildFilterDrawer(BuildContext context, bool isDarkMode, ProductsController provider) {
     final Color txtColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     final Color accentGreen = const Color(0xFF27AE60);
 
@@ -575,13 +575,13 @@ class _GalleryScreenState extends State<GalleryScreen> {
   }
 
   // builds a responsive grid of product cards
-  Widget _buildGrid(List<dynamic> pageItems, FavoritesProvider favoritesProvider) {
+  Widget _buildGrid(List<dynamic> pageItems, FavoritesController favoritesProvider) {
     final isLandscape = ResponsiveHelper.isLandscape(context);
     final crossAxisCount = isLandscape ? 3 : 1; 
     final spacing = ResponsiveHelper.getSpacing(context, portrait: 24);
     final padding = ResponsiveHelper.getScreenPadding(context);
     
-    return Consumer<AuthProvider>(
+    return Consumer<AuthController>(
       builder: (context, authProvider, child) {
         return Padding(
           padding: padding,

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../../providers/favorites_provider.dart';
-import '../../providers/auth_provider.dart';
+import '../../controllers/favorites_controller.dart';
+import '../../controllers/auth_controller.dart';
 import '../../utils/responsive_helper.dart';
 import 'product_details_screen.dart';
 import '../widgets/cards/product_card.dart';
 import '../widgets/common/custom_button.dart';
-import '../../providers/navigation_provider.dart';
+import '../../controllers/navigation_controller.dart';
 
 // favorites list screen
 class FavouritesScreen extends StatelessWidget {
@@ -26,8 +26,8 @@ class FavouritesScreen extends StatelessWidget {
       body: RefreshIndicator(
         // handles manual refresh of favorite items
         onRefresh: () async {
-          final authProvider = Provider.of<AuthProvider>(context, listen: false);
-          final favoritesProvider = Provider.of<FavoritesProvider>(context, listen: false);
+          final authProvider = Provider.of<AuthController>(context, listen: false);
+          final favoritesProvider = Provider.of<FavoritesController>(context, listen: false);
           if (authProvider.token != null) {
             await favoritesProvider.fetchFavorites(authProvider.token!);
           }
@@ -71,7 +71,7 @@ class FavouritesScreen extends StatelessWidget {
               ),
             ),
             // dynamically renders favorite cards from provider state
-            Consumer<FavoritesProvider>(
+            Consumer<FavoritesController>(
               builder: (context, favoritesProvider, child) {
                 final favorites = favoritesProvider.favorites;
                 
@@ -163,7 +163,7 @@ class FavouritesScreen extends StatelessWidget {
               type: CustomButtonType.secondary,
               onPressed: () {
                 Navigator.of(context).popUntil((route) => route.isFirst);
-                Provider.of<NavigationProvider>(context, listen: false).setSelectedIndex(1);
+                Provider.of<NavigationController>(context, listen: false).setSelectedIndex(1);
               },
             ),
           ),

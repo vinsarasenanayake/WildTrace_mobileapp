@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 // manages bottom navigation state
-class NavigationProvider with ChangeNotifier {
+class NavigationController with ChangeNotifier {
   int _selectedIndex = 0;
   int get selectedIndex => _selectedIndex;
 

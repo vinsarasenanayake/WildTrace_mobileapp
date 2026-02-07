@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../../providers/orders_provider.dart';
+import '../../controllers/orders_controller.dart';
 import '../../models/order.dart';
 import '../widgets/common/custom_button.dart';
 import '../widgets/cards/order_card.dart';
 import '../widgets/cards/order_item_card.dart';
 import '../../services/api_service.dart';
-import '../../providers/auth_provider.dart';
-import '../../providers/navigation_provider.dart';
+import '../../controllers/auth_controller.dart';
+import '../../controllers/navigation_controller.dart';
 import 'package:quickalert/quickalert.dart';
 
 // purchase history records
@@ -32,8 +32,8 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
 
   // synchronizes local order list with backend records
   Future<void> _refreshOrders() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthController>(context, listen: false);
+    final ordersProvider = Provider.of<OrdersController>(context, listen: false);
     // requires authenticated session context
     if (authProvider.token != null && authProvider.currentUser?.id != null) {
       await ordersProvider.loadOrders(authProvider.currentUser!.id, authProvider.token!);
@@ -42,7 +42,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
 
   // manages the payment fulfillment workflow via Stripe
   Future<void> _payWithStripe(Order order) async {
-    final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
+    final ordersProvider = Provider.of<OrdersController>(context, listen: false);
     
     // triggers external payment gateway
     await StripeService.instance.makePayment(
@@ -127,7 +127,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
         ),
       ),
       // dynamic update binding for order records
-      body: Consumer<OrdersProvider>(
+      body: Consumer<OrdersController>(
         builder: (context, ordersProvider, child) {
           final orders = ordersProvider.orders;
           
@@ -161,7 +161,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                       type: CustomButtonType.secondary,
                       onPressed: () {
                         Navigator.of(context).popUntil((route) => route.isFirst);
-                        Provider.of<NavigationProvider>(context, listen: false).setSelectedIndex(1);
+                        Provider.of<NavigationController>(context, listen: false).setSelectedIndex(1);
                       },
                     ),
                   ),

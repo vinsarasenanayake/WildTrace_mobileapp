@@ -5,7 +5,7 @@ import '../models/product.dart';
 import '../services/api_service.dart';
 
 // manages purchase records
-class OrdersProvider with ChangeNotifier {
+class OrdersController with ChangeNotifier {
   final ApiService _apiService = ApiService();
   final List<Order> _orders = [];
   String? _token;

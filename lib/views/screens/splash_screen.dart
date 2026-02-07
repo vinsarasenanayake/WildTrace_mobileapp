@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/products_provider.dart';
-import '../../providers/auth_provider.dart';
-import '../../providers/content_provider.dart';
+import '../../controllers/products_controller.dart';
+import '../../controllers/auth_controller.dart';
+import '../../controllers/content_controller.dart';
 import '../../main_wrapper.dart';
 
 // app launch screen
@@ -49,7 +49,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   void _navigateToHome() async {
     try {
       // wait for auth session restoration
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final authProvider = Provider.of<AuthController>(context, listen: false);
       int retryCount = 0;
       while (authProvider.isLoading && retryCount < 20) {
         await Future.delayed(const Duration(milliseconds: 100));
@@ -57,8 +57,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       }
 
       // fetch products and content concurrently
-      final productsProvider = Provider.of<ProductsProvider>(context, listen: false);
-      final contentProvider = Provider.of<ContentProvider>(context, listen: false);
+      final productsProvider = Provider.of<ProductsController>(context, listen: false);
+      final contentProvider = Provider.of<ContentController>(context, listen: false);
       
       final fetchFuture = productsProvider.fetchProducts();
       final contentFuture = contentProvider.fetchContent();

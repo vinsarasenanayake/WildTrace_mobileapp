@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../providers/navigation_provider.dart';
-import '../../providers/products_provider.dart';
-import '../../providers/favorites_provider.dart';
-import '../../providers/auth_provider.dart';
+import '../../controllers/navigation_controller.dart';
+import '../../controllers/products_controller.dart';
+import '../../controllers/favorites_controller.dart';
+import '../../controllers/auth_controller.dart';
 import '../../models/product.dart';
 import '../../utils/responsive_helper.dart';
 import 'journey_screen.dart';
@@ -68,7 +68,7 @@ class HomeScreen extends StatelessWidget {
       // initiates shopping navigation
       footer: CustomButton(
         text: 'EXPLORE COLLECTION',
-        onPressed: () => context.read<NavigationProvider>().setSelectedIndex(1),
+        onPressed: () => context.read<NavigationController>().setSelectedIndex(1),
         type: CustomButtonType.secondary,
         isFullWidth: false,
         fontSize: 12,
@@ -185,7 +185,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
     final padding = ResponsiveHelper.getScreenPadding(context);
     
     // synchronizes with product and authentication state
-    return Consumer3<ProductsProvider, FavoritesProvider, AuthProvider>(
+    return Consumer3<ProductsController, FavoritesController, AuthController>(
       builder: (context, productsProvider, favoritesProvider, authProvider, child) {
         // selects top-tier products for the showcase
         final allProducts = List<Product>.from(productsProvider.products); 
@@ -243,7 +243,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
   }
 
   // builds the singular product carousel viewport
-  Widget _buildSlideshow(List<Product> items, bool isLandscape, FavoritesProvider favoritesProvider, AuthProvider authProvider) {
+  Widget _buildSlideshow(List<Product> items, bool isLandscape, FavoritesController favoritesProvider, AuthController authProvider) {
     final double slideshowHeight = isLandscape ? 280 : 500;
     final double marginHorizontal = isLandscape ? 40 : 24;
     

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
+import '../../controllers/auth_controller.dart';
 import '../../models/user.dart';
 import '../widgets/common/custom_text_field.dart';
 import '../widgets/forms/user_form.dart';
 import '../widgets/common/custom_button.dart';
 import '../widgets/common/wildtrace_logo.dart';
 import 'package:quickalert/quickalert.dart';
-import '../../providers/orders_provider.dart';
+import '../../controllers/orders_controller.dart';
 import '../../models/order.dart';
 
 // edit profile screen
@@ -39,7 +39,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    final user = Provider.of<AuthProvider>(context, listen: false).currentUser;
+    final user = Provider.of<AuthController>(context, listen: false).currentUser;
     _nameController = TextEditingController(text: user?.name ?? '');
     _emailController = TextEditingController(text: user?.email ?? '');
     _contactController = TextEditingController(text: user?.contactNumber ?? '');
@@ -66,7 +66,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   // processes profile detail updates
-  Future<void> _handleUpdateProfile(AuthProvider authProvider) async {
+  Future<void> _handleUpdateProfile(AuthController authProvider) async {
     final currentUser = authProvider.currentUser;
     if (currentUser != null) {
       final updatedUser = UserModel(
@@ -127,7 +127,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ),
       ),
-      body: Consumer<AuthProvider>(
+      body: Consumer<AuthController>(
         builder: (context, authProvider, child) {
           return SafeArea(
             left: false,
@@ -177,7 +177,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
   
   // builds the user info modification forms
-  Widget _buildProfileSection(bool isDarkMode, AuthProvider authProvider, bool isLandscape) {
+  Widget _buildProfileSection(bool isDarkMode, AuthController authProvider, bool isLandscape) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -433,7 +433,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 text: 'DELETE ACCOUNT', 
                 type: CustomButtonType.destructive, 
                 onPressed: () {
-                  final ordersProvider = Provider.of<OrdersProvider>(context, listen: false);
+                  final ordersProvider = Provider.of<OrdersController>(context, listen: false);
                   final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
                   
                   // verifies if there are pending orders before providing deletion option

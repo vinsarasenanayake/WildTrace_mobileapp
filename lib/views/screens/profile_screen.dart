@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../../providers/auth_provider.dart';
+import '../../controllers/auth_controller.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
 import 'order_history_screen.dart';
@@ -11,6 +11,7 @@ import '../widgets/cards/dashboard_card.dart';
 import '../widgets/common/wildtrace_logo.dart';
 import '../widgets/common/custom_button.dart';
 import '../../main_wrapper.dart';
+import '../widgets/common/battery_status_indicator.dart';
 
 // user dashboard and settings
 class ProfileScreen extends StatelessWidget {
@@ -31,57 +32,67 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: backgroundColor,
       // dynamic update binding for authentication context
-      body: Consumer<AuthProvider>(
+      body: Consumer<AuthController>(
         builder: (context, authProvider, child) {
           final user = authProvider.currentUser;
           final initials = user?.name.isNotEmpty == true ? user!.name[0].toUpperCase() : 'U';
 
-          return SafeArea(
-            left: false,
-            right: false,
-            child: CustomScrollView(
-              // restricts scrolling for minimal guest views
-              physics: (isLandscape && !authProvider.isAuthenticated) 
-                  ? const NeverScrollableScrollPhysics() 
-                  : const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                // floating navigation integration
-                const SliverAppBar(
-                  backgroundColor: Colors.transparent,
-                  elevation: 0,
-                  scrolledUnderElevation: 0,
-                  surfaceTintColor: Colors.transparent,
-                  floating: true,
-                  snap: true,
-                  pinned: false,
-                  toolbarHeight: 40,
-                  automaticallyImplyLeading: false,
-                ),
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: sidePadding, vertical: isLandscape ? 4.0 : 24.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // bifurcates UI based on session state
-                        if (authProvider.isAuthenticated) ...[
-                          _buildHeader(textColor, accentGreen, initials, user?.name ?? '', user?.email ?? ''),
-                          const SizedBox(height: 40),
-                          _buildDashboard(context),
-                          const SizedBox(height: 40),
-                          _buildLogoutButton(context, authProvider),
-                        ] else ...[
-                          _buildGuestView(context, textColor),
-                        ],
-                        SizedBox(height: isLandscape ? 10 : 30),
-                        _buildFooter(context),
-                        SizedBox(height: isLandscape ? 10 : 20),
-                      ],
+          return Stack(
+            children: [
+              SafeArea(
+                left: false,
+                right: false,
+                child: CustomScrollView(
+                  // restricts scrolling for minimal guest views
+                  physics: (isLandscape && !authProvider.isAuthenticated) 
+                      ? const NeverScrollableScrollPhysics() 
+                      : const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    // floating navigation integration
+                    const SliverAppBar(
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      scrolledUnderElevation: 0,
+                      surfaceTintColor: Colors.transparent,
+                      floating: true,
+                      snap: true,
+                      pinned: false,
+                      toolbarHeight: 40,
+                      automaticallyImplyLeading: false,
                     ),
-                  ),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: sidePadding, vertical: isLandscape ? 4.0 : 24.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // bifurcates UI based on session state
+                            if (authProvider.isAuthenticated) ...[
+                              _buildHeader(textColor, accentGreen, initials, user?.name ?? '', user?.email ?? ''),
+                              const SizedBox(height: 40),
+                              _buildDashboard(context),
+                              const SizedBox(height: 40),
+                              _buildLogoutButton(context, authProvider),
+                            ] else ...[
+                              _buildGuestView(context, textColor),
+                            ],
+                            SizedBox(height: isLandscape ? 10 : 30),
+                            _buildFooter(context),
+                            SizedBox(height: isLandscape ? 10 : 20),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              if (!authProvider.isAuthenticated)
+                Positioned(
+                  top: MediaQuery.of(context).padding.top + 10,
+                  right: 20,
+                  child: const BatteryStatusIndicator(),
+                ),
+            ],
           );
         }
       ),
@@ -160,7 +171,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   // builds the secure session termination control
-  Widget _buildLogoutButton(BuildContext context, AuthProvider authProvider) {
+  Widget _buildLogoutButton(BuildContext context, AuthController authProvider) {
     return CustomButton(
       text: 'LOGOUT',
       icon: Icons.logout_rounded,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'providers/navigation_provider.dart';
+import 'controllers/navigation_controller.dart';
 import 'views/screens/home_screen.dart';
 import 'views/screens/gallery_screen.dart';
 import 'views/screens/cart_screen.dart';
@@ -13,7 +13,7 @@ class MainWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final navProvider = Provider.of<NavigationProvider>(context);
+    final navProvider = Provider.of<NavigationController>(context);
     
     // Switch between screens
     Widget getBody() {

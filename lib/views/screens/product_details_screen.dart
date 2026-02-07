@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../models/product.dart';
-import '../../providers/cart_provider.dart';
-import '../../providers/favorites_provider.dart';
-import '../../providers/products_provider.dart';
-import '../../providers/navigation_provider.dart';
+import '../../controllers/cart_controller.dart';
+import '../../controllers/favorites_controller.dart';
+import '../../controllers/products_controller.dart';
+import '../../controllers/navigation_controller.dart';
 import '../../utils/responsive_helper.dart';
 import '../widgets/common/custom_button.dart';
 import '../widgets/common/section_title.dart';
@@ -14,7 +14,7 @@ import '../widgets/cards/photographer_card.dart';
 import '../widgets/cards/product_card.dart';
 import '../widgets/common/wildtrace_logo.dart';
 import '../../services/api_service.dart';
-import '../../providers/auth_provider.dart';
+import '../../controllers/auth_controller.dart';
 import '../screens/login_screen.dart';
 import 'cart_screen.dart';
 import 'package:quickalert/quickalert.dart';
@@ -78,7 +78,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   // synchronizes detailed product records from the server
   Future<void> _fetchFullDetails() async {
     try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final authProvider = Provider.of<AuthController>(context, listen: false);
       final details = await _apiService.fetchProductDetails(widget.product.id, token: authProvider.token);
       if (mounted && details != null) {
         setState(() {
@@ -153,7 +153,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     setState(() => _isPriceLoading = true);
     
     try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final authProvider = Provider.of<AuthController>(context, listen: false);
       final newPrice = await _apiService.getProductPrice(
         widget.product.id, 
         size,
@@ -345,7 +345,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   // builds the interactive configuration and commerce container
   Widget _buildPurchaseOptions(bool isDarkMode, Color textColor, [bool isLandscape = false]) {
-    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final cartProvider = Provider.of<CartController>(context, listen: false);
 
     return Container(
       padding: const EdgeInsets.all(32),
@@ -439,7 +439,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               child: CustomButton(
                 text: 'ADD TO CART', 
                 onPressed: () {
-                  final auth = Provider.of<AuthProvider>(context, listen: false);
+                  final auth = Provider.of<AuthController>(context, listen: false);
                   // validates authenticated context
                   if (!auth.isAuthenticated) {
                     _showLoginRequiredAlert();
@@ -496,7 +496,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                 onPressed: () {
                                   Navigator.pop(context); 
                                   Navigator.pop(context); 
-                                  Provider.of<NavigationProvider>(context, listen: false).setSelectedIndex(2);
+                                  Provider.of<NavigationController>(context, listen: false).setSelectedIndex(2);
                                 },
                               ),
                             ),
@@ -553,7 +553,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   // builds the persistence control for favorites
   Widget _favBtn() {
-    return Consumer2<FavoritesProvider, AuthProvider>(
+    return Consumer2<FavoritesController, AuthController>(
       builder: (context, favoritesProvider, authProvider, child) {
         final isLiked = favoritesProvider.isFavorite(widget.product.id);
         return InkWell(
@@ -646,7 +646,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   // builds a cross-sell grid of related artistic entities
   Widget _buildSimilarWorks(Color textColor, [bool isLandscape = false]) {
-    return Consumer2<ProductsProvider, FavoritesProvider>(
+    return Consumer2<ProductsController, FavoritesController>(
       builder: (context, productsProvider, favoritesProvider, child) {
         final int itemCount = isLandscape ? 6 : 4;
 

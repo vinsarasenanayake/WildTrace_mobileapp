@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:battery_plus/battery_plus.dart';
 
 // manages device battery state
-class BatteryProvider with ChangeNotifier {
+class BatteryController with ChangeNotifier {
   final Battery _battery = Battery();
   int _batteryLevel = 100;
   BatteryState _batteryState = BatteryState.full;
@@ -14,7 +14,7 @@ class BatteryProvider with ChangeNotifier {
   BatteryState get batteryState => _batteryState;
   bool get isBatteryLow => _batteryLevel < 20;
 
-  BatteryProvider() {
+  BatteryController() {
     _initBattery();
   }
 

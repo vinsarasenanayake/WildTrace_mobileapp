@@ -4,7 +4,7 @@ import '../models/milestone.dart';
 import '../services/api_service.dart';
 
 // static content provider
-class ContentProvider with ChangeNotifier {
+class ContentController with ChangeNotifier {
   final ApiService _apiService = ApiService();
   List<Photographer> _photographers = [];
   List<Milestone> _milestones = [];

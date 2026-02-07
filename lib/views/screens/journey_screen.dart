@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import '../../providers/content_provider.dart';
+import '../../controllers/content_controller.dart';
 import '../../utils/responsive_helper.dart';
 import '../widgets/common/bottom_nav_bar.dart';
 import '../widgets/common/wild_trace_hero.dart';
@@ -87,7 +87,7 @@ class JourneyScreen extends StatelessWidget {
 
   // builds the historical timeline using external content
   Widget _buildTimelineSection() {
-    return Consumer<ContentProvider>(
+    return Consumer<ContentController>(
       builder: (context, contentProvider, child) {
         // provides feedback for content synchronization
         if (contentProvider.isLoading && contentProvider.milestones.isEmpty) {
@@ -202,7 +202,7 @@ class JourneyScreen extends StatelessWidget {
               final isLandscape = ResponsiveHelper.isLandscape(context);
               return SizedBox(
                 height: isLandscape ? 320 : 520,
-                child: Consumer<ContentProvider>(
+                child: Consumer<ContentController>(
                   builder: (context, contentProvider, child) {
                     if (contentProvider.isLoading && contentProvider.photographers.isEmpty) {
                        return const Center(child: CircularProgressIndicator(color: Colors.white));

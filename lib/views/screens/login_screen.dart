@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../main_wrapper.dart';
-import '../../providers/auth_provider.dart';
+import '../../controllers/auth_controller.dart';
 import 'register_screen.dart';
 import 'forgot_password_screen.dart';
 import '../widgets/common/custom_text_field.dart';
@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   // manages the authentication submission process
-  Future<void> _handleLogin(AuthProvider authProvider, bool isDarkMode) async {
+  Future<void> _handleLogin(AuthController authProvider, bool isDarkMode) async {
     // validates that both fields are populated
     if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
       QuickAlert.show(
@@ -140,8 +140,8 @@ class _LoginScreenState extends State<LoginScreen> {
         right: false,
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Consumer<AuthProvider>(
-            builder: (context, authProvider, child) {
+          child: Consumer<AuthController>(
+        builder: (context, authProvider, child) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
