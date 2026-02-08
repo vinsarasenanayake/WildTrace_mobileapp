@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../../../services/api/index.dart';
 
-// cached network image
 class CachedImage extends StatelessWidget {
   final String imageUrl;
   final double? width;
@@ -26,7 +25,6 @@ class CachedImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // resolve url
     final resolvedUrl = BaseApiService.resolveImageUrl(imageUrl);
 
     if (resolvedUrl.isEmpty) {
@@ -46,7 +44,6 @@ class CachedImage extends StatelessWidget {
     );
   }
 
-  // loading state
   Widget _buildPlaceholder() {
     return Container(
       width: width,
@@ -58,7 +55,6 @@ class CachedImage extends StatelessWidget {
     );
   }
 
-  // error state
   Widget _buildErrorWidget() {
     return Container(
       width: width,

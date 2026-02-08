@@ -4,7 +4,6 @@ import '../models/cart_item.dart';
 import '../models/product.dart';
 import '../services/api/index.dart';
 
-// orders controller
 class OrdersController with ChangeNotifier {
   final OrderApiService _apiService = OrderApiService();
   final List<Order> _orders = [];
@@ -16,7 +15,6 @@ class OrdersController with ChangeNotifier {
   bool get isEmpty => _orders.isEmpty;
   bool get isLoading => _isLoading;
 
-  // update auth data
   void updateToken(String? newToken, String? userId) {
     if (newToken != _token) {
       _token = newToken;
@@ -34,7 +32,6 @@ class OrdersController with ChangeNotifier {
     }
   }
 
-  // place order
   Future<bool> placeOrder({
     required String userId,
     required List<CartItem> items,
@@ -61,6 +58,7 @@ class OrdersController with ChangeNotifier {
         'shipping_address': shippingAddress ?? 'No address provided',
         'payment_status': paymentStatus,
       };
+      // send order to server
       final response = await _apiService.placeOrder(orderData, tokenToUse);
       final orderDate = DateTime.now();
       
@@ -86,7 +84,6 @@ class OrdersController with ChangeNotifier {
     }
   }
 
-  // cancel order
   Future<bool> cancelOrder(String orderId) async {
     if (_token == null) return false;
     try {
@@ -104,7 +101,6 @@ class OrdersController with ChangeNotifier {
     }
   }
 
-  // update payment status
   Future<bool> updatePaymentStatus(String orderId, String status) async {
     if (_token == null) return false;
     try {
@@ -124,7 +120,6 @@ class OrdersController with ChangeNotifier {
     }
   }
 
-  // fetch order history
   Future<void> loadOrders(String userId, String token) async {
     _isLoading = true;
     notifyListeners();

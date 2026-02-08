@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../services/api/base_api_service.dart';
 
-// product card
 class ProductCard extends StatelessWidget {
-  // product info
   final String imageUrl;
   final String category;
   final String title;
   final String author;
   final String price;
 
-  // callbacks
   final VoidCallback? onTap;
   final bool isLiked;
   final VoidCallback? onLikeToggle;
@@ -28,7 +25,6 @@ class ProductCard extends StatelessWidget {
     this.onLikeToggle,
   });
 
-  // builds card
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -49,7 +45,6 @@ class ProductCard extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              // background image
               Image.network(
                 BaseApiService.resolveImageUrl(imageUrl),
                 fit: BoxFit.cover,

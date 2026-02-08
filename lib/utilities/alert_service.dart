@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:quickalert/quickalert.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// alerts service
 class AlertService {
   
-  // error alert
   static void showError({
     required BuildContext context,
     String title = 'Error',
@@ -31,7 +29,6 @@ class AlertService {
     );
   }
 
-  // warning alert
   static void showWarning({
     required BuildContext context,
     String title = 'Warning',
@@ -57,7 +54,6 @@ class AlertService {
     );
   }
 
-  // success alert
   static Future<void> showSuccess({
     required BuildContext context,
     String title = 'Success',
@@ -85,7 +81,6 @@ class AlertService {
     );
   }
 
-  // confirmation alert
   static void showConfirmation({
     required BuildContext context,
     String title = 'Confirm',
@@ -124,7 +119,6 @@ class AlertService {
     );
   }
 
-  // info alert
   static void showInfo({
     required BuildContext context,
     String title = 'Info',
@@ -150,7 +144,6 @@ class AlertService {
     );
   }
   
-  // custom alert
   static void showCustom({
     required BuildContext context,
     required Widget widget,

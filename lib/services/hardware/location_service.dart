@@ -1,16 +1,13 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
-// location service
 class LocationService {
-  // get current address
   Future<Map<String, String>?> getCurrentAddress() async {
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       throw Exception("Location services are disabled");
     }
 
-    // permissions
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -23,18 +20,15 @@ class LocationService {
       throw Exception("Location permission denied forever");
     }
 
-    // settings
     const LocationSettings locationSettings = LocationSettings(
       accuracy: LocationAccuracy.high,
       distanceFilter: 10,
     );
 
-    // fetch position
     Position position = await Geolocator.getCurrentPosition(
       locationSettings: locationSettings,
     );
 
-    // geocode
     List<Placemark> placemarks = await placemarkFromCoordinates(
       position.latitude,
       position.longitude,
@@ -43,7 +37,6 @@ class LocationService {
     if (placemarks.isNotEmpty) {
       Placemark place = placemarks.first;
 
-      // format address
       String street = place.street ?? '';
       String subLocality = place.subLocality ?? '';
       String locality = place.locality ?? '';

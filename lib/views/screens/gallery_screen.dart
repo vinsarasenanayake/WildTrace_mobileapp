@@ -12,7 +12,6 @@ import 'login_screen.dart';
 import 'package:quickalert/quickalert.dart';
 import '../../utilities/alert_service.dart';
 
-// gallery screen
 class GalleryScreen extends StatefulWidget {
   const GalleryScreen({super.key});
 
@@ -21,17 +20,14 @@ class GalleryScreen extends StatefulWidget {
 }
 
 class _GalleryScreenState extends State<GalleryScreen> {
-  // ui keys
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _filterKey = GlobalKey();
 
-  // page state
   int _currentPage = 1;
   final int _pageSize = 9;
   bool _showFiltersInLandscape = false;
 
-  // prompts for login
   Future<void> _showLoginRequiredAlert() async {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     AlertService.showCustom(
@@ -45,7 +41,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
           const SizedBox(height: 24),
           Row(
             children: [
-              // close button
               Expanded(
                 child: CustomButton(
                   text: 'LATER',
@@ -63,7 +58,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              // login button
               Expanded(
                 child: CustomButton(
                   text: 'LOGIN',
@@ -89,20 +83,16 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
-  // builds gallery screen
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    // data providers
     return Consumer3<ProductsController, FavoritesController, AuthController>(
       builder:
           (context, productsProvider, favoritesProvider, authProvider, child) {
             final products = productsProvider.filteredProducts;
 
-            // calculates offsets
             final int start = (_currentPage - 1) * _pageSize;
-            // validates page index
             if (start >= products.length && _currentPage > 1) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) setState(() => _currentPage = 1);
@@ -201,7 +191,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     ),
                   ),
                 ),
-                // status overlay
                 Positioned(
                   top: MediaQuery.of(context).padding.top + 10,
                   right: 20,
@@ -214,7 +203,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
-  // builds hero widget
   Widget _buildHero() {
     return const WildTraceHero(
       imagePath: 'assets/images/heroimagegallery.jpg',
@@ -227,7 +215,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
-  // scrolls to filters
   void _scrollToFilters() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_filterKey.currentContext != null) {
@@ -241,7 +228,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
           final scrollOffset =
               position.pixels +
               targetOffset -
-              100; // maintains visibility offset
+              100; 
 
           _scrollController.animateTo(
             scrollOffset.clamp(
@@ -256,13 +243,11 @@ class _GalleryScreenState extends State<GalleryScreen> {
     });
   }
 
-  // builds filter trigger
   Widget _buildFilterTrigger(bool isDarkMode) {
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
 
     if (isLandscape) {
-      // landscape filters
       return Consumer<ProductsController>(
         builder: (context, provider, child) {
           final Color txtColor = isDarkMode
@@ -271,7 +256,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
           final Color accentGreen = const Color(0xFF27AE60);
 
           if (_showFiltersInLandscape) {
-            // expanded toolbar
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
@@ -288,7 +272,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  // photographer filter
                   Expanded(
                     child: _buildHorizontalFilterItem(
                       'PHOTOGRAPHER',
@@ -303,7 +286,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // category filter
                   Expanded(
                     child: _buildHorizontalFilterItem(
                       'CATEGORY',
@@ -318,7 +300,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // sort filter
                   Expanded(
                     child: _buildHorizontalFilterItem(
                       'SORT BY',
@@ -335,7 +316,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // clear button
                   Expanded(
                     child: InkWell(
                       onTap: () {
@@ -371,7 +351,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
               ),
             );
           } else {
-            // compact filter button
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
               child: InkWell(
@@ -401,7 +380,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
         },
       );
     } else {
-      // drawer trigger
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         child: InkWell(
@@ -430,7 +408,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
     }
   }
 
-  // builds dropdown
   Widget _buildHorizontalFilterItem(
     String label,
     String value,
@@ -492,7 +469,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
-  // builds filter drawer
   Widget _buildFilterDrawer(
     BuildContext context,
     bool isDarkMode,
@@ -509,7 +485,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // header
             Padding(
               padding: const EdgeInsets.all(24),
               child: Text(
@@ -523,7 +498,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
               ),
             ),
             Divider(height: 1, color: txtColor.withAlpha((0.1 * 255).round())),
-            // filter list
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.all(24),
@@ -569,7 +543,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
               ),
             ),
             Divider(height: 1, color: txtColor.withAlpha((0.1 * 255).round())),
-            // clear button
             Padding(
               padding: const EdgeInsets.all(24),
               child: InkWell(
@@ -605,7 +578,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
-  // builds drawer item
   Widget _drawerFilterItem(
     String label,
     String value,
@@ -661,7 +633,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
-  // builds grid
   Widget _buildGrid(
     List<dynamic> pageItems,
     FavoritesController favoritesProvider,
@@ -698,7 +669,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 price: '\$${p.price.toStringAsFixed(2)}',
                 isLiked: isFavorite,
                 onLikeToggle: () {
-                  // check auth
                   if (authProvider.token == null) {
                     _showLoginRequiredAlert();
                   } else {
@@ -722,7 +692,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
-  // builds pagination
   Widget _buildPagination(bool isDarkMode, bool hasNext) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 40),
@@ -752,7 +721,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
-  // builds page button
   Widget _pageBtn(String label, bool active, VoidCallback onTap) {
     final Color color = Theme.of(context).brightness == Brightness.dark
         ? Colors.white
@@ -781,7 +749,6 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
-  // dispose
   @override
   void dispose() {
     _scrollController.dispose();

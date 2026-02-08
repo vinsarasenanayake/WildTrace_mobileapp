@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../common/common_widgets.dart';
 
-// photographer card
 class PhotographerCard extends StatelessWidget {
-  // details
   final String imagePath;
   final String name;
   final String role;
@@ -24,13 +22,11 @@ class PhotographerCard extends StatelessWidget {
     this.fallbackAsset,
   });
 
-  // builds card
   @override
   Widget build(BuildContext context) {
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
 
-    // card container
     return Container(
       height: isLandscape ? 320 : 520,
       width: double.infinity,
@@ -50,7 +46,6 @@ class PhotographerCard extends StatelessWidget {
                   ? Image.asset(fallbackAsset!, fit: BoxFit.cover)
                   : null,
               ),
-          // gradient overlay
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(

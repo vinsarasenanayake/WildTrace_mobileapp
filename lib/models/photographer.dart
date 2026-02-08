@@ -1,6 +1,5 @@
 import '../services/api/base_api_service.dart';
 
-// photographer model
 class Photographer {
   final String id;
   final String name;
@@ -20,7 +19,6 @@ class Photographer {
     required this.imageUrl,
   });
 
-  // from json
   factory Photographer.fromJson(Map<String, dynamic> json) {
     return Photographer(
       id: json['id'].toString(),

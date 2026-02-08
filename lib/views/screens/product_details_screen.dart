@@ -15,9 +15,7 @@ import '../screens/login_screen.dart';
 import 'package:quickalert/quickalert.dart';
 import '../../utilities/alert_service.dart';
 
-// product details screen
 class ProductDetailsScreen extends StatefulWidget {
-  // product
   final Product product;
 
   const ProductDetailsScreen({super.key, required this.product});
@@ -27,7 +25,6 @@ class ProductDetailsScreen extends StatefulWidget {
 }
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
-  // state
   String _selectedSize = '12 x 18 in';
   int _quantity = 1;
   double? _currentPrice;
@@ -36,13 +33,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   final List<String> _sizes = [];
   final ProductApiService _apiService = ProductApiService();
 
-  // init state
   @override
   void initState() {
     super.initState();
     _currentPrice = widget.product.price;
 
-    // gets frames
+    // get sizes from options
     if (widget.product.options != null &&
         widget.product.options!['frames'] != null) {
       final List frames = widget.product.options!['frames'];
@@ -53,21 +49,17 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       }
     }
 
-    // default sizes
     if (_sizes.isEmpty) {
       _sizes.addAll(['12 x 18 in', '18 x 24 in', '24 x 36 in', '40 x 60 in']);
     }
 
     _selectedSize = _sizes.first;
 
-    // fetches price
     _fetchPrice(_selectedSize);
 
-    // fetches details
     _fetchFullDetails();
   }
 
-  // fetches details
   Future<void> _fetchFullDetails() async {
     try {
       final authProvider = Provider.of<AuthController>(context, listen: false);
@@ -81,11 +73,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         });
       }
     } catch (e) {
-      // Handle error silently
     }
   }
 
-  // prompts for login
   Future<void> _showLoginRequiredAlert() async {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final isLandscape =
@@ -101,7 +91,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           SizedBox(height: isLandscape ? 8 : 24),
           Row(
             children: [
-              // close button
               Expanded(
                 child: CustomButton(
                   text: 'LATER',
@@ -119,7 +108,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              // login button
               Expanded(
                 child: CustomButton(
                   text: 'LOGIN',
@@ -145,7 +133,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  // calculates local price
   double? _calculateLocalPrice(String size) {
     if (widget.product.options != null &&
         widget.product.options!['frames'] != null) {
@@ -165,11 +152,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     return null;
   }
 
-  // fetches price
+  // update price on size change
   Future<void> _fetchPrice(String size) async {
     setState(() => _isPriceLoading = true);
 
-    // Try finding price locally first to avoid unnecessary API calls
+    // check local options first
     final localPrice = _calculateLocalPrice(size);
     if (localPrice != null) {
       if (mounted) {
@@ -204,7 +191,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // theme data
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     final isLandscape =
@@ -221,7 +207,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
-        // back button
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(
@@ -248,10 +233,8 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
         padding: const EdgeInsets.fromLTRB(24, 40, 24, 40),
         child: Column(
           children: [
-            // heading
             _buildHeading(textColor, isLandscape),
             SizedBox(height: isLandscape ? 24 : 48),
-            // responsive layout
             isLandscape
                 ? Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,7 +258,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ],
                   ),
             const SizedBox(height: 48),
-            // description layout
             isLandscape
                 ? Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,7 +275,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                     ],
                   ),
             const SizedBox(height: 60),
-            // similar works
             _buildSimilarWorks(textColor, isLandscape),
           ],
         ),
@@ -301,7 +282,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  // builds heading
   Widget _buildHeading(Color textColor, [bool isLandscape = false]) {
     return Column(
       children: [
@@ -321,7 +301,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
         ),
         const SizedBox(height: 24),
-        // metadata
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -346,7 +325,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  // builds meta label
   Widget _meta(String text) => Text(
     text,
     style: GoogleFonts.inter(
@@ -357,7 +335,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     ),
   );
 
-  // builds main image
   Widget _buildMainImage([bool isLandscape = false]) {
     return Container(
       height: 400,
@@ -378,7 +355,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  // builds purchase options
   Widget _buildPurchaseOptions(
     bool isDarkMode,
     Color textColor, [
@@ -411,7 +387,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ),
           ),
           const SizedBox(height: 8),
-          // price loader
           _isPriceLoading
               ? const SizedBox(
                   height: 44,
@@ -442,7 +417,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          // size selector
           isLandscape
               ? Row(
                   children: _sizes
@@ -513,7 +487,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
             ],
           ),
           const SizedBox(height: 32),
-          // action buttons
           Row(
             children: [
               Expanded(
@@ -524,19 +497,16 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       context,
                       listen: false,
                     );
-                    // check auth
                     if (!auth.isAuthenticated) {
                       _showLoginRequiredAlert();
                       return;
                     }
 
-                    // adds to cart
                     cartProvider.addToCart(
                       widget.product,
                       quantity: _quantity,
                       size: _selectedSize,
                     );
-                    // success alert
                     final bool isDarkMode =
                         Theme.of(context).brightness == Brightness.dark;
                     AlertService.showCustom(
@@ -551,7 +521,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                           SizedBox(height: isLandscape ? 8 : 24),
                           Row(
                             children: [
-                              // continue button
                               Expanded(
                                 child: CustomButton(
                                   text: 'CONTINUE',
@@ -566,12 +535,11 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                                       ? Colors.white
                                       : Colors.grey.shade800,
                                   onPressed: () {
-                                    Navigator.pop(context); // Close alert
+                                    Navigator.pop(context); 
                                   },
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              // view cart button
                               Expanded(
                                 child: CustomButton(
                                   text: 'VIEW CART',
@@ -610,7 +578,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  // builds size button
   Widget _sizeBtn(String size, bool isDarkMode, [bool isSmall = false]) {
     final bool sel = size == _selectedSize;
     return InkWell(
@@ -649,14 +616,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  // builds fav button
   Widget _favBtn() {
     return Consumer2<FavoritesController, AuthController>(
       builder: (context, favoritesProvider, authProvider, child) {
         final isLiked = favoritesProvider.isFavorite(widget.product.id);
         return InkWell(
           onTap: () {
-            // check auth
             if (!authProvider.isAuthenticated) {
               _showLoginRequiredAlert();
               return;
@@ -682,14 +647,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  // builds story
   Widget _buildStory(Color textColor, [bool isLandscape = false]) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionTitle(title: 'Behind the Lens', color: textColor),
         const SizedBox(height: 24),
-        // description
         Text(
           widget.product.description ??
               "Every photograph in our collection is a testament to the untamed beauty of the natural world, captured with patience and respect.",
@@ -700,7 +663,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           ),
         ),
         const SizedBox(height: 24),
-        // specs grid
         Builder(
           builder: (context) {
             final gridColumns = isLandscape
@@ -742,7 +704,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  // builds stat
   Widget _stat(String l, String v, Color c) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -766,7 +727,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     ],
   );
 
-  // builds photographer profile
   Widget _buildPhotographerProfile() {
     final product = _fullProduct ?? widget.product;
     return PhotographerCard(
@@ -784,13 +744,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
-  // builds similar works
+  // recommendation logic
   Widget _buildSimilarWorks(Color textColor, [bool isLandscape = false]) {
     return Consumer2<ProductsController, FavoritesController>(
       builder: (context, productsProvider, favoritesProvider, child) {
         final int itemCount = isLandscape ? 6 : 4;
 
-        // gets related products
         final List<Product> sameCategory = productsProvider.products
             .where(
               (p) =>
@@ -828,7 +787,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            // adaptive grid for recommendations
             Builder(
               builder: (context) {
                 final gridColumns = isLandscape

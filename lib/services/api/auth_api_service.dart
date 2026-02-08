@@ -1,6 +1,5 @@
 import 'base_api_service.dart';
 
-// auth api service
 class AuthApiService extends BaseApiService {
   Future<Map<String, dynamic>> login(String email, String password) async {
     final response = await post('/login', body: {
@@ -15,6 +14,7 @@ class AuthApiService extends BaseApiService {
           userData['role_id']?.toString() == '1' ||
           userData['is_admin'] == true ||
           userData['is_admin']?.toString() == '1';
+      // prevent admin access on mobile
       if (isAdmin) {
         throw Exception('Admin dashboard access restricted to web platform.');
       }

@@ -7,7 +7,6 @@ import 'views/screens/cart_screen.dart';
 import 'views/screens/profile_screen.dart';
 import 'views/widgets/common/common_widgets.dart';
 
-// app wrapper
 class MainWrapper extends StatelessWidget {
   const MainWrapper({super.key});
 
@@ -15,7 +14,6 @@ class MainWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     final navProvider = Provider.of<NavigationController>(context);
     
-    // select screen
     Widget getBody() {
       switch (navProvider.selectedIndex) {
         case 0:

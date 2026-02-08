@@ -3,7 +3,6 @@ import '../models/cart_item.dart';
 import '../models/product.dart';
 import '../services/api/index.dart';
 
-// cart controller
 class CartController with ChangeNotifier {
   final CartApiService _apiService = CartApiService();
   final List<CartItem> _items = [];
@@ -20,12 +19,10 @@ class CartController with ChangeNotifier {
   bool get isEmpty => _items.isEmpty;
   bool get isLoading => _isLoading;
 
-  // reset after order
   Future<void> resetAfterOrder({String? token}) async {
     await clearCart(token: token);
   }
 
-  // update token
   void updateToken(String? newToken) {
     if (newToken != _token) {
       _token = newToken;
@@ -35,12 +32,12 @@ class CartController with ChangeNotifier {
     }
   }
 
-  // fetch cart data
   Future<void> fetchCart(String token) async {
     _isLoading = true;
     notifyListeners();
     try {
       final List<dynamic> data = await _apiService.fetchCart(token);
+      // parse api response to models
       _items.clear();
       for (var item in data) {
          final productData = item['product'] ?? item;
@@ -63,7 +60,6 @@ class CartController with ChangeNotifier {
     }
   }
 
-  // add to cart
   Future<void> addToCart(Product product, {int quantity = 1, String? size, String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
@@ -76,7 +72,6 @@ class CartController with ChangeNotifier {
     }
   }
 
-  // remove from cart
   Future<void> removeFromCart(String cartItemId, {String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
@@ -89,7 +84,6 @@ class CartController with ChangeNotifier {
     }
   }
 
-  // update quantity
   Future<void> updateQuantity(String cartItemId, int quantity, {String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
@@ -106,12 +100,10 @@ class CartController with ChangeNotifier {
     }
   }
 
-  // increment quantity
   Future<void> incrementQuantity(CartItem item, {String? token}) async {
     if (item.id != null) await updateQuantity(item.id!, item.quantity + 1, token: token);
   }
 
-  // decrement quantity
   Future<void> decrementQuantity(CartItem item, {String? token}) async {
     if (item.id != null) {
       if (item.quantity > 1) {
@@ -122,7 +114,6 @@ class CartController with ChangeNotifier {
     }
   }
 
-  // clear cart
   Future<void> clearCart({String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
@@ -135,10 +126,8 @@ class CartController with ChangeNotifier {
     }
   }
 
-  // check if in cart
   bool isInCart(String productId) => _items.any((item) => item.product.id == productId);
 
-  // get quantity
   int getQuantity(String productId) {
     final index = _items.indexWhere((item) => item.product.id == productId);
     return index >= 0 ? _items[index].quantity : 0;

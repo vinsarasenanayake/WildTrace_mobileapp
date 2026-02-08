@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../common/common_widgets.dart';
 
-// order card
 class OrderCard extends StatelessWidget {
-  // order info
   final String status;
   final String orderId;
   final String date;
   final String total;
 
-  // callbacks
   final VoidCallback onPayNow;
   final VoidCallback onCancel;
   final List<Widget> items;
@@ -28,25 +25,22 @@ class OrderCard extends StatelessWidget {
     this.estimatedDelivery,
   });
 
-  // status color helper
   Color _getStatusColor(String status) {
     status = status.trim().toUpperCase();
     if (['DECLINED', 'CANCELLED', 'FAILED'].contains(status)) {
-      return const Color(0xFFE11D48); // Red
+      return const Color(0xFFE11D48); 
     } else if (['DELIVERED', 'PAID', 'CONFIRMED', 'SUCCESS'].contains(status)) {
-      return const Color(0xFF16A34A); // Green
+      return const Color(0xFF16A34A); 
     }
-    return const Color(0xFFF59E0B); // Amber (Pending/Processing)
+    return const Color(0xFFF59E0B); 
   }
 
-  // builds card
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color cardColor = isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
 
-    // button visibility logic
     final bool isPending = status.toUpperCase() == 'PENDING';
     final bool showButtons = [
       'PENDING',
@@ -70,11 +64,9 @@ class OrderCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // header row
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // left column: status, id, date
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,7 +94,7 @@ class OrderCard extends StatelessWidget {
                     Text(
                       date,
                       style: GoogleFonts.playfairDisplay(
-                        fontSize: 16, // Slightly smaller to fit layout
+                        fontSize: 16, 
                         fontWeight: FontWeight.w600,
                         color: textColor,
                       ),
@@ -123,7 +115,6 @@ class OrderCard extends StatelessWidget {
                 ),
               ),
 
-              // right column: total price + buttons
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -155,7 +146,6 @@ class OrderCard extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  // buttons container
                 ],
               ),
             ],
@@ -201,7 +191,7 @@ class OrderCard extends StatelessWidget {
                           : const Color(0xFFF5F5F4),
                       foregroundColor: isPending
                           ? const Color(0xFFEF4444)
-                          : const Color(0xFF4B5563), // Darker Grey for visibility
+                          : const Color(0xFF4B5563), 
                       onPressed: isPending ? onCancel : null,
                       fontSize: 10,
                     ),

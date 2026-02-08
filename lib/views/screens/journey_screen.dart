@@ -6,14 +6,11 @@ import '../../utilities/responsive_helper.dart';
 import '../widgets/common/common_widgets.dart';
 import '../widgets/cards/card_widgets.dart';
 
-// journey screen
 class JourneyScreen extends StatelessWidget {
   const JourneyScreen({super.key});
 
-  // builds journey screen
   @override
   Widget build(BuildContext context) {
-    // theme data
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color backgroundColor = isDarkMode
         ? Colors.black
@@ -66,7 +63,6 @@ class JourneyScreen extends StatelessWidget {
     );
   }
 
-  // builds hero section
   Widget _buildHeroSection() {
     return Builder(
       builder: (context) {
@@ -90,11 +86,9 @@ class JourneyScreen extends StatelessWidget {
     );
   }
 
-  // builds timeline section
   Widget _buildTimelineSection() {
     return Consumer<ContentController>(
       builder: (context, contentProvider, child) {
-        // loading check
         if (contentProvider.isLoading && contentProvider.milestones.isEmpty) {
           return const Center(
             child: Padding(
@@ -110,7 +104,6 @@ class JourneyScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
           child: Stack(
             children: [
-              // guide line
               Positioned(
                 left: 4,
                 top: 20,
@@ -120,7 +113,6 @@ class JourneyScreen extends StatelessWidget {
                   color: Colors.grey.withAlpha((0.3 * 255).round()),
                 ),
               ),
-              // milestones list
               Column(
                 children: milestones
                     .map(
@@ -139,7 +131,6 @@ class JourneyScreen extends StatelessWidget {
     );
   }
 
-  // builds timeline item
   Widget _buildTimelineItem({
     required String year,
     required String title,
@@ -150,7 +141,6 @@ class JourneyScreen extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // circle indicator
           Container(
             margin: const EdgeInsets.only(top: 5),
             width: 9,
@@ -161,7 +151,6 @@ class JourneyScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 24),
-          // milestone card
           Expanded(
             child: MilestoneCard(
               year: year,
@@ -174,7 +163,6 @@ class JourneyScreen extends StatelessWidget {
     );
   }
 
-  // builds team section
   Widget _buildTeamSection() {
     return Container(
       width: double.infinity,
@@ -184,7 +172,6 @@ class JourneyScreen extends StatelessWidget {
         children: [
           const SectionTitle(title: 'PHOTOGRAPHERS'),
           const SizedBox(height: 16),
-          // heading
           Text(
             'The Eyes Behind the Lens',
             style: GoogleFonts.playfairDisplay(
@@ -195,7 +182,6 @@ class JourneyScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          // description
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40),
             child: Text(
@@ -208,7 +194,6 @@ class JourneyScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 40),
-          // photographers list
           Builder(
             builder: (context) {
               final isLandscape = ResponsiveHelper.isLandscape(context);
@@ -234,7 +219,6 @@ class JourneyScreen extends StatelessWidget {
                       );
                     }
 
-                    // renders list
                     return ListView.builder(
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -242,7 +226,6 @@ class JourneyScreen extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final p = photographers[index];
                         
-                        // Map photographers to local assets using names or index for variety
                         final List<String> localAssets = [
                           'assets/images/teammember1.jpg',
                           'assets/images/teammember2.jpg',
@@ -252,7 +235,6 @@ class JourneyScreen extends StatelessWidget {
                         
                         String imagePath = localAssets[index % localAssets.length];
                         
-                        // Refined mapping for specific known names
                         if (p.name.contains('Vinsara')) {
                           imagePath = 'assets/images/teammember1.jpg';
                         } else if (p.name.contains('Isuru')) {
@@ -287,7 +269,6 @@ class JourneyScreen extends StatelessWidget {
     );
   }
 
-  // builds impact section
   Widget _buildImpactSection() {
     return Builder(
       builder: (context) {
@@ -315,7 +296,6 @@ class JourneyScreen extends StatelessWidget {
               children: [
                 const SectionTitle(title: 'COMMUNITY IMPACT'),
                 const SizedBox(height: 16),
-                // title
                 Text(
                   isLandscape
                       ? 'Empowering Locals, Protecting Nature'
@@ -330,7 +310,6 @@ class JourneyScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // description
                 Text(
                   'We believe that true conservation happens when local communities are\nempowered. WildTrace works directly with local stakeholders to ensure the survival\nof our planet\'s ecosystems.',
                   textAlign: TextAlign.center,
@@ -341,7 +320,6 @@ class JourneyScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 40),
-                // grid content
                 Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: isLandscape ? 60 : 0,
@@ -376,7 +354,6 @@ class JourneyScreen extends StatelessWidget {
     );
   }
 
-  // builds impact card
   Widget _buildImpactCard(String text, bool isLandscape) {
     return Container(
       padding: EdgeInsets.symmetric(
@@ -395,7 +372,6 @@ class JourneyScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // check icon
           Container(
             padding: EdgeInsets.all(isLandscape ? 3 : 6),
             decoration: const BoxDecoration(
@@ -409,7 +385,6 @@ class JourneyScreen extends StatelessWidget {
             ),
           ),
           SizedBox(width: isLandscape ? 6 : 12),
-          // card content
           Flexible(
             child: Text(
               text,

@@ -1,7 +1,6 @@
 import 'base_api_service.dart';
 import '../../models/product.dart';
 
-// product api service
 class ProductApiService extends BaseApiService {
   Future<List<Product>> fetchProducts({String? token}) async {
     final data = await get('/products', token: token);

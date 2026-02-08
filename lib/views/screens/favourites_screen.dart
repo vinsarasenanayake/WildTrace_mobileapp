@@ -9,14 +9,11 @@ import '../widgets/cards/card_widgets.dart';
 import '../widgets/common/common_widgets.dart';
 import '../../controllers/navigation_controller.dart';
 
-// favorites screen
 class FavouritesScreen extends StatelessWidget {
   const FavouritesScreen({super.key});
 
-  // builds favorites screen
   @override
   Widget build(BuildContext context) {
-    // theme data
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color backgroundColor = isDarkMode ? Colors.black : const Color(0xFFF9FBF9);
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
@@ -26,7 +23,6 @@ class FavouritesScreen extends StatelessWidget {
       body: SafeArea(
         bottom: false,
         child: RefreshIndicator(
-          // refresh handler
         onRefresh: () async {
           final authProvider = Provider.of<AuthController>(context, listen: false);
           final favoritesProvider = Provider.of<FavoritesController>(context, listen: false);
@@ -38,7 +34,6 @@ class FavouritesScreen extends StatelessWidget {
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            // app bar
             SliverAppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
@@ -72,12 +67,10 @@ class FavouritesScreen extends StatelessWidget {
                 ),
               ),
             ),
-            // builds favorites list
             Consumer<FavoritesController>(
               builder: (context, favoritesProvider, child) {
                 final favorites = favoritesProvider.favorites;
                 
-                // empty state feedback
                 if (favorites.isEmpty) {
                   return SliverFillRemaining(
                     hasScrollBody: false,
@@ -85,12 +78,10 @@ class FavouritesScreen extends StatelessWidget {
                   );
                 }
                 
-                // grid params
                 final crossAxisCount = ResponsiveHelper.getGridCrossAxisCount(context, portrait: 2);
                 final spacing = ResponsiveHelper.getSpacing(context, portrait: 16);
                 final aspectRatio = ResponsiveHelper.getGridChildAspectRatio(context, portrait: 0.7);
                 
-                // renders grid
                 return SliverPadding(
                   padding: const EdgeInsets.all(24),
                   sliver: SliverGrid(
@@ -112,7 +103,6 @@ class FavouritesScreen extends StatelessWidget {
                           isLiked: true,
                           onLikeToggle: () => favoritesProvider.toggleFavorite(product),
                           onTap: () {
-                             // navigates to details
                              Navigator.push(
                                 context, 
                                 MaterialPageRoute(builder: (_) => ProductDetailsScreen(product: product))
@@ -133,7 +123,6 @@ class FavouritesScreen extends StatelessWidget {
     );
   }
 
-  // builds empty state
   Widget _buildEmptyState(BuildContext context, Color textColor) {
     return Center(
       child: Column(
@@ -158,7 +147,6 @@ class FavouritesScreen extends StatelessWidget {
             )
           ),
           const SizedBox(height: 24),
-          // explore button
           SizedBox(
             width: 220,
             child: CustomButton(

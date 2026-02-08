@@ -1,6 +1,5 @@
 import '../services/api/base_api_service.dart';
 
-// product model
 class Product {
   final String id;
   final String imageUrl;
@@ -36,7 +35,6 @@ class Product {
     this.options,
   });
 
-  // copy with
   Product copyWith({
     String? id,
     String? imageUrl,
@@ -74,7 +72,6 @@ class Product {
     );
   }
 
-  // to json
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -96,7 +93,6 @@ class Product {
     };
   }
 
-  // from json
   factory Product.fromJson(Map<String, dynamic> json) {
     try {
       String? yearValue;

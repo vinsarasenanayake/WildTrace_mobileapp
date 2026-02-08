@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../controllers/hardware_controller.dart';
 
-// battery status indicator
 class BatteryStatusIndicator extends StatelessWidget {
   const BatteryStatusIndicator({super.key});
 

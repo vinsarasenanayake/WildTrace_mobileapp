@@ -1,6 +1,5 @@
 import 'base_api_service.dart';
 
-// order api service
 class OrderApiService extends BaseApiService {
   Future<Map<String, dynamic>> placeOrder(Map<String, dynamic> orderData, String token) async {
     return await post('/orders', body: orderData, token: token);

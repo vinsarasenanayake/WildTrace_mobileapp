@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../common/common_widgets.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../../../controllers/hardware_controller.dart';
 import '../../../utilities/alert_service.dart';
+import '../common/common_widgets.dart';
 
-// user form
 class UserForm extends StatefulWidget {
-  // controllers
   final TextEditingController nameController;
   final TextEditingController emailController;
   final TextEditingController contactController;
@@ -20,7 +18,6 @@ class UserForm extends StatefulWidget {
   final TextEditingController? passwordController;
   final TextEditingController? confirmPasswordController;
 
-  // form config
   final String addressLabel;
   final String contactLabel;
   final bool isPasswordObscure;
@@ -56,10 +53,8 @@ class UserForm extends StatefulWidget {
 }
 
 class _UserFormState extends State<UserForm> {
-  // location state
   Country _selectedCountry = Country.parse('LK');
 
-  // detects location
   Future<void> _detectLocation() async {
     final hw = Provider.of<HardwareController>(context, listen: false);
 
@@ -103,12 +98,10 @@ class _UserFormState extends State<UserForm> {
     }
   }
 
-  // builds form
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    // define fields
     final nameField = CustomTextField(
       label: 'FULL NAME',
       controller: widget.nameController,
@@ -340,7 +333,6 @@ class _UserFormState extends State<UserForm> {
       );
     }
 
-    // row helper
     Widget row(Widget a, Widget b) => Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

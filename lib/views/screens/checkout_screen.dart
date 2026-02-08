@@ -16,7 +16,6 @@ import 'package:intl/intl.dart' as intl;
 import '../../models/order.dart';
 
 
-// checkout screen
 class CheckoutScreen extends StatefulWidget {
   final Order? pendingOrder;
   const CheckoutScreen({super.key, this.pendingOrder});
@@ -26,7 +25,6 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  // controllers
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _contactController;
@@ -36,7 +34,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   late TextEditingController _countryController;
   bool _isPaying = false;
 
-  // init state
   @override
   void initState() {
     super.initState();
@@ -53,7 +50,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     _countryController = TextEditingController(text: user?.country ?? '');
   }
 
-  // dispose
   @override
   void dispose() {
     _nameController.dispose();
@@ -66,10 +62,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     super.dispose();
   }
 
-  // builds checkout screen
   @override
   Widget build(BuildContext context) {
-    // theme data
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     final isLandscape =
@@ -86,7 +80,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             elevation: 0,
             scrolledUnderElevation: 0,
             surfaceTintColor: Colors.transparent,
-            // back button
             leading: GestureDetector(
               onTap: () => Navigator.pop(context),
               child: Container(
@@ -121,7 +114,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ? widget.pendingOrder!.total 
                   : cartProvider.total;
 
-              // checks if empty
               if (cartItems.isEmpty) {
                 return Center(
                   child: Text(
@@ -131,7 +123,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 );
               }
 
-              // shipping form
               final shippingDetailsWidget = Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -172,7 +163,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
 
 
-              // order summary
               final orderSummaryWidget = OrderSummaryCard(
                 title: 'Order Review',
                 items: cartItems
@@ -190,7 +180,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 totalValue: '\$${totalAmount.toStringAsFixed(2)}',
                 primaryButtonLabel: 'PROCEED TO PAYMENT',
                 isPrimaryEnabled: !_isPaying,
-                // payment flow
                 primaryButtonOnTap: () async {
                   final authProvider = Provider.of<AuthController>(
                     context,
@@ -199,7 +188,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   final user = authProvider.currentUser;
                   final token = authProvider.token;
 
-                  // check auth
                   if (user == null || token == null) {
                     AlertService.showWarning(
                       context: context,
@@ -209,7 +197,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     return;
                   }
 
-                  // stripe start
                   try {
                     setState(() => _isPaying = true);
                     await StripeService.instance.makePayment(
@@ -217,7 +204,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       currency: 'USD',
                       context: context,
                       onSuccess: () async {
-                        // loading dialog
                         showDialog(
                           context: context,
                           barrierDismissible: false,
@@ -229,13 +215,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         bool success = false;
 
                         if (isPendingPayment) {
-                          // updates status
                           success = await ordersProvider.updatePaymentStatus(
                              widget.pendingOrder!.id, 
                              'paid'
                           );
                         } else {
-                          // places order
                           success = await ordersProvider.placeOrder(
                             userId: user.id,
                             items: cartProvider.items,
@@ -249,12 +233,10 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           );
                         }
 
-                        // closes loading
                         if (context.mounted) {
                           Navigator.of(context).pop();
                         }
 
-                        // handles result
                         if (success) {
                           if (!isPendingPayment) {
                              await cartProvider.resetAfterOrder(token: token);
@@ -269,7 +251,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               'MMMM dd, yyyy',
                             ).format(estimatedDate);
 
-                            // success alert
                             AlertService.showSuccess(
                               context: context,
                               title: 'Order Placed!',
@@ -277,9 +258,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   'Order placed successfully! \nEstimated Delivery: $formattedDate',
                               confirmBtnText: 'GO TO ORDER HISTORY',
                               onConfirmBtnTap: () {
-                                // close alert
                                 Navigator.of(context).pop();
-                                // nav to history
                                 Navigator.of(context).pushReplacement(
                                   MaterialPageRoute(
                                     builder: (context) =>
@@ -323,9 +302,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       confirmBtnText: 'Yes, Cancel',
                       cancelBtnText: 'No',
                       onConfirm: () async {
-                        Navigator.pop(context); // Close alert
+                        Navigator.pop(context); 
 
-                        // loading dialog
                         showDialog(
                           context: context,
                           barrierDismissible: false,
@@ -349,7 +327,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                            );
 
                            if (context.mounted) {
-                             Navigator.pop(context); // closes loading
+                             Navigator.pop(context); 
                              if (success) {
                                 await cartProvider.clearCart();
                                 Navigator.pushReplacement(
@@ -361,7 +339,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                              }
                            }
                         } else {
-                           if(context.mounted) Navigator.pop(context); // closes loading
+                           if(context.mounted) Navigator.pop(context); 
                         }
                       },
                       onCancel: () => Navigator.pop(context),
@@ -373,7 +351,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     'You will be redirected to Stripe\'s secure payment page to complete your purchase.',
               );
 
-              // scroll layout
               return SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24.0,
@@ -381,7 +358,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
                 child: Column(
                   children: [
-                    // header
                     const SectionTitle(
                       title: 'FINAL STEP',
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -398,7 +374,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
                     const SizedBox(height: 40),
 
-                    // responsive content
                     isLandscape
                         ? Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,7 +391,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             ],
                           ),
 
-                    // spacing
                     const SizedBox(height: 40),
                   ],
                 ),

@@ -15,14 +15,11 @@ import 'controllers/hardware_controller.dart';
 import 'utilities/app_theme.dart';
 import 'views/screens/splash_screen.dart';
 
-// entry point
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // setup env
   await dotenv.load(fileName: ".env");
 
-  // payment config
   try {
     Stripe.publishableKey = (dotenv.env['STRIPE_KEY'] ?? '').trim();
     await Stripe.instance.applySettings();
@@ -33,7 +30,6 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        // providers
         ChangeNotifierProvider(
           create: (_) => NavigationController(),
         ),
@@ -65,7 +61,6 @@ void main() async {
   );
 }
 
-// root widget
 class WildTraceApp extends StatelessWidget {
   const WildTraceApp({super.key});
 

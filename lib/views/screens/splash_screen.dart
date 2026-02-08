@@ -6,7 +6,6 @@ import '../../controllers/content_controller.dart';
 import '../../controllers/hardware_controller.dart';
 import '../../main_wrapper.dart';
 
-// splash screen
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -15,17 +14,14 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  // init state
   @override
   void initState() {
     super.initState();
     _navigateToHome();
   }
 
-  // start app
   void _navigateToHome() async {
     try {
-      // wait for auth
       final authProvider = Provider.of<AuthController>(context, listen: false);
       int retryCount = 0;
       while (authProvider.isLoading && retryCount < 20) {
@@ -33,27 +29,22 @@ class _SplashScreenState extends State<SplashScreen> {
         retryCount++;
       }
 
-      // init hardware
       Provider.of<HardwareController>(context, listen: false).initHardware();
 
-      // fetch data
       final productsProvider = Provider.of<ProductsController>(context, listen: false);
       final contentProvider = Provider.of<ContentController>(context, listen: false);
       
       final fetchFuture = productsProvider.fetchProducts();
       final contentFuture = contentProvider.fetchContent();
       
-      // splash delay
       final waitFuture = Future.delayed(const Duration(milliseconds: 1000));
       
-      // wait for data
       await Future.wait([
         fetchFuture.timeout(const Duration(seconds: 10), onTimeout: () {}), 
         contentFuture.timeout(const Duration(seconds: 10), onTimeout: () {}),
         waitFuture
       ]);
 
-      // navigation
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -61,7 +52,6 @@ class _SplashScreenState extends State<SplashScreen> {
         );
       }
     } catch (e) {
-      // error fallback
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -79,7 +69,6 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // logo
             Image.asset(
               'assets/images/logo.png',
               height: 120,
@@ -90,7 +79,6 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            // title
             const Text(
               'WILD TRACE',
               style: TextStyle(
@@ -101,7 +89,6 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            // subtitle
             const Text(
               'UNTAMED • TIMELESS',
               style: TextStyle(
@@ -111,7 +98,6 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             const SizedBox(height: 48),
-            // loader
             const SizedBox(
               width: 40,
               height: 40,

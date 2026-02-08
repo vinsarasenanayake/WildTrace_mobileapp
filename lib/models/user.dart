@@ -1,4 +1,3 @@
-// user model
 class UserModel {
   final String id;
   final String name;
@@ -22,7 +21,6 @@ class UserModel {
     this.role,
   });
 
-  // copy with
   UserModel copyWith({
     String? id,
     String? name,
@@ -47,7 +45,6 @@ class UserModel {
     );
   }
 
-  // to json
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -62,7 +59,6 @@ class UserModel {
     };
   }
 
-  // from json
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: (json['id'] ?? '').toString(),

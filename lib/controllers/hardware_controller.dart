@@ -5,10 +5,8 @@ import '../services/hardware/battery_service.dart';
 import '../services/hardware/location_service.dart';
 import '../services/hardware/light_service.dart';
 
-// hardware controller
 class HardwareController extends ChangeNotifier {
 
-  // constants
   static const int batteryHigh = 80;
   static const int batteryMedium = 60;
   static const int batteryLow = 40;
@@ -17,24 +15,21 @@ class HardwareController extends ChangeNotifier {
   static const double lightSunny = 1000;
   static const double lightBright = 100;
   static const double lightTwilight = 10;
-  static const double lightDark = 500; // for color threshold
+  static const double lightDark = 500;
 
   final BatteryService _batteryService = BatteryService();
   final LocationService _locationService = LocationService();
   final LightService _lightService = LightService();
 
-  // state
   int _batteryLevel = -1;
   BatteryState _batteryState = BatteryState.unknown;
   bool _isDetectingLocation = false;
   double _luxValue = 0;
 
-  // subscriptions
   StreamSubscription<BatteryState>? _batterySubscription;
   StreamSubscription<double>? _lightSubscription;
 
 
-  // getters
   int get batteryLevel => _batteryLevel;
   BatteryState get batteryState => _batteryState;
   bool get isCharging => _batteryState == BatteryState.charging;
@@ -72,7 +67,6 @@ class HardwareController extends ChangeNotifier {
 
   HardwareController();
 
-  // init hardware
   void initHardware() async {
     try {
       await updateBattery();
@@ -84,7 +78,6 @@ class HardwareController extends ChangeNotifier {
         updateBattery();
       },
       onError: (_) {
-        // handle stream error gracefully
         _batteryState = BatteryState.unknown;
         notifyListeners();
       },
@@ -96,14 +89,12 @@ class HardwareController extends ChangeNotifier {
         notifyListeners();
       },
       onError: (_) {
-        // handle stream error gracefully
         _luxValue = 0;
         notifyListeners();
       },
     );
   }
 
-  // update battery
   Future<void> updateBattery() async {
     try {
       final info = await _batteryService.getBatteryInfo();
@@ -113,7 +104,6 @@ class HardwareController extends ChangeNotifier {
     } catch (_) {}
   }
 
-  // detect location
   Future<Map<String, String>?> detectLocation() async {
     _isDetectingLocation = true;
     notifyListeners();
@@ -129,8 +119,6 @@ class HardwareController extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-
 
   @override
   void dispose() {

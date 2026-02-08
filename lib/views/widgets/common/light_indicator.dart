@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../controllers/hardware_controller.dart';
 
-// light status indicator
 class LightStatusIndicator extends StatelessWidget {
   const LightStatusIndicator({super.key});
 

@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// button types
 enum CustomButtonType { primary, secondary, ghost, destructive }
 
-// custom button
 class CustomButton extends StatelessWidget {
-  // config
   final String text;
   final VoidCallback? onPressed;
   final CustomButtonType type;
   final bool isFullWidth;
 
-  // styles
   final Color? backgroundColor;
   final Color? foregroundColor;
   final double verticalPadding;
@@ -36,7 +32,6 @@ class CustomButton extends StatelessWidget {
     this.iconSize = 20,
   });
 
-  // builds button
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -44,7 +39,6 @@ class CustomButton extends StatelessWidget {
     Color fg;
     BorderSide border = BorderSide.none;
 
-    // apply type styles
     switch (type) {
       case CustomButtonType.primary:
         bg =
@@ -79,14 +73,12 @@ class CustomButton extends StatelessWidget {
       ),
       elevation: 0,
       splashFactory: NoSplash.splashFactory,
-      enableFeedback: false, // Disable feedback/vibrations
+      enableFeedback: false, 
     ).copyWith(
       overlayColor: WidgetStateProperty.all(Colors.transparent),
-      // fix animations
       animationDuration: Duration.zero,
     );
 
-    // button content
     Widget child = Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,

@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../common/common_widgets.dart';
 
-// cart item card
 class CartItemCard extends StatelessWidget {
-  // product info
   final String image;
   final String category;
   final String title;
@@ -12,7 +10,6 @@ class CartItemCard extends StatelessWidget {
   final int quantity;
   final String? size;
 
-  // callbacks
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
   final VoidCallback onDelete;
@@ -32,14 +29,12 @@ class CartItemCard extends StatelessWidget {
     required this.onDismissed,
   });
 
-  // builds card
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     final Color cardBg = isDarkMode ? const Color(0xFF1E1E1E) : Colors.white;
 
-    // card container
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -55,7 +50,6 @@ class CartItemCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // image
           CachedImage(
             imageUrl: image,
             width: 100,
@@ -64,7 +58,6 @@ class CartItemCard extends StatelessWidget {
             borderRadius: 16,
           ),
           const SizedBox(width: 16),
-          // details and controls
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,7 +108,6 @@ class CartItemCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 8),
-                // price and quantity
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [

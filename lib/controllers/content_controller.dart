@@ -3,7 +3,6 @@ import '../models/photographer.dart';
 import '../models/milestone.dart';
 import '../services/api/index.dart';
 
-// content controller
 class ContentController with ChangeNotifier {
   final ContentApiService _apiService = ContentApiService();
   List<Photographer> _photographers = [];
@@ -14,7 +13,6 @@ class ContentController with ChangeNotifier {
   List<Milestone> get milestones => List.unmodifiable(_milestones);
   bool get isLoading => _isLoading;
 
-  // fetch data
   Future<void> fetchContent() async {
     _isLoading = true;
     notifyListeners();

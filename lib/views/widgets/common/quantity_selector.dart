@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// quantity selector
 class QuantitySelector extends StatelessWidget {
-  // state and callbacks
   final int quantity;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
@@ -15,7 +13,6 @@ class QuantitySelector extends StatelessWidget {
     required this.onDecrement,
   });
 
-  // builds selector
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -56,7 +53,6 @@ class QuantitySelector extends StatelessWidget {
     );
   }
 
-  // builds button
   Widget _buildButton(IconData icon, VoidCallback onTap, bool isDarkMode) {
     return InkWell(
       onTap: ((icon == Icons.remove && quantity <= 1) ? null : onTap),

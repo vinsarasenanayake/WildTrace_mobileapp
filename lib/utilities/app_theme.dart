@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// application theme configuration
 class AppTheme {
-  // primary brand color
   static const Color primaryGreen = Color(0xFF1B4332);
 
-  // light theme definition
   static ThemeData get lightTheme => ThemeData(
         useMaterial3: true,
         splashColor: Colors.transparent,
@@ -25,7 +22,6 @@ class AppTheme {
         iconButtonTheme: _iconButtonTheme,
       );
 
-  // dark theme definition
   static ThemeData get darkTheme => ThemeData(
         useMaterial3: true,
         splashColor: Colors.transparent,
@@ -46,7 +42,6 @@ class AppTheme {
         iconButtonTheme: _iconButtonTheme,
       );
 
-  // button styles
   static final _elevatedButtonTheme = ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       splashFactory: NoSplash.splashFactory,

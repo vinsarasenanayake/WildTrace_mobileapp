@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../services/api/index.dart';
 
-// favorites controller
 class FavoritesController with ChangeNotifier {
   final CartApiService _apiService = CartApiService();
   final List<Product> _favorites = [];
@@ -14,7 +13,6 @@ class FavoritesController with ChangeNotifier {
   bool get isEmpty => _favorites.isEmpty;
   bool get isLoading => _isLoading;
 
-  // update token
   void updateToken(String? newToken) {
     if (newToken != _token) {
       _token = newToken;
@@ -24,7 +22,6 @@ class FavoritesController with ChangeNotifier {
     }
   }
 
-  // fetch favorites
   Future<void> fetchFavorites(String token) async {
     _isLoading = true;
     notifyListeners();
@@ -39,7 +36,6 @@ class FavoritesController with ChangeNotifier {
     }
   }
 
-  // toggle favorite
   Future<void> toggleFavorite(Product product, {String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;

@@ -9,6 +9,7 @@ class StripeService {
   StripeService._();
   static final StripeService instance = StripeService._();
 
+  // Process payment flow
   Future<void> makePayment({
     required double amount,
     required String currency,
@@ -22,7 +23,6 @@ class StripeService {
         currency,
       );
 
-      // init payment sheet
       await Stripe.instance.initPaymentSheet(
         paymentSheetParameters: SetupPaymentSheetParameters(
           paymentIntentClientSecret: paymentIntent['client_secret'],
@@ -33,9 +33,9 @@ class StripeService {
         ),
       );
 
-      // show payment sheet
       await _displayPaymentSheet(onSuccess);
     } on StripeException catch (e) {
+      // handle stripe errors
       if (context.mounted) {
         if (e.error.code == FailureCode.Canceled) {
           AlertService.showInfo(
@@ -67,6 +67,7 @@ class StripeService {
     await onSuccess();
   }
 
+  // api request for payment intent
   Future<Map<String, dynamic>> _createPaymentIntent(
     String amount,
     String currency,
@@ -84,7 +85,6 @@ class StripeService {
           'payment_method_types[]': 'card',
         },
       );
-      
       
       final jsonResponse = json.decode(response.body);
       

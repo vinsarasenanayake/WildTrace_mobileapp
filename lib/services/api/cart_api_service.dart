@@ -1,7 +1,6 @@
 import 'base_api_service.dart';
 import '../../models/product.dart';
 
-// cart api service
 class CartApiService extends BaseApiService {
   Future<List<dynamic>> fetchCart(String token) async {
     final data = await get('/cart', token: token);

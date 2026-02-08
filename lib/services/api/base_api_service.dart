@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-// base api service
 class BaseApiService {
   static const String baseHostDomain = 'wildtrace-production.up.railway.app';
   static const String _apiPath = '/api';
@@ -12,7 +11,6 @@ class BaseApiService {
   static String get storageUrl => 'https://$baseHostDomain$_storagePath';
   static String get baseHostUrl => 'https://$baseHostDomain$_rootPath';
 
-  // resolve image urls
   static String resolveImageUrl(String? path) {
     if (path == null || path.isEmpty) return '';
     if (path.startsWith('http')) return path;
@@ -21,7 +19,6 @@ class BaseApiService {
     return '$baseHostUrl$cleanPath';
   }
 
-  // get request
   Future<dynamic> get(String endpoint, {String? token}) async {
     final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
     final url = Uri.https(baseHostDomain, '$_apiPath/$cleanEndpoint');
@@ -41,7 +38,6 @@ class BaseApiService {
     }
   }
 
-  // post request
   Future<dynamic> post(String endpoint, {dynamic body, String? token}) async {
     final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
     final url = Uri.https(baseHostDomain, '$_apiPath/$cleanEndpoint');
@@ -63,7 +59,6 @@ class BaseApiService {
     }
   }
 
-  // put request
   Future<dynamic> put(String endpoint, {dynamic body, String? token}) async {
     final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
     final url = Uri.https(baseHostDomain, '$_apiPath/$cleanEndpoint');
@@ -85,7 +80,6 @@ class BaseApiService {
     }
   }
 
-  // delete request
   Future<dynamic> delete(String endpoint, {String? token}) async {
     final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
     final url = Uri.https(baseHostDomain, '$_apiPath/$cleanEndpoint');
@@ -105,14 +99,12 @@ class BaseApiService {
     }
   }
 
-  // handle response
   dynamic _handleResponse(http.Response response, String endpoint) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (response.body.isEmpty) return {};
       
       String body = response.body.trim();
       
-      // sanitize response
       if (!body.startsWith('{') && !body.startsWith('[')) {
         int firstBrace = body.indexOf('{');
         int firstBracket = body.indexOf('[');

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../services/api/index.dart';
 
-// products controller
 class ProductsController with ChangeNotifier {
   final ProductApiService _apiService = ProductApiService();
   final List<Product> _products = [];
@@ -19,14 +18,12 @@ class ProductsController with ChangeNotifier {
   String? get token => _token;
   List<Product> get products => List.unmodifiable(_products);
   
-  // featured products
   List<Product> get topProductsByPrice {
     final list = List<Product>.from(_products);
     list.sort((a, b) => b.price.compareTo(a.price));
     return list.take(5).toList();
   }
   
-  // update token
   void updateToken(String? newToken) {
     if (_token != newToken || _products.isEmpty) {
       _token = newToken;
@@ -38,7 +35,6 @@ class ProductsController with ChangeNotifier {
 
   List<Product> get filteredProducts => List.unmodifiable(_filteredProducts);
   
-  // fetch products
   Future<void> fetchProducts() async {
     _isLoading = true;
     _error = '';
@@ -61,7 +57,7 @@ class ProductsController with ChangeNotifier {
   String get sortOption => _sortOption;
   String get searchQuery => _searchQuery;
 
-  // filters and sorting
+  // filter logic for gallery
   void _applyFilters() {
     var filtered = _products.toList();
     if (_selectedCategory != 'All' && _selectedCategory != 'All Collections') {
@@ -125,7 +121,6 @@ class ProductsController with ChangeNotifier {
     notifyListeners();
   }
 
-  // clear filters
   void clearFilters() {
     _selectedCategory = 'All Collections';
     _selectedAuthor = 'All Photographers';

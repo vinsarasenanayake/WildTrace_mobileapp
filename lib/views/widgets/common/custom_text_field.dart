@@ -2,19 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// custom text field
 class CustomTextField extends StatelessWidget {
-  // config
   final String label;
   final TextEditingController controller;
   final String hintText;
   
-  // password options
   final bool isObscure;
   final VoidCallback? onToggleVisibility;
   final bool hasToggle;
   
-  // extra options
   final Widget? prefix;
   final Widget? suffix;
   final TextInputAction? textInputAction;
@@ -93,7 +89,7 @@ class CustomTextField extends StatelessWidget {
                   onPressed: onToggleVisibility,
                 )
               : suffix,
-            counterText: "", // Hide character counter
+            counterText: "", 
           ),
         ),
       ],

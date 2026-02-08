@@ -17,34 +17,27 @@ import 'login_screen.dart';
 import '../widgets/common/common_widgets.dart';
 import '../widgets/cards/card_widgets.dart';
 
-// home screen
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  // builds home screen
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: isDarkMode ? Colors.black : const Color(0xFFF9FBF9),
-      // respects system bars
       body: SafeArea(
-        bottom: false, // Allow content to flow to the bottom edge
+        bottom: false,
         child: Stack(
           children: [
             SingleChildScrollView(
               child: Column(
                 children: [
-                  // hero section
                   _buildHero(context),
-                  // featured section
                   const FeaturedCollection(),
-                  // story section
                   const BehindTheLens(),
                 ],
               ),
             ),
-            // status overlay
             Positioned(
               top: 10,
               right: 20,
@@ -57,7 +50,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // builds hero widget
   Widget _buildHero(BuildContext context) {
     return WildTraceHero(
       imagePath: 'assets/images/heroimageh1.jpg',
@@ -68,7 +60,6 @@ class HomeScreen extends StatelessWidget {
       description: 'Fine-art wildlife photography',
       descriptionFontSize: 16,
       height: MediaQuery.of(context).size.height * 0.9,
-      // navigates to shop
       footer: CustomButton(
         text: 'EXPLORE COLLECTION',
         onPressed: () =>
@@ -82,7 +73,6 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// featured collection
 class FeaturedCollection extends StatefulWidget {
   const FeaturedCollection({super.key});
 
@@ -91,11 +81,9 @@ class FeaturedCollection extends StatefulWidget {
 }
 
 class _FeaturedCollectionState extends State<FeaturedCollection> {
-  // page controller
   late final PageController _pageController;
   int _currentIndex = 0;
 
-  // prompts for login
   Future<void> _showLoginRequiredAlert() async {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     AlertService.showCustom(
@@ -109,7 +97,6 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
           const SizedBox(height: 24),
           Row(
             children: [
-              // close button
               Expanded(
                 child: CustomButton(
                   text: 'LATER',
@@ -127,7 +114,6 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
                 ),
               ),
               const SizedBox(width: 12),
-              // login button
               Expanded(
                 child: CustomButton(
                   text: 'LOGIN',
@@ -153,14 +139,12 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
     );
   }
 
-  // init state
   @override
   void initState() {
     super.initState();
     _pageController = PageController(viewportFraction: 1.0, initialPage: 1000);
   }
 
-  // dispose
   @override
   void dispose() {
     _pageController.dispose();
@@ -169,19 +153,15 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
 
 
 
-  // builds featured list
   @override
   Widget build(BuildContext context) {
-    // theme data
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final bool isLandscape = ResponsiveHelper.isLandscape(context);
     final padding = ResponsiveHelper.getScreenPadding(context);
 
-    // data providers
     return Consumer3<ProductsController, FavoritesController, AuthController>(
       builder:
           (context, productsProvider, favoritesProvider, authProvider, child) {
-            // gets top products
             final allProducts = List<Product>.from(productsProvider.products);
             allProducts.sort((a, b) => b.price.compareTo(a.price));
             final featuredItems = allProducts.take(5).toList();
@@ -199,7 +179,6 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
                   : const Color(0xFFF9FBF9),
               child: Column(
                 children: [
-                  // section title
                   Text(
                     'FEATURED COLLECTION',
                     style: GoogleFonts.inter(
@@ -210,7 +189,6 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  // heading
                   Builder(
                     builder: (context) {
                       final isLandscape = ResponsiveHelper.isLandscape(context);
@@ -232,7 +210,6 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
                     },
                   ),
                   SizedBox(height: isLandscape ? 24 : 40),
-                  // slideshow
                   _buildSlideshow(
                     featuredItems,
                     isLandscape,
@@ -240,7 +217,6 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
                     authProvider,
                   ),
                   SizedBox(height: isLandscape ? 20 : 30),
-                  // indicators
                   _buildIndicators(featuredItems.length),
                 ],
               ),
@@ -249,7 +225,6 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
     );
   }
 
-  // builds slideshow
   Widget _buildSlideshow(
     List<Product> items,
     bool isLandscape,
@@ -265,7 +240,6 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(32)),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(32),
-        // page view
         child: PageView.builder(
           controller: _pageController,
           onPageChanged: (index) =>
@@ -282,7 +256,6 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
               price: '\$${item.price.toStringAsFixed(2)}',
               isLiked: isFavorite,
               onLikeToggle: () {
-                // check auth
                 if (authProvider.token == null) {
                   _showLoginRequiredAlert();
                 } else {
@@ -293,7 +266,6 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
                 }
               },
               onTap: () {
-                // navigates to details
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -308,7 +280,6 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
     );
   }
 
-  // builds indicators
   Widget _buildIndicators(int count) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -331,7 +302,6 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
   }
 }
 
-// story widget
 class BehindTheLens extends StatelessWidget {
   const BehindTheLens({super.key});
 
@@ -351,25 +321,18 @@ class BehindTheLens extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // small header
           _buildSmallHeader(accentGreen),
           const SizedBox(height: 24),
-          // main heading
           _buildMainHeading(textColor),
           const SizedBox(height: 24),
-          // description
           _buildDescription(textColor, accentGreen),
           const SizedBox(height: 40),
-          // team image
           _buildTeamImage(),
           const SizedBox(height: 60),
-          // media banner
           _buildFeaturedBanner(textColor),
           const SizedBox(height: 40),
-          // logos
           _buildLogos(),
           const SizedBox(height: 60),
-          // journey button
           _buildJourneyButton(context, textColor),
           const SizedBox(height: 40),
         ],
@@ -377,7 +340,6 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
-  // builds small header
   Widget _buildSmallHeader(Color accentGreen) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -408,7 +370,6 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
-  // builds main heading
   Widget _buildMainHeading(Color textColor) {
     return Builder(
       builder: (context) {
@@ -430,7 +391,6 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
-  // builds description
   Widget _buildDescription(Color textColor, Color accentGreen) {
     return RichText(
       textAlign: TextAlign.center,
@@ -455,7 +415,6 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
-  // builds team image
   Widget _buildTeamImage() {
     return Builder(
       builder: (context) {
@@ -472,7 +431,6 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
-  // builds banner
   Widget _buildFeaturedBanner(Color textColor) {
     return Text(
       'OUR PHOTOGRAPHERS ARE FEATURED IN',
@@ -485,7 +443,6 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
-  // builds logos
   Widget _buildLogos() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -513,12 +470,10 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
-  // builds logo
   Widget _buildLogo(String assetPath, double width, double height, String url) {
     return GestureDetector(
       onTap: () async {
         final Uri uri = Uri.parse(url);
-        // launches url
         if (await canLaunchUrl(uri)) await launchUrl(uri);
       },
       child: SizedBox(
@@ -537,11 +492,9 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
-  // builds journey button
   Widget _buildJourneyButton(BuildContext context, Color textColor) {
     return OutlinedButton(
       onPressed: () {
-        // navigates to journey
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const JourneyScreen()),

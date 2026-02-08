@@ -4,17 +4,14 @@ import 'package:provider/provider.dart';
 import '../../../../controllers/navigation_controller.dart';
 import '../../../../controllers/cart_controller.dart';
 
-// bottom nav bar
 class WildTraceBottomNavBar extends StatelessWidget {
   const WildTraceBottomNavBar({super.key});
 
-  // builds nav bar
   @override
   Widget build(BuildContext context) {
     final navProvider = Provider.of<NavigationController>(context);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    // colors
     final Color backgroundColor = isDarkMode
         ? Colors.black
         : Colors.white;

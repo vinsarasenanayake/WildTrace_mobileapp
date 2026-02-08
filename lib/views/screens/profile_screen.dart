@@ -11,14 +11,11 @@ import '../widgets/cards/card_widgets.dart';
 import '../widgets/common/common_widgets.dart';
 import '../../main_wrapper.dart';
 
-// profile screen
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  // builds profile screen
   @override
   Widget build(BuildContext context) {
-    // theme data
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color backgroundColor = isDarkMode
         ? Colors.black
@@ -33,7 +30,6 @@ class ProfileScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: backgroundColor,
-      // auth consumer
       body: Consumer<AuthController>(
         builder: (context, authProvider, child) {
           final user = authProvider.currentUser;
@@ -46,12 +42,10 @@ class ProfileScreen extends StatelessWidget {
             child: Stack(
               children: [
                 CustomScrollView(
-                  // scroll physics
                   physics: (isLandscape && !authProvider.isAuthenticated)
                       ? const NeverScrollableScrollPhysics()
                       : const AlwaysScrollableScrollPhysics(),
                   slivers: [
-                    // app bar
                     const SliverAppBar(
                       backgroundColor: Colors.transparent,
                       elevation: 0,
@@ -104,7 +98,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // builds header
   Widget _buildHeader(
     Color textColor,
     Color accentGreen,
@@ -115,7 +108,6 @@ class ProfileScreen extends StatelessWidget {
     return Center(
       child: Column(
         children: [
-          // avatar container
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
@@ -136,7 +128,6 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          // name
           Text(
             name,
             style: GoogleFonts.playfairDisplay(
@@ -146,7 +137,6 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          // email
           if (email.isNotEmpty)
             Text(
               email,
@@ -161,12 +151,10 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // builds dashboard section
   Widget _buildDashboard(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // heading
         Text(
           'DASHBOARD',
           style: GoogleFonts.inter(
@@ -177,7 +165,6 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        // history gateway
         DashboardCard(
           icon: Icons.shopping_bag_outlined,
           title: 'Order History',
@@ -188,7 +175,6 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        // favorites gateway
         DashboardCard(
           icon: Icons.favorite_border,
           title: 'Favourites',
@@ -199,7 +185,6 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        // edit profile gateway
         DashboardCard(
           icon: Icons.person_outline,
           title: 'Edit Profile',
@@ -213,15 +198,12 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // builds logout button
   Widget _buildLogoutButton(BuildContext context, AuthController authProvider) {
     return CustomButton(
       text: 'LOGOUT',
       icon: Icons.logout_rounded,
       onPressed: () {
-        // clear session
         authProvider.logout();
-        // redirect to login
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -235,7 +217,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // builds footer section
   Widget _buildFooter(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -244,7 +225,6 @@ class ProfileScreen extends StatelessWidget {
           'Copyright © ${DateTime.now().year} ',
           style: GoogleFonts.inter(fontSize: 10, color: Colors.grey.shade600),
         ),
-        // platform link
         InkWell(
           onTap: () => Navigator.pushAndRemoveUntil(
             context,
@@ -268,7 +248,6 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // builds guest view section
   Widget _buildGuestView(BuildContext context, Color textColor) {
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
@@ -276,14 +255,12 @@ class ProfileScreen extends StatelessWidget {
     return Column(
       children: [
         SizedBox(height: isLandscape ? 0 : 60),
-        // lock icon
         Icon(
           Icons.lock_outline,
           size: isLandscape ? 40 : 64,
           color: Colors.grey.withAlpha((0.3 * 255).round()),
         ),
         SizedBox(height: isLandscape ? 12 : 24),
-        // heading
         Text(
           'Personalize Your Experience',
           textAlign: TextAlign.center,
@@ -294,7 +271,6 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
         SizedBox(height: isLandscape ? 8 : 12),
-        // description
         Text(
           'Sign in to view your order history, manage favorites, and checkout faster.',
           textAlign: TextAlign.center,
@@ -305,7 +281,6 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
         SizedBox(height: isLandscape ? 20 : 40),
-        // responsive buttons
         if (isLandscape)
           Row(
             children: [
@@ -343,7 +318,6 @@ class ProfileScreen extends StatelessWidget {
         else
           Column(
             children: [
-              // login redirect
               CustomButton(
                 text: 'SIGN IN NOW',
                 onPressed: () => Navigator.push(
@@ -355,7 +329,6 @@ class ProfileScreen extends StatelessWidget {
                 fontSize: 13,
               ),
               const SizedBox(height: 16),
-              // register redirect
               CustomButton(
                 text: 'REGISTER NOW',
                 onPressed: () => Navigator.push(

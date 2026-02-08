@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../common/common_widgets.dart';
 
-// order summary card
 class OrderSummaryCard extends StatelessWidget {
-  // content
   final String? title;
   final List<Widget>? items;
   final String totalLabel;
   final String totalValue;
   final String? subtitle;
 
-  // buttons
   final String primaryButtonLabel;
   final VoidCallback primaryButtonOnTap;
   final String? secondaryButtonLabel;
@@ -38,7 +35,6 @@ class OrderSummaryCard extends StatelessWidget {
     this.isSecondaryEnabled = true,
   });
 
-  // builds card
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;

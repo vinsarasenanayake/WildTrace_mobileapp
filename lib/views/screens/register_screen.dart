@@ -9,7 +9,6 @@ import 'login_screen.dart';
 
 import '../../utilities/alert_service.dart';
 
-// register screen
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -18,11 +17,9 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  // visibility state
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
-  // controllers
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -34,7 +31,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _postalCodeController = TextEditingController();
   final TextEditingController _countryController = TextEditingController();
 
-  // dispose
   @override
   void dispose() {
     _nameController.dispose();
@@ -49,15 +45,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  // handles registration
   Future<void> _handleRegister(
     AuthController authProvider,
     bool isDarkMode,
   ) async {
-    // hide keyboard
     FocusScope.of(context).unfocus();
 
-    // validation
     if (_nameController.text.isEmpty ||
         _emailController.text.isEmpty ||
         _passwordController.text.isEmpty) {
@@ -69,7 +62,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    // email check
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(_emailController.text)) {
       AlertService.showWarning(
@@ -80,7 +72,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    // check consistency
     if (_passwordController.text != _confirmPasswordController.text) {
       AlertService.showWarning(
         context: context,
@@ -91,7 +82,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
 
     try {
-      // attempts registration
       final success = await authProvider.register(
         name: _nameController.text,
         email: _emailController.text,
@@ -102,7 +92,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         postalCode: _postalCodeController.text,
       );
 
-      // success case
       if (success && mounted) {
         await AlertService.showSuccess(
           context: context,
@@ -119,7 +108,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }
       }
     } catch (e) {
-      // failure feedback
       if (mounted) {
         String errorMessage = e.toString().replaceAll('Exception: ', '');
         AlertService.showError(
@@ -131,10 +119,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  // builds register screen
   @override
   Widget build(BuildContext context) {
-    // theme data
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
@@ -158,7 +144,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
         centerTitle: true,
-        // back button
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(
@@ -183,11 +168,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 16),
-                  // logo
                   const WildTraceLogo(height: 80),
                   const SizedBox(height: 48),
 
-                  // header section
                   Container(
                     width: isLandscape ? MediaQuery.of(context).size.width * 0.7 : double.infinity,
                     child: Column(
@@ -221,7 +204,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  // form container
                   Container(
                     width: isLandscape
                         ? MediaQuery.of(context).size.width * 0.7
@@ -243,7 +225,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // user form
                         UserForm(
                           isLandscape: isLandscape,
                           nameController: _nameController,
@@ -268,13 +249,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               _handleRegister(authProvider, isDarkMode),
                         ),
                         const SizedBox(height: 32),
-                        // register button
                         CustomButton(
                           text: 'COMPLETE REGISTRATION',
                           onPressed: () => _handleRegister(authProvider, isDarkMode),
                         ),
                         const SizedBox(height: 24),
-                        // login link
                         Center(
                           child: GestureDetector(
                             onTap: () => Navigator.pushReplacement(
@@ -301,7 +280,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  // footer
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

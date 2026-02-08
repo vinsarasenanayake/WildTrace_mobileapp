@@ -9,7 +9,6 @@ import '../widgets/common/common_widgets.dart';
 
 import '../../utilities/alert_service.dart';
 
-// login screen
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -18,21 +17,16 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // password visibility state
   bool _obscurePassword = true;
-  // controllers
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  // handles login
   Future<void> _handleLogin(
     AuthController authProvider,
     bool isDarkMode,
   ) async {
-    // hide keyboard
     FocusScope.of(context).unfocus();
 
-    // validation
     if (_emailController.text.trim().isEmpty ||
         _passwordController.text.trim().isEmpty) {
       AlertService.showWarning(
@@ -43,7 +37,6 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    // email check
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(_emailController.text.trim())) {
       AlertService.showWarning(
@@ -55,14 +48,11 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     try {
-      // attempts login
       final success = await authProvider.login(
         _emailController.text,
         _passwordController.text,
       );
-      // success case
       if (success && mounted) {
-        // reset nav
         Provider.of<NavigationController>(context, listen: false).setSelectedIndex(0);
         Navigator.pushAndRemoveUntil(
           context,
@@ -70,7 +60,6 @@ class _LoginScreenState extends State<LoginScreen> {
           (route) => false,
         );
       } else if (mounted) {
-        // generic failure
         AlertService.showError(
           context: context,
           title: 'Login Failed',
@@ -78,7 +67,6 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
-      // backend error feedback
       if (mounted) {
         String errorMessage = e.toString().replaceAll('Exception: ', '');
         AlertService.showError(
@@ -90,10 +78,8 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // builds login screen
   @override
   Widget build(BuildContext context) {
-    // theme data
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
@@ -117,7 +103,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
         centerTitle: true,
-        // back button
         leading: GestureDetector(
           onTap: () {
             Provider.of<NavigationController>(context, listen: false).setSelectedIndex(0);
@@ -149,11 +134,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 16),
-                  // logo
                   const WildTraceLogo(height: 80),
                   const SizedBox(height: 48),
                   
-                  // header section (left aligned to match EditProfile)
                   Container(
                     width: isLandscape ? MediaQuery.of(context).size.width * 0.6 : double.infinity,
                     child: Column(
@@ -187,7 +170,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  // input container
                   Container(
                     width: isLandscape
                         ? MediaQuery.of(context).size.width * 0.6
@@ -210,7 +192,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                        // responsive inputs
                         isLandscape
                             ? Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -274,13 +255,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ],
                               ),
                         const SizedBox(height: 32),
-                        // sign in button
                         CustomButton(
                           text: 'SIGN IN',
                           onPressed: () => _handleLogin(authProvider, isDarkMode),
                         ),
                         const SizedBox(height: 24),
-                        // register button
                         Center(
                           child: GestureDetector(
                             onTap: () => Navigator.push(
@@ -307,7 +286,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                   const SizedBox(height: 48),
-                  // footer
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

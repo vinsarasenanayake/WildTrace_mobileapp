@@ -1,6 +1,5 @@
 import 'base_api_service.dart';
 
-// content api service
 class ContentApiService extends BaseApiService {
   Future<List<dynamic>> fetchPhotographers() async {
     final data = await get('/photographers');

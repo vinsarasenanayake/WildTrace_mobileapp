@@ -13,7 +13,6 @@ import 'login_screen.dart';
 import 'register_screen.dart';
 import '../../main_wrapper.dart';
 
-// cart screen
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
 
@@ -22,7 +21,6 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  // init state
   @override
   void initState() {
     super.initState();
@@ -37,12 +35,10 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
-  // builds cart screen
   @override
   Widget build(BuildContext context) {
     return Consumer<CartController>(
       builder: (context, cartProvider, child) {
-        // theme data
         final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
         final Color textColor = isDarkMode
             ? Colors.white
@@ -56,7 +52,6 @@ class _CartScreenState extends State<CartScreen> {
             (padding.left > padding.right ? padding.left : padding.right) +
             20.0;
 
-        // builds scaffold
         return Stack(
           children: [
             Scaffold(
@@ -66,7 +61,6 @@ class _CartScreenState extends State<CartScreen> {
               body: SafeArea(
                 bottom: false,
                 child: RefreshIndicator(
-                  // refresh indicator
                   onRefresh: () async {
                     final authProvider = Provider.of<AuthController>(
                       context,
@@ -82,7 +76,6 @@ class _CartScreenState extends State<CartScreen> {
                         ? const NeverScrollableScrollPhysics()
                         : const AlwaysScrollableScrollPhysics(),
                     slivers: [
-                      // app bar
                       const SliverAppBar(
                         backgroundColor: Colors.transparent,
                         elevation: 0,
@@ -94,7 +87,6 @@ class _CartScreenState extends State<CartScreen> {
                         toolbarHeight: 40,
                         automaticallyImplyLeading: false,
                       ),
-                      // builds content
                       if (cartItems.isEmpty)
                         SliverFillRemaining(
                           hasScrollBody: false,
@@ -119,7 +111,6 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  // builds empty state
   Widget _buildEmptyState(BuildContext context, CartController cartProvider) {
     final authProvider = Provider.of<AuthController>(context, listen: false);
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -278,7 +269,6 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  // builds cart slivers
   List<Widget> _buildCartSlivers(
     BuildContext context,
     CartController cartProvider,
@@ -286,13 +276,10 @@ class _CartScreenState extends State<CartScreen> {
     bool isLandscape,
     double sidePadding,
   ) {
-    // get items
     final cartItems = cartProvider.items;
 
-    // landscape slivers
     if (isLandscape) {
       return [
-        // header
         SliverToBoxAdapter(
           child: Padding(
             padding: EdgeInsets.only(
@@ -323,14 +310,12 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ),
         ),
-        // content row
         SliverToBoxAdapter(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: sidePadding),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // items list
                 Expanded(
                   flex: 3,
                   child: Column(
@@ -354,7 +339,6 @@ class _CartScreenState extends State<CartScreen> {
                             }
                           },
                           onDismissed: () {
-                            // on dismissed
                             if (item.id != null) {
                               final cartItemId = item.id!;
                               final productName = item.product.title;
@@ -374,7 +358,6 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ),
                 const SizedBox(width: 24),
-                // summary card
                 Expanded(
                   flex: 2,
                   child: Column(
@@ -388,7 +371,6 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ),
         ),
-        // footer
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.only(bottom: 30.0),
@@ -398,9 +380,7 @@ class _CartScreenState extends State<CartScreen> {
       ];
     }
 
-    // portrait slivers
     return [
-      // header
       SliverToBoxAdapter(
         child: Padding(
           padding: EdgeInsets.only(
@@ -431,7 +411,6 @@ class _CartScreenState extends State<CartScreen> {
           ),
         ),
       ),
-      // items list
       SliverPadding(
         padding: EdgeInsets.symmetric(horizontal: sidePadding),
         sliver: SliverList(
@@ -455,7 +434,6 @@ class _CartScreenState extends State<CartScreen> {
                 }
               },
               onDismissed: () {
-                // on dismissed
                 if (item.id != null) {
                   final cartItemId = item.id!;
                   final productName = item.product.title;
@@ -473,7 +451,6 @@ class _CartScreenState extends State<CartScreen> {
           }, childCount: cartItems.length * 2 - 1),
         ),
       ),
-      // summary
       SliverToBoxAdapter(
         child: Padding(
           padding: EdgeInsets.symmetric(
@@ -489,7 +466,6 @@ class _CartScreenState extends State<CartScreen> {
           ),
         ),
       ),
-      // footer
       SliverToBoxAdapter(
         child: Padding(
           padding: const EdgeInsets.only(bottom: 30.0),
@@ -531,7 +507,6 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  // builds footer
   Widget _buildFooter() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,

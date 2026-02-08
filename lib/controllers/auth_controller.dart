@@ -4,7 +4,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import '../services/api/index.dart';
 
-// auth controller
 class AuthController with ChangeNotifier {
   final AuthApiService _apiService = AuthApiService();
   UserModel? _currentUser;
@@ -24,11 +23,11 @@ class AuthController with ChangeNotifier {
   static const String _tokenKey = 'auth_token';
   static const String _userKey = 'user_data';
 
-  // handle login
   Future<bool> login(String email, String password) async {
     _isLoading = true;
     notifyListeners();
     try {
+      // authenticate with api
       final response = await _apiService.login(email, password);
       _token = response['token'];
       if (response['user'] != null) {
@@ -46,7 +45,6 @@ class AuthController with ChangeNotifier {
     }
   }
 
-  // handle registration
   Future<bool> register({
     required String name,
     required String email,
@@ -82,7 +80,6 @@ class AuthController with ChangeNotifier {
     }
   }
 
-  // handle logout
   Future<void> logout() async {
     _currentUser = null;
     _token = null;
@@ -93,7 +90,6 @@ class AuthController with ChangeNotifier {
     notifyListeners();
   }
 
-  // update profile
   Future<bool> updateProfile(UserModel updatedUser) async {
     if (_token == null) return false;
     _isLoading = true;
@@ -123,12 +119,10 @@ class AuthController with ChangeNotifier {
     }
   }
 
-  // update password
   Future<bool> updatePassword(String currentPassword, String newPassword) async {
     return true; 
   }
 
-  // check auth status
   Future<void> checkAuthStatus() async {
     _isLoading = true;
     notifyListeners();
@@ -148,7 +142,6 @@ class AuthController with ChangeNotifier {
     }
   }
 
-  // save auth data
   Future<void> _saveAuthData() async {
     if (_token != null && _currentUser != null) {
       final prefs = await SharedPreferences.getInstance();

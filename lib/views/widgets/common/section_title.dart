@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// section title
 class SectionTitle extends StatelessWidget {
-  // styling options
   final String title;
   final Color? color;
   final bool showLine;
@@ -21,7 +19,6 @@ class SectionTitle extends StatelessWidget {
     this.mainAxisAlignment = MainAxisAlignment.start,
   });
 
-  // builds title
   @override
   Widget build(BuildContext context) {
     return Row(

@@ -6,14 +6,11 @@ import '../../controllers/orders_controller.dart';
 import '../../models/order.dart';
 import '../widgets/common/common_widgets.dart';
 import '../widgets/cards/card_widgets.dart';
-
 import '../../controllers/auth_controller.dart';
 import '../../controllers/navigation_controller.dart';
-
 import '../../utilities/alert_service.dart';
 import 'checkout_screen.dart';
 
-// order history screen
 class OrderHistoryScreen extends StatefulWidget {
   const OrderHistoryScreen({super.key});
 
@@ -22,7 +19,6 @@ class OrderHistoryScreen extends StatefulWidget {
 }
 
 class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
-  // init state
   @override
   void initState() {
     super.initState();
@@ -31,23 +27,17 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     });
   }
 
-  // refreshes orders
   Future<void> _refreshOrders() async {
     final authProvider = Provider.of<AuthController>(context, listen: false);
     final ordersProvider = Provider.of<OrdersController>(context, listen: false);
-    // requires authenticated session context
     if (authProvider.token != null && authProvider.currentUser?.id != null) {
       await ordersProvider.loadOrders(authProvider.currentUser!.id, authProvider.token!);
     }
   }
 
-  // manages the payment fulfillment workflow via Stripe
 
-
-  // builds order history screen
   @override
   Widget build(BuildContext context) {
-    // theme data
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color backgroundColor = isDarkMode ? Colors.black : const Color(0xFFF9FBF9);
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
@@ -59,7 +49,6 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
-        // back button
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(
@@ -83,17 +72,14 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
           ),
         ),
       ),
-      // orders consumer
       body: Consumer<OrdersController>(
         builder: (context, ordersProvider, child) {
           final orders = ordersProvider.orders;
           
-          // loading indicator
           if (ordersProvider.isLoading && orders.isEmpty) {
             return const Center(child: CircularProgressIndicator(color: Color(0xFF27AE60)));
           }
 
-          // empty state feedback
           if (orders.isEmpty) {
             return Center(
               child: Column(
@@ -110,7 +96,6 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                     )
                   ),
                   const SizedBox(height: 24),
-                  // explore button
                   SizedBox(
                     width: 220,
                     child: CustomButton(
@@ -127,7 +112,6 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
             );
           }
           
-          // refresh indicator
           return RefreshIndicator(
             onRefresh: _refreshOrders,
             color: const Color(0xFF27AE60),
@@ -138,7 +122,6 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
               itemBuilder: (context, index) {
                 final order = orders[index];
                 
-                // order card
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 24.0),
                   child: OrderCard(
@@ -211,7 +194,6 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     );
   }
   
-  // maps status to string
   String _statusToString(OrderStatus status) {
     switch (status) {
       case OrderStatus.pending: return 'PENDING';
@@ -224,4 +206,3 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     }
   }
 }
-

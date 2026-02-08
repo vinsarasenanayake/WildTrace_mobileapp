@@ -10,7 +10,6 @@ import '../widgets/forms/form_widgets.dart';
 
 import '../../utilities/alert_service.dart';
 
-// edit profile screen
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
 
@@ -19,7 +18,6 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  // controllers
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _contactController;
@@ -28,13 +26,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _postalCodeController;
   late TextEditingController _countryController;
 
-  // password controllers
   final TextEditingController _currPass = TextEditingController();
   final TextEditingController _newPass = TextEditingController();
   final TextEditingController _confPass = TextEditingController();
   bool _obscureCurrent = true, _obscureNew = true, _obscureConfirm = true;
 
-  // init state
   @override
   void initState() {
     super.initState();
@@ -51,7 +47,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _countryController = TextEditingController(text: user?.country ?? '');
   }
 
-  // dispose
   @override
   void dispose() {
     _nameController.dispose();
@@ -67,15 +62,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  // updates profile
   Future<void> _handleUpdateProfile(AuthController authProvider) async {
-    // hide keyboard
     FocusScope.of(context).unfocus();
 
     final currentUser = authProvider.currentUser;
     if (currentUser == null) return;
 
-    // validation
     if (_nameController.text.isEmpty || _emailController.text.isEmpty) {
 
       AlertService.showWarning(
@@ -86,7 +78,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return;
     }
 
-    // email check
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(_emailController.text)) {
 
@@ -140,10 +131,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  // builds screen
   @override
   Widget build(BuildContext context) {
-    // theme data
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     final isLandscape =
@@ -197,12 +186,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       : null,
                   child: Column(
                     children: [
-                      // logo
                       const SizedBox(height: 16),
                       const WildTraceLogo(height: 80),
                       const SizedBox(height: 24),
                       
-                      // header similar to checkout screen
                        SectionTitle(
                         title: 'ACCOUNT SETTINGS',
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -219,7 +206,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         ),
                       ),
                       const SizedBox(height: 48),
-                      // setting sections
                       _buildProfileSection(
                         isDarkMode,
                         authProvider,
@@ -243,7 +229,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
 
 
-  // builds profile section
   Widget _buildProfileSection(
     bool isDarkMode,
     AuthController authProvider,
@@ -309,7 +294,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // builds password section
   Widget _buildPasswordSection(bool isDarkMode, AuthController authProvider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -439,7 +423,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // builds delete section
   Widget _buildDeleteAccountSection(bool isDarkMode, AuthController authProvider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -496,11 +479,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _handleDeleteAccount(AuthController authProvider) async {
     final ordersProvider = Provider.of<OrdersController>(context, listen: false);
     
-    // check constraints
     if (authProvider.currentUser != null && authProvider.token != null) {
-       // We force a refresh to be safe, or just rely on existing state if recent?
-       // Better to refresh to avoid stale data allowing deletion when it shouldn't.
-       // But loadOrders might be heavy. Let's assume state is relatively fresh or empty means not loaded.
        if (ordersProvider.orders.isEmpty) {
            await ordersProvider.loadOrders(authProvider.currentUser!.id, authProvider.token!);
        }
@@ -509,28 +488,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final orders = ordersProvider.orders;
     bool canDelete = true;
     
-    // check orders
     for (var order in orders) {
-       // check if paid
        bool isPaid = order.status == OrderStatus.paid || 
                      order.status == OrderStatus.processing || 
                      order.status == OrderStatus.shipped ||
-                     order.status == OrderStatus.delivered; // Delivered counts as paid history
+                     order.status == OrderStatus.delivered; 
        
        if (isPaid) {
-          // block if future delivery
           
           final DateTime now = DateTime.now();
-          // Use estimatedDeliveryDate, default to orderDate + 7 days if null (fallback logic)
           final DateTime estimated = order.estimatedDeliveryDate ?? order.orderDate.add(const Duration(days: 7));
           
           if (estimated.isAfter(now)) {
-             // Future delivery -> Block
              canDelete = false;
              break;
           }
        }
-       // Pending/Cancelled/Declined are ignored (can delete)
     }
 
     if (!canDelete) {
@@ -552,13 +525,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         confirmBtnText: 'DELETE',
         confirmBtnColor: const Color(0xFFE11D48),
         onConfirm: () async {
-          Navigator.pop(context); // Close dialog
+          Navigator.pop(context); 
           
-          // logout
           await authProvider.logout();
           
           if (mounted) {
-            // Pop all routes and go to main wrapper (which defaults to Home/Login)
             Navigator.of(context).popUntil((route) => route.isFirst);
           }
         },

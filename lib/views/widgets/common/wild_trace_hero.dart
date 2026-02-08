@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// hero component
 class WildTraceHero extends StatelessWidget {
-  // content config
   final String imagePath;
   final String? title;
   final String mainText1;
@@ -12,7 +10,6 @@ class WildTraceHero extends StatelessWidget {
   final String? description2;
   final String? subtitleQuote;
 
-  // layout options
   final double? height;
   final double mainFontSize;
   final double mainLetterSpacing1;
@@ -41,7 +38,6 @@ class WildTraceHero extends StatelessWidget {
     this.alignment = Alignment.center,
   });
 
-  // builds hero banner
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -51,7 +47,6 @@ class WildTraceHero extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // background
           imagePath.startsWith('http')
               ? Image.network(
                   imagePath,
@@ -67,7 +62,6 @@ class WildTraceHero extends StatelessWidget {
                   errorBuilder: (context, error, stackTrace) =>
                       Container(color: const Color(0xFF0F1E26)),
                 ),
-          // gradient overlay
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -83,9 +77,7 @@ class WildTraceHero extends StatelessWidget {
               ),
             ),
           ),
-          // dimming overlay
           Container(color: Colors.black.withAlpha((0.4 * 255).round())),
-          // content
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: 24.0,
@@ -124,7 +116,6 @@ class WildTraceHero extends StatelessWidget {
                         : 24,
                   ),
                 ],
-                // Main text - single line in landscape, stacked in portrait
                 Builder(
                   builder: (context) {
                     final isLandscape =
@@ -132,7 +123,6 @@ class WildTraceHero extends StatelessWidget {
                         Orientation.landscape;
 
                     if (isLandscape) {
-                      // Landscape: Display on one line
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -176,7 +166,6 @@ class WildTraceHero extends StatelessWidget {
                         ],
                       );
                     } else {
-                      // Portrait: Display stacked (original behavior)
                       return Column(
                         children: [
                           Padding(
