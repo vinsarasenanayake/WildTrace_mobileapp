@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../common/common_widgets.dart';
 
-// financial breakdown and action card
+// order summary card
 class OrderSummaryCard extends StatelessWidget {
-  // summary content
+  // content
   final String? title;
   final List<Widget>? items;
   final String totalLabel;
   final String totalValue;
   final String? subtitle;
 
-  // action buttons
+  // buttons
   final String primaryButtonLabel;
   final VoidCallback primaryButtonOnTap;
   final String? secondaryButtonLabel;
@@ -38,7 +38,7 @@ class OrderSummaryCard extends StatelessWidget {
     this.isSecondaryEnabled = true,
   });
 
-  // builds summary card with items, total, and action buttons
+  // builds card
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -152,7 +152,3 @@ class OrderSummaryCard extends StatelessWidget {
     );
   }
 }
-
-// ============================================================================
-// ORDER ITEM WIDGET - Individual Item Display
-// ============================================================================

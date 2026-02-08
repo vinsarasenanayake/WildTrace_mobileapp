@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/auth_controller.dart';
+import '../../controllers/orders_controller.dart';
+import '../../models/order.dart';
 import '../../models/user.dart';
 import '../widgets/common/common_widgets.dart';
 import '../widgets/forms/form_widgets.dart';
-import 'package:quickalert/quickalert.dart';
-import '../../controllers/orders_controller.dart';
-import '../../models/order.dart';
+
+import '../../utilities/alert_service.dart';
 
 // edit profile screen
 class EditProfileScreen extends StatefulWidget {
@@ -18,7 +19,7 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  // form field controllers
+  // controllers
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _contactController;
@@ -27,13 +28,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _postalCodeController;
   late TextEditingController _countryController;
 
-  // password modification controllers
+  // password controllers
   final TextEditingController _currPass = TextEditingController();
   final TextEditingController _newPass = TextEditingController();
   final TextEditingController _confPass = TextEditingController();
   bool _obscureCurrent = true, _obscureNew = true, _obscureConfirm = true;
 
-  // populates controllers with existing user data
+  // init state
   @override
   void initState() {
     super.initState();
@@ -50,7 +51,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _countryController = TextEditingController(text: user?.country ?? '');
   }
 
-  // disposes all input controllers
+  // dispose
   @override
   void dispose() {
     _nameController.dispose();
@@ -66,38 +67,33 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  // processes profile detail updates
+  // updates profile
   Future<void> _handleUpdateProfile(AuthController authProvider) async {
+    // hide keyboard
+    FocusScope.of(context).unfocus();
+
     final currentUser = authProvider.currentUser;
     if (currentUser == null) return;
 
-    // Basic validation
+    // validation
     if (_nameController.text.isEmpty || _emailController.text.isEmpty) {
-      final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-      QuickAlert.show(
+
+      AlertService.showWarning(
         context: context,
-        type: QuickAlertType.warning,
         title: 'Missing Info',
         text: 'Name and Email cannot be empty',
-        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-        titleColor: isDarkMode ? Colors.white : Colors.black,
-        textColor: isDarkMode ? Colors.white70 : Colors.black87,
       );
       return;
     }
 
-    // Email format validation
+    // email check
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(_emailController.text)) {
-      final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-      QuickAlert.show(
+
+      AlertService.showWarning(
         context: context,
-        type: QuickAlertType.warning,
         title: 'Invalid Email',
         text: 'Please enter a valid email address',
-        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-        titleColor: isDarkMode ? Colors.white : Colors.black,
-        textColor: isDarkMode ? Colors.white70 : Colors.black87,
       );
       return;
     }
@@ -116,40 +112,38 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     try {
       final success = await authProvider.updateProfile(updatedUser);
       if (mounted) {
-        final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-        QuickAlert.show(
-          context: context,
-          type: success ? QuickAlertType.success : QuickAlertType.error,
-          title: success ? 'Profile Updated' : 'Update Failed',
-          text: success
-              ? 'Profile updated successfully'
-              : 'Failed to update profile',
-          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-          titleColor: isDarkMode ? Colors.white : Colors.black,
-          textColor: isDarkMode ? Colors.white70 : Colors.black87,
-        );
+
+        if (success) {
+          AlertService.showSuccess(
+            context: context,
+            title: 'Profile Updated',
+            text: 'Profile updated successfully',
+          );
+        } else {
+          AlertService.showError(
+            context: context,
+            title: 'Update Failed',
+            text: 'Failed to update profile',
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
-        final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
         String errorMessage = e.toString().replaceAll('Exception: ', '');
-        QuickAlert.show(
+        AlertService.showError(
           context: context,
-          type: QuickAlertType.error,
           title: 'Update Error',
           text: errorMessage,
-          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-          titleColor: isDarkMode ? Colors.white : Colors.black,
-          textColor: isDarkMode ? Colors.white70 : Colors.black87,
         );
       }
     }
   }
 
-  // builds the main screen architecture
+  // builds screen
   @override
   Widget build(BuildContext context) {
-    // detects theme and device orientation
+    // theme data
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     final isLandscape =
@@ -157,17 +151,25 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     return Scaffold(
       backgroundColor: isDarkMode
-          ? const Color(0xFF121212)
+          ? Colors.black
           : const Color(0xFFF9FBF9),
       appBar: AppBar(
         backgroundColor: isDarkMode
-            ? const Color(0xFF121212)
+            ? Colors.black
             : const Color(0xFFF9FBF9),
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
         automaticallyImplyLeading: false,
-        title: const WildTraceLogo(height: 40),
+        title: Text(
+          'Edit Profile',
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.0,
+            color: textColor,
+          ),
+        ),
         centerTitle: true,
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
@@ -185,8 +187,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       body: Consumer<AuthController>(
         builder: (context, authProvider, child) {
           return SafeArea(
-            left: false,
-            right: false,
+            bottom: false,
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Center(
@@ -196,12 +197,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       : null,
                   child: Column(
                     children: [
-                      // navigation indicators
-                      _buildBreadcrumb(),
+                      // logo
                       const SizedBox(height: 16),
-                      _buildTitle(textColor),
+                      const WildTraceLogo(height: 80),
                       const SizedBox(height: 48),
-                      // segmented setting sections
+                      // setting sections
                       _buildProfileSection(
                         isDarkMode,
                         authProvider,
@@ -210,11 +210,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       const SizedBox(height: 40),
                       _buildPasswordSection(isDarkMode, authProvider),
                       const SizedBox(height: 40),
-                      _buildTwoFactorSection(textColor),
-                      const SizedBox(height: 40),
-                      _buildSessionsSection(textColor),
-                      const SizedBox(height: 40),
-                      _buildDestructiveSection(),
+                      _buildDeleteAccountSection(isDarkMode, authProvider),
                       const SizedBox(height: 40),
                     ],
                   ),
@@ -227,33 +223,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // builds the contextual path indicator
-  Widget _buildBreadcrumb() {
-    return Text(
-      'BACK TO DASHBOARD',
-      style: GoogleFonts.inter(
-        fontSize: 10,
-        fontWeight: FontWeight.bold,
-        letterSpacing: 2.0,
-        color: Colors.grey.shade500,
-      ),
-    );
-  }
 
-  // builds the page header title
-  Widget _buildTitle(Color textColor) {
-    return Text(
-      'Edit Profile',
-      style: GoogleFonts.playfairDisplay(
-        fontSize: 32,
-        fontWeight: FontWeight.bold,
-        fontStyle: FontStyle.italic,
-        color: textColor,
-      ),
-    );
-  }
 
-  // builds the user info modification forms
+  // builds profile section
   Widget _buildProfileSection(
     bool isDarkMode,
     AuthController authProvider,
@@ -309,10 +281,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 24),
               CustomButton(
-                text: authProvider.isLoading ? 'SAVING...' : 'SAVE',
-                onPressed: authProvider.isLoading
-                    ? () {}
-                    : () => _handleUpdateProfile(authProvider),
+                text: 'SAVE',
+                onPressed: () => _handleUpdateProfile(authProvider),
               ),
             ],
           ),
@@ -321,7 +291,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // builds the password management interface
+  // builds password section
   Widget _buildPasswordSection(bool isDarkMode, AuthController authProvider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -369,6 +339,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 onToggleVisibility: () =>
                     setState(() => _obscureCurrent = !_obscureCurrent),
                 textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.password],
               ),
               const SizedBox(height: 20),
               CustomTextField(
@@ -380,6 +351,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 onToggleVisibility: () =>
                     setState(() => _obscureNew = !_obscureNew),
                 textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.newPassword],
               ),
               const SizedBox(height: 20),
               CustomTextField(
@@ -391,45 +363,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 onToggleVisibility: () =>
                     setState(() => _obscureConfirm = !_obscureConfirm),
                 textInputAction: TextInputAction.done,
+                autofillHints: const [AutofillHints.password],
                 onSubmitted: (_) {
-                  final bool isDarkMode =
-                      Theme.of(context).brightness == Brightness.dark;
-                  QuickAlert.show(
+
+                  AlertService.showInfo(
                     context: context,
-                    type: QuickAlertType.info,
                     title: 'Info',
                     text: 'Password update simulated',
-                    backgroundColor: isDarkMode
-                        ? const Color(0xFF1E1E1E)
-                        : Colors.white,
-                    titleColor: isDarkMode ? Colors.white : Colors.black,
-                    textColor: isDarkMode ? Colors.white70 : Colors.black87,
                   );
                 },
               ),
               const SizedBox(height: 24),
               CustomButton(
-                text: authProvider.isLoading ? 'UPDATING...' : 'SAVE',
-                onPressed: authProvider.isLoading
-                    ? () {}
-                    : () async {
+                text: 'SAVE',
+                onPressed: () async {
                         if (_newPass.text != _confPass.text) {
-                          final bool isDarkMode =
-                              Theme.of(context).brightness == Brightness.dark;
-                          QuickAlert.show(
+
+                          AlertService.showWarning(
                             context: context,
-                            type: QuickAlertType.warning,
                             title: 'Mismatch',
                             text: 'Passwords do not match',
-                            backgroundColor: isDarkMode
-                                ? const Color(0xFF1E1E1E)
-                                : Colors.white,
-                            titleColor: isDarkMode
-                                ? Colors.white
-                                : Colors.black,
-                            textColor: isDarkMode
-                                ? Colors.white70
-                                : Colors.black87,
                           );
                           return;
                         }
@@ -439,29 +392,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           _newPass.text,
                         );
                         if (mounted) {
-                          final bool isDarkMode =
-                              Theme.of(context).brightness == Brightness.dark;
-                          QuickAlert.show(
-                            context: context,
-                            type: success
-                                ? QuickAlertType.success
-                                : QuickAlertType.error,
-                            title: success
-                                ? 'Security Updated'
-                                : 'Update Failed',
-                            text: success
-                                ? 'Management of your credentials has been secured.'
-                                : 'Failed to update credentials.',
-                            backgroundColor: isDarkMode
-                                ? const Color(0xFF1E1E1E)
-                                : Colors.white,
-                            titleColor: isDarkMode
-                                ? Colors.white
-                                : Colors.black,
-                            textColor: isDarkMode
-                                ? Colors.white70
-                                : Colors.black87,
-                          );
+
+                          if (success) {
+                            AlertService.showSuccess(
+                              context: context,
+                              title: 'Security Updated',
+                              text: 'Management of your credentials has been secured.',
+                            );
+                          } else {
+                            AlertService.showError(
+                              context: context,
+                              title: 'Update Failed',
+                              text: 'Failed to update credentials.',
+                            );
+                          }
                           if (success) {
                             _currPass.clear();
                             _newPass.clear();
@@ -477,221 +421,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  // builds the security configuration area
-  Widget _buildTwoFactorSection(Color textColor) {
+  // builds delete section
+  Widget _buildDeleteAccountSection(bool isDarkMode, AuthController authProvider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Two Factor Authentication',
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: textColor,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Add additional security to your account using two factor authentication.',
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: Colors.grey.shade600,
-            height: 1.5,
-          ),
-        ),
-        const SizedBox(height: 24),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? const Color(0xFF1E1E1E)
-                : Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha((0.05 * 255).round()),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'You have not enabled two factor authentication.',
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: textColor,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                "When two factor authentication is enabled, you will be prompted for a secure, random token during authentication.",
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  height: 1.5,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              const SizedBox(height: 24),
-              CustomButton(
-                text: 'ENABLE',
-                onPressed: () {
-                  final bool isDarkMode =
-                      Theme.of(context).brightness == Brightness.dark;
-                  QuickAlert.show(
-                    context: context,
-                    type: QuickAlertType.info,
-                    title: 'Beta Feature',
-                    text:
-                        'Two-factor authentication is currently in beta. Please stay tuned for our next update.',
-                    backgroundColor: isDarkMode
-                        ? const Color(0xFF1E1E1E)
-                        : Colors.white,
-                    titleColor: isDarkMode ? Colors.white : Colors.black,
-                    textColor: isDarkMode ? Colors.white70 : Colors.black87,
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // builds the active session tracking summary
-  Widget _buildSessionsSection(Color textColor) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // session management header
-        Text(
-          'Browser Sessions',
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: textColor,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Manage and log out your active sessions on other browsers and devices.',
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: Colors.grey.shade600,
-            height: 1.5,
-          ),
-        ),
-        const SizedBox(height: 24),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? const Color(0xFF1E1E1E)
-                : Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha((0.05 * 255).round()),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Manage and log out your active sessions on other browsers and devices.',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  height: 1.5,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              const SizedBox(height: 24),
-              // active device indicator
-              Row(
-                children: [
-                  Icon(
-                    Icons.desktop_windows_outlined,
-                    size: 32,
-                    color: Colors.grey.shade500,
-                  ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Windows - Edge',
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: textColor,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '127.0.0.1, This device',
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          color: const Color(0xFF27AE60),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              CustomButton(
-                text: 'LOG OUT OTHER BROWSER SESSIONS',
-                onPressed: () {
-                  final bool isDarkMode =
-                      Theme.of(context).brightness == Brightness.dark;
-                  QuickAlert.show(
-                    context: context,
-                    type: QuickAlertType.info,
-                    title: 'Active Sessions',
-                    text: 'You are currently only logged in on this device.',
-                    backgroundColor: isDarkMode
-                        ? const Color(0xFF1E1E1E)
-                        : Colors.white,
-                    titleColor: isDarkMode ? Colors.white : Colors.black,
-                    textColor: isDarkMode ? Colors.white70 : Colors.black87,
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  // builds the danger zone account removal area
-  Widget _buildDestructiveSection() {
-    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // destructive action header
         Text(
           'Delete Account',
           style: GoogleFonts.inter(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: isDarkMode ? Colors.white : const Color(0xFF1B4332),
+            color: const Color(0xFFE11D48),
           ),
         ),
         const SizedBox(height: 8),
         Text(
-          'Permanently delete your account.',
+          'This action is irreversible. All your data will be permanently removed.',
           style: GoogleFonts.inter(
             fontSize: 12,
             color: Colors.grey.shade600,
@@ -712,129 +457,94 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 offset: const Offset(0, 10),
               ),
             ],
+            border: Border.all(
+              color: const Color(0xFFE11D48).withValues(alpha: 0.3),
+            ),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Once your account is deleted, all of its resources and data will be permanently deleted.',
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  height: 1.5,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              const SizedBox(height: 24),
-              // initiates deletion with validity checks
               CustomButton(
                 text: 'DELETE ACCOUNT',
-                type: CustomButtonType.destructive,
-                onPressed: () {
-                  final ordersProvider = Provider.of<OrdersController>(
-                    context,
-                    listen: false,
-                  );
-                  final isLandscape =
-                      MediaQuery.of(context).orientation ==
-                      Orientation.landscape;
-
-                  // verifies if there are pending orders before providing deletion option
-                  final hasOngoingOrders = ordersProvider.orders.any(
-                    (order) =>
-                        order.status == OrderStatus.paid ||
-                        order.status == OrderStatus.processing ||
-                        order.status == OrderStatus.shipped,
-                  );
-
-                  if (hasOngoingOrders) {
-                    QuickAlert.show(
-                      context: context,
-                      type: QuickAlertType.error,
-                      title: 'Cannot Delete Account',
-                      text:
-                          'You have ongoing orders that are being processed or shipped. Please wait until they are delivered or resolved before deleting your account.',
-                      backgroundColor: isDarkMode
-                          ? const Color(0xFF1E1E1E)
-                          : Colors.white,
-                      titleColor: isDarkMode ? Colors.white : Colors.black,
-                      textColor: isDarkMode ? Colors.white70 : Colors.black87,
-                      showConfirmBtn: false,
-                      widget: Column(
-                        children: [
-                          SizedBox(height: isLandscape ? 8 : 24),
-                          CustomButton(
-                            text: 'OKAY',
-                            fontSize: 12,
-                            verticalPadding: isLandscape ? 10 : 16,
-                            onPressed: () => Navigator.pop(context),
-                          ),
-                        ],
-                      ),
-                    );
-                  } else {
-                    // requests final confirmation
-                    QuickAlert.show(
-                      context: context,
-                      type: QuickAlertType.confirm,
-                      title: 'Are you sure?',
-                      text:
-                          'Once your account is deleted, all of its resources and data will be permanently deleted.',
-                      confirmBtnText: 'Delete',
-                      cancelBtnText: 'Cancel',
-                      confirmBtnColor: Colors.red,
-                      confirmBtnTextStyle: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      cancelBtnTextStyle: GoogleFonts.inter(
-                        fontSize: 12,
-                        color: isDarkMode ? Colors.white70 : Colors.grey,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      onConfirmBtnTap: () {
-                        // restricted action notification
-                        Navigator.pop(context);
-                        QuickAlert.show(
-                          context: context,
-                          type: QuickAlertType.info,
-                          title: 'Action Restricted',
-                          text:
-                              'Account deletion is currently limited for security. Please contact support.',
-                          backgroundColor: isDarkMode
-                              ? const Color(0xFF1E1E1E)
-                              : Colors.white,
-                          titleColor: isDarkMode ? Colors.white : Colors.black,
-                          textColor: isDarkMode
-                              ? Colors.white70
-                              : Colors.black87,
-                          showConfirmBtn: false,
-                          widget: Column(
-                            children: [
-                              SizedBox(height: isLandscape ? 8 : 24),
-                              CustomButton(
-                                text: 'OKAY',
-                                fontSize: 12,
-                                verticalPadding: isLandscape ? 10 : 16,
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                      backgroundColor: isDarkMode
-                          ? const Color(0xFF1E1E1E)
-                          : Colors.white,
-                      titleColor: isDarkMode ? Colors.white : Colors.black,
-                      textColor: isDarkMode ? Colors.white70 : Colors.black87,
-                    );
-                  }
-                },
+                backgroundColor: const Color(0xFFE11D48),
+                onPressed: () => _handleDeleteAccount(authProvider),
               ),
             ],
           ),
         ),
       ],
     );
+  }
+
+  Future<void> _handleDeleteAccount(AuthController authProvider) async {
+    final ordersProvider = Provider.of<OrdersController>(context, listen: false);
+    
+    // check constraints
+    if (authProvider.currentUser != null && authProvider.token != null) {
+       // We force a refresh to be safe, or just rely on existing state if recent?
+       // Better to refresh to avoid stale data allowing deletion when it shouldn't.
+       // But loadOrders might be heavy. Let's assume state is relatively fresh or empty means not loaded.
+       if (ordersProvider.orders.isEmpty) {
+           await ordersProvider.loadOrders(authProvider.currentUser!.id, authProvider.token!);
+       }
+    }
+    
+    final orders = ordersProvider.orders;
+    bool canDelete = true;
+    
+    // check orders
+    for (var order in orders) {
+       // check if paid
+       bool isPaid = order.status == OrderStatus.paid || 
+                     order.status == OrderStatus.processing || 
+                     order.status == OrderStatus.shipped ||
+                     order.status == OrderStatus.delivered; // Delivered counts as paid history
+       
+       if (isPaid) {
+          // block if future delivery
+          
+          final DateTime now = DateTime.now();
+          // Use estimatedDeliveryDate, default to orderDate + 7 days if null (fallback logic)
+          final DateTime estimated = order.estimatedDeliveryDate ?? order.orderDate.add(const Duration(days: 7));
+          
+          if (estimated.isAfter(now)) {
+             // Future delivery -> Block
+             canDelete = false;
+             break;
+          }
+       }
+       // Pending/Cancelled/Declined are ignored (can delete)
+    }
+
+    if (!canDelete) {
+      if (mounted) {
+        AlertService.showError(
+          context: context,
+          title: 'Cannot Delete Account',
+          text: 'You have active paid orders pending delivery. Please wait until they are delivered.',
+        );
+      }
+      return;
+    }
+
+    if (mounted) {
+      AlertService.showConfirmation(
+        context: context,
+        title: 'Delete Account?',
+        text: 'Are you sure you want to permanently delete your account?',
+        confirmBtnText: 'DELETE',
+        confirmBtnColor: const Color(0xFFE11D48),
+        onConfirm: () async {
+          Navigator.pop(context); // Close dialog
+          
+          // logout
+          await authProvider.logout();
+          
+          if (mounted) {
+            // Pop all routes and go to main wrapper (which defaults to Home/Login)
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          }
+        },
+      );
+    }
   }
 }

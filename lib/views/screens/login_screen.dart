@@ -4,11 +4,11 @@ import 'package:provider/provider.dart';
 import '../../main_wrapper.dart';
 import '../../controllers/auth_controller.dart';
 import 'register_screen.dart';
-import 'forgot_password_screen.dart';
 import '../widgets/common/common_widgets.dart';
-import 'package:quickalert/quickalert.dart';
 
-// user login screen
+import '../../utilities/alert_service.dart';
+
+// login screen
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -17,54 +17,49 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // UI state for credential visibility
+  // password visibility state
   bool _obscurePassword = true;
-  // controllers for user input
+  // controllers
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  // manages the authentication submission process
+  // handles login
   Future<void> _handleLogin(
     AuthController authProvider,
     bool isDarkMode,
   ) async {
-    // validates that both fields are populated
+    // hide keyboard
+    FocusScope.of(context).unfocus();
+
+    // validation
     if (_emailController.text.trim().isEmpty ||
         _passwordController.text.trim().isEmpty) {
-      QuickAlert.show(
+      AlertService.showWarning(
         context: context,
-        type: QuickAlertType.warning,
         title: 'Missing Details',
         text: 'Please enter your credentials and sign in',
-        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-        titleColor: isDarkMode ? Colors.white : Colors.black,
-        textColor: isDarkMode ? Colors.white70 : Colors.black87,
       );
       return;
     }
 
-    // Email format validation
+    // email check
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(_emailController.text.trim())) {
-      QuickAlert.show(
+      AlertService.showWarning(
         context: context,
-        type: QuickAlertType.warning,
         title: 'Invalid Email',
         text: 'Please enter a valid email address',
-        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-        titleColor: isDarkMode ? Colors.white : Colors.black,
-        textColor: isDarkMode ? Colors.white70 : Colors.black87,
       );
       return;
     }
 
     try {
-      // attempts authentication via the provider
+      // attempts login
       final success = await authProvider.login(
         _emailController.text,
         _passwordController.text,
       );
-      // navigates to main platform upon success
+      // success case
       if (success && mounted) {
         Navigator.pushAndRemoveUntil(
           context,
@@ -72,64 +67,44 @@ class _LoginScreenState extends State<LoginScreen> {
           (route) => false,
         );
       } else if (mounted) {
-        // handles generic authentication failure
-        QuickAlert.show(
+        // generic failure
+        AlertService.showError(
           context: context,
-          type: QuickAlertType.error,
           title: 'Login Failed',
           text: 'Please check your credentials.',
-          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-          titleColor: isDarkMode ? Colors.white : Colors.black,
-          textColor: isDarkMode ? Colors.white70 : Colors.black87,
-          confirmBtnText: 'Okay',
-          confirmBtnTextStyle: GoogleFonts.inter(
-            fontSize: 12,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
         );
       }
     } catch (e) {
-      // provides granular error feedback from the backend
+      // backend error feedback
       if (mounted) {
         String errorMessage = e.toString().replaceAll('Exception: ', '');
-        QuickAlert.show(
+        AlertService.showError(
           context: context,
-          type: QuickAlertType.error,
           title: 'Login Error',
           text: errorMessage,
-          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-          titleColor: isDarkMode ? Colors.white : Colors.black,
-          textColor: isDarkMode ? Colors.white70 : Colors.black87,
-          confirmBtnText: 'Okay',
-          confirmBtnTextStyle: GoogleFonts.inter(
-            fontSize: 12,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
         );
       }
     }
   }
 
-  // builds the visual login workflow
+  // builds login screen
   @override
   Widget build(BuildContext context) {
-    // theme and adaptive layout detection
+    // theme data
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
 
     return Scaffold(
       backgroundColor: isDarkMode
-          ? const Color(0xFF121212)
+          ? Colors.black
           : const Color(0xFFF9FBF9),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
-        // session exit navigation
+        // back button
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(
@@ -154,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 40),
-                  // platform branding navigation
+                  // logo
                   GestureDetector(
                     onTap: () => Navigator.pushAndRemoveUntil(
                       context,
@@ -164,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: const WildTraceLogo(),
                   ),
                   const SizedBox(height: 24),
-                  // page identification
+                  // heading
                   Text(
                     'Welcome Back',
                     style: GoogleFonts.playfairDisplay(
@@ -186,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 48),
-                  // credentials input container
+                  // input container
                   Container(
                     width: isLandscape
                         ? MediaQuery.of(context).size.width * 0.6
@@ -205,10 +180,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // adapts input field layout based on screen orientation
+                    child: AutofillGroup(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                        // responsive inputs
                         isLandscape
                             ? Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,6 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       controller: _emailController,
                                       hintText: 'name@example.com',
                                       textInputAction: TextInputAction.next,
+                                      autofillHints: const [AutofillHints.email],
                                     ),
                                   ),
                                   const SizedBox(width: 16),
@@ -234,6 +211,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                             !_obscurePassword,
                                       ),
                                       textInputAction: TextInputAction.done,
+                                      autofillHints: const [AutofillHints.password],
                                       onSubmitted: (_) => _handleLogin(
                                         authProvider,
                                         isDarkMode,
@@ -249,6 +227,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     controller: _emailController,
                                     hintText: 'name@example.com',
                                     textInputAction: TextInputAction.next,
+                                    autofillHints: const [AutofillHints.email],
                                   ),
                                   const SizedBox(height: 24),
                                   CustomTextField(
@@ -262,72 +241,44 @@ class _LoginScreenState extends State<LoginScreen> {
                                           _obscurePassword = !_obscurePassword,
                                     ),
                                     textInputAction: TextInputAction.done,
+                                    autofillHints: const [AutofillHints.password],
                                     onSubmitted: (_) =>
                                         _handleLogin(authProvider, isDarkMode),
                                   ),
                                 ],
                               ),
                         const SizedBox(height: 32),
-                        // main action trigger with loading state feedback
+                        // sign in button
                         CustomButton(
-                          text: authProvider.isLoading
-                              ? 'SIGNING IN...'
-                              : 'SIGN IN',
-                          onPressed: authProvider.isLoading
-                              ? () {}
-                              : () => _handleLogin(authProvider, isDarkMode),
+                          text: 'SIGN IN',
+                          onPressed: () => _handleLogin(authProvider, isDarkMode),
                         ),
                         const SizedBox(height: 24),
-                        // secondary navigation options
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            TextButton(
-                              onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const ForgotPasswordScreen(),
-                                ),
-                              ),
-                              child: Text(
-                                'FORGOT PASSWORD?',
-                                style: GoogleFonts.inter(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey[500],
-                                ),
+                        // register button
+                        Center(
+                          child: TextButton(
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const RegisterScreen(),
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '|',
-                              style: TextStyle(color: Colors.grey[300]),
-                            ),
-                            const SizedBox(width: 8),
-                            TextButton(
-                              onPressed: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const RegisterScreen(),
-                                ),
-                              ),
-                              child: Text(
-                                'REGISTER NOW',
-                                style: GoogleFonts.inter(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey[500],
-                                ),
+                            child: Text(
+                              'REGISTER NOW',
+                              style: GoogleFonts.inter(
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey[500],
                               ),
                             ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
                   ),
+                ),
                   const SizedBox(height: 48),
-                  // branding and copyright attribution
+                  // footer
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

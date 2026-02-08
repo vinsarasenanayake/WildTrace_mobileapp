@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../models/photographer.dart';
 import '../models/milestone.dart';
-import '../services/api_service.dart';
+import '../services/api/index.dart';
 
-// manages static platform content
+// content controller
 class ContentController with ChangeNotifier {
-  final ApiService _apiService = ApiService();
+  final ContentApiService _apiService = ContentApiService();
   List<Photographer> _photographers = [];
   List<Milestone> _milestones = [];
   bool _isLoading = false;
@@ -14,7 +14,7 @@ class ContentController with ChangeNotifier {
   List<Milestone> get milestones => List.unmodifiable(_milestones);
   bool get isLoading => _isLoading;
 
-  // retrieves milestones and photographers
+  // fetch data
   Future<void> fetchContent() async {
     _isLoading = true;
     notifyListeners();
@@ -23,7 +23,8 @@ class ContentController with ChangeNotifier {
       _photographers = photographersData.map((data) => Photographer.fromJson(data)).toList();
       final milestonesData = await _apiService.fetchMilestones();
       _milestones = milestonesData.map((data) => Milestone.fromJson(data)).toList();
-    } catch (_) {
+    } catch (e) {
+      // Quietly handle errors
     } finally {
       _isLoading = false;
       notifyListeners();

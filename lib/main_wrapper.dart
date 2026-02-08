@@ -7,7 +7,7 @@ import 'views/screens/cart_screen.dart';
 import 'views/screens/profile_screen.dart';
 import 'views/widgets/common/common_widgets.dart';
 
-// Application wrapper
+// app wrapper
 class MainWrapper extends StatelessWidget {
   const MainWrapper({super.key});
 
@@ -15,7 +15,7 @@ class MainWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     final navProvider = Provider.of<NavigationController>(context);
     
-    // Switch between screens
+    // select screen
     Widget getBody() {
       switch (navProvider.selectedIndex) {
         case 0:
@@ -31,7 +31,10 @@ class MainWrapper extends StatelessWidget {
       }
     }
     
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
+      backgroundColor: isDarkMode ? Colors.black : const Color(0xFFF9FBF9),
       body: getBody(),
       bottomNavigationBar: const WildTraceBottomNavBar(),
     );

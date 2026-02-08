@@ -6,12 +6,14 @@ import '../../controllers/orders_controller.dart';
 import '../../models/order.dart';
 import '../widgets/common/common_widgets.dart';
 import '../widgets/cards/card_widgets.dart';
-import '../../services/api_service.dart';
+
 import '../../controllers/auth_controller.dart';
 import '../../controllers/navigation_controller.dart';
-import 'package:quickalert/quickalert.dart';
 
-// purchase history records
+import '../../utilities/alert_service.dart';
+import 'checkout_screen.dart';
+
+// order history screen
 class OrderHistoryScreen extends StatefulWidget {
   const OrderHistoryScreen({super.key});
 
@@ -20,7 +22,7 @@ class OrderHistoryScreen extends StatefulWidget {
 }
 
 class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
-  // initiates orders retrieval on component mount
+  // init state
   @override
   void initState() {
     super.initState();
@@ -29,7 +31,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     });
   }
 
-  // synchronizes local order list with backend records
+  // refreshes orders
   Future<void> _refreshOrders() async {
     final authProvider = Provider.of<AuthController>(context, listen: false);
     final ordersProvider = Provider.of<OrdersController>(context, listen: false);
@@ -40,68 +42,24 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   }
 
   // manages the payment fulfillment workflow via Stripe
-  Future<void> _payWithStripe(Order order) async {
-    final ordersProvider = Provider.of<OrdersController>(context, listen: false);
-    
-    // triggers external payment gateway
-    await StripeService.instance.makePayment(
-      amount: order.total,
-      currency: 'USD',
-      context: context,
-      onSuccess: () async {
-        // synchronizes payment state with platform backend
-        final success = await ordersProvider.updatePaymentStatus(order.id, 'paid');
-        if (mounted) {
-          final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-          if (success) {
-            // provides delivery expectations to the user
-            final estimatedDate = DateTime.now().add(const Duration(days: 3));
-            final formattedDate = DateFormat('MMMM dd, yyyy').format(estimatedDate);
 
-            QuickAlert.show(
-              context: context,
-              type: QuickAlertType.success,
-              title: 'Payment Successful',
-              text: 'Order is now being processed! \nEstimated Delivery: $formattedDate',
-              backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-              titleColor: isDarkMode ? Colors.white : Colors.black,
-              textColor: isDarkMode ? Colors.white70 : Colors.black87,
-              confirmBtnText: 'OKAY',
-              confirmBtnTextStyle: GoogleFonts.inter(fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
-            );
-          } else {
-            // handles backend synchronization failures post-payment
-             QuickAlert.show(
-              context: context,
-              type: QuickAlertType.error,
-              title: 'Processing Error',
-              text: 'Payment recorded by Stripe, but backend update failed. Please contact support.',
-              backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-              titleColor: isDarkMode ? Colors.white : Colors.black,
-              textColor: isDarkMode ? Colors.white70 : Colors.black87,
-            );
-          }
-        }
-      },
-    );
-  }
 
-  // builds the visual purchase history workflow
+  // builds order history screen
   @override
   Widget build(BuildContext context) {
-    // theme and layout design tokens
+    // theme data
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final Color backgroundColor = isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9);
+    final Color backgroundColor = isDarkMode ? Colors.black : const Color(0xFFF9FBF9);
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     
     return Scaffold(
       backgroundColor: backgroundColor,
       appBar: AppBar(
-        backgroundColor: isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9),
+        backgroundColor: isDarkMode ? Colors.black : const Color(0xFFF9FBF9),
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
-        // session exit navigation
+        // back button
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(
@@ -125,17 +83,17 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
           ),
         ),
       ),
-      // dynamic update binding for order records
+      // orders consumer
       body: Consumer<OrdersController>(
         builder: (context, ordersProvider, child) {
           final orders = ordersProvider.orders;
           
-          // loading visualization for asynchronous data
+          // loading indicator
           if (ordersProvider.isLoading && orders.isEmpty) {
             return const Center(child: CircularProgressIndicator(color: Color(0xFF27AE60)));
           }
 
-          // handles scenarios where no purchases exist
+          // empty state feedback
           if (orders.isEmpty) {
             return Center(
               child: Column(
@@ -152,7 +110,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                     )
                   ),
                   const SizedBox(height: 24),
-                  // guides user back to core value proposition
+                  // explore button
                   SizedBox(
                     width: 220,
                     child: CustomButton(
@@ -169,7 +127,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
             );
           }
           
-          // manages manual list synchronization
+          // refresh indicator
           return RefreshIndicator(
             onRefresh: _refreshOrders,
             color: const Color(0xFF27AE60),
@@ -180,7 +138,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
               itemBuilder: (context, index) {
                 final order = orders[index];
                 
-                // singular order presentation card
+                // order card
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 24.0),
                   child: OrderCard(
@@ -188,53 +146,54 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
                     orderId: 'ORDER #${order.id}',
                     date: DateFormat('MMMM d, y').format(order.orderDate),
                     total: '\$${order.total.toStringAsFixed(2)}',
-                    estimatedDelivery: order.estimatedDeliveryDate != null 
-                        ? DateFormat('MMMM d, y').format(order.estimatedDeliveryDate!) 
-                        : null,
-                    onPayNow: () => _payWithStripe(order),
+                    estimatedDelivery: (order.status == OrderStatus.pending) 
+                        ? null 
+                        : (order.estimatedDeliveryDate != null 
+                            ? DateFormat('MMMM d, y').format(order.estimatedDeliveryDate!) 
+                            : null),
+                    onPayNow: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => CheckoutScreen(pendingOrder: order)),
+                      );
+                    },
                     onCancel: () async {
-                      // validates that order can still be aborted
                       if (order.status == OrderStatus.pending) {
-                        final success = await ordersProvider.cancelOrder(order.id);
-                        if (context.mounted) {
-                          final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-                          if (success) {
-                            QuickAlert.show(
-                              context: context,
-                              type: QuickAlertType.success,
-                              title: 'Order Cancelled',
-                              text: 'Order cancelled successfully',
-                              backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                              titleColor: isDarkMode ? Colors.white : Colors.black,
-                              textColor: isDarkMode ? Colors.white70 : Colors.black87,
-                            );
-                          } else {
-                            QuickAlert.show(
-                              context: context,
-                              type: QuickAlertType.error,
-                              title: 'Cancellation Failed',
-                              text: 'Failed to cancel order',
-                              backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                              titleColor: isDarkMode ? Colors.white : Colors.black,
-                              textColor: isDarkMode ? Colors.white70 : Colors.black87,
-                            );
-                          }
-                        }
+                         AlertService.showConfirmation(
+                            context: context,
+                            title: 'Cancel Order',
+                            text: 'Are you sure you want to cancel this order?',
+                            confirmBtnText: 'Yes, Cancel',
+                            cancelBtnText: 'No',
+                            onConfirm: () async {
+                                Navigator.pop(context); 
+                                final success = await ordersProvider.cancelOrder(order.id);
+                                if (context.mounted) {
+                                  if (success) {
+                                    AlertService.showSuccess(
+                                      context: context,
+                                      title: 'Order Cancelled',
+                                      text: 'Order cancelled successfully',
+                                    );
+                                  } else {
+                                    AlertService.showError(
+                                      context: context,
+                                      title: 'Cancellation Failed',
+                                      text: 'Failed to cancel order',
+                                    );
+                                  }
+                                }
+                            },
+                            onCancel: () => Navigator.pop(context),
+                         );
                       } else {
-                        // feedback for immutable order states
-                        final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-                        QuickAlert.show(
+                        AlertService.showWarning(
                           context: context,
-                          type: QuickAlertType.warning,
                           title: 'Action Denied',
                           text: 'Cannot cancel this order',
-                          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-                          titleColor: isDarkMode ? Colors.white : Colors.black,
-                          textColor: isDarkMode ? Colors.white70 : Colors.black87,
                         );
                       }
                     },
-                    // transforms internal line items for presentation
                     items: order.items.map((item) => OrderItem(
                       image: item.product.imageUrl,
                       title: item.product.title,
@@ -252,7 +211,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     );
   }
   
-  // transforms enum state to human readable identifier
+  // maps status to string
   String _statusToString(OrderStatus status) {
     switch (status) {
       case OrderStatus.pending: return 'PENDING';

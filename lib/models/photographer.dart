@@ -1,4 +1,6 @@
-// photographer profile data
+import '../services/api/base_api_service.dart';
+
+// photographer model
 class Photographer {
   final String id;
   final String name;
@@ -18,7 +20,7 @@ class Photographer {
     required this.imageUrl,
   });
 
-  // creates from json
+  // from json
   factory Photographer.fromJson(Map<String, dynamic> json) {
     return Photographer(
       id: json['id'].toString(),
@@ -27,7 +29,7 @@ class Photographer {
       achievement: json['achievement'] ?? '',
       quote: json['quote'] ?? '',
       post: json['post'],
-      imageUrl: (json['image_url'] ?? json['image'] ?? '').toString(),
+      imageUrl: BaseApiService.resolveImageUrl((json['image_url'] ?? json['image'] ?? '').toString()),
     );
   }
 }

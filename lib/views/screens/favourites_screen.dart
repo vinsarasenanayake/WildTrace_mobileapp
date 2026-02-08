@@ -3,28 +3,30 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/favorites_controller.dart';
 import '../../controllers/auth_controller.dart';
-import '../../utils/responsive_helper.dart';
+import '../../utilities/responsive_helper.dart';
 import 'product_details_screen.dart';
 import '../widgets/cards/card_widgets.dart';
 import '../widgets/common/common_widgets.dart';
 import '../../controllers/navigation_controller.dart';
 
-// favorites list screen
+// favorites screen
 class FavouritesScreen extends StatelessWidget {
   const FavouritesScreen({super.key});
 
-  // builds the visual representation of saved favorites
+  // builds favorites screen
   @override
   Widget build(BuildContext context) {
-    // theme and color configuration
+    // theme data
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final Color backgroundColor = isDarkMode ? const Color(0xFF121212) : const Color(0xFFF9FBF9);
+    final Color backgroundColor = isDarkMode ? Colors.black : const Color(0xFFF9FBF9);
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     
     return Scaffold(
       backgroundColor: backgroundColor,
-      body: RefreshIndicator(
-        // handles manual refresh of favorite items
+      body: SafeArea(
+        bottom: false,
+        child: RefreshIndicator(
+          // refresh handler
         onRefresh: () async {
           final authProvider = Provider.of<AuthController>(context, listen: false);
           final favoritesProvider = Provider.of<FavoritesController>(context, listen: false);
@@ -36,7 +38,7 @@ class FavouritesScreen extends StatelessWidget {
         child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
-            // transparent app bar with back navigation
+            // app bar
             SliverAppBar(
               backgroundColor: Colors.transparent,
               elevation: 0,
@@ -70,12 +72,12 @@ class FavouritesScreen extends StatelessWidget {
                 ),
               ),
             ),
-            // dynamically renders favorite cards from provider state
+            // builds favorites list
             Consumer<FavoritesController>(
               builder: (context, favoritesProvider, child) {
                 final favorites = favoritesProvider.favorites;
                 
-                // provides feedback when list is empty
+                // empty state feedback
                 if (favorites.isEmpty) {
                   return SliverFillRemaining(
                     hasScrollBody: false,
@@ -83,12 +85,12 @@ class FavouritesScreen extends StatelessWidget {
                   );
                 }
                 
-                // calculates responsive grid parameters
+                // grid params
                 final crossAxisCount = ResponsiveHelper.getGridCrossAxisCount(context, portrait: 2);
                 final spacing = ResponsiveHelper.getSpacing(context, portrait: 16);
                 final aspectRatio = ResponsiveHelper.getGridChildAspectRatio(context, portrait: 0.7);
                 
-                // renders the products in a structured grid
+                // renders grid
                 return SliverPadding(
                   padding: const EdgeInsets.all(24),
                   sliver: SliverGrid(
@@ -110,7 +112,7 @@ class FavouritesScreen extends StatelessWidget {
                           isLiked: true,
                           onLikeToggle: () => favoritesProvider.toggleFavorite(product),
                           onTap: () {
-                             // navigates to detailed product view
+                             // navigates to details
                              Navigator.push(
                                 context, 
                                 MaterialPageRoute(builder: (_) => ProductDetailsScreen(product: product))
@@ -126,11 +128,12 @@ class FavouritesScreen extends StatelessWidget {
             ),
           ],
         ),
+        ),
       ),
     );
   }
 
-  // builds the user prompt for empty favorite lists
+  // builds empty state
   Widget _buildEmptyState(BuildContext context, Color textColor) {
     return Center(
       child: Column(
@@ -155,7 +158,7 @@ class FavouritesScreen extends StatelessWidget {
             )
           ),
           const SizedBox(height: 24),
-          // encourages user interaction via exploration
+          // explore button
           SizedBox(
             width: 220,
             child: CustomButton(

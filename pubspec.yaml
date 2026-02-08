@@ -22,7 +22,12 @@ dependencies:
   quickalert: ^1.1.0
   geolocator: ^14.0.2
   geocoding: ^4.0.0
+  cached_network_image: ^3.4.1
+  light: ^4.1.0
   battery_plus: ^7.0.0
+
+
+
 
 dev_dependencies:
   flutter_test:
@@ -51,4 +56,8 @@ flutter:
     - assets/images/bbcearth.jpg
     - assets/images/nhmwpy.jpg
     - assets/images/team.jpg
+    - assets/images/teammember1.jpg
+    - assets/images/teammember2.jpg
+    - assets/images/teammember3.jpg
+    - assets/images/teammember4.jpg
     - .env

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:quickalert/quickalert.dart';
+import '../../utilities/alert_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -9,49 +10,54 @@ import '../../controllers/products_controller.dart';
 import '../../controllers/favorites_controller.dart';
 import '../../controllers/auth_controller.dart';
 import '../../models/product.dart';
-import '../../utils/responsive_helper.dart';
+import '../../utilities/responsive_helper.dart';
 import 'journey_screen.dart';
 import 'product_details_screen.dart';
 import 'login_screen.dart';
 import '../widgets/common/common_widgets.dart';
 import '../widgets/cards/card_widgets.dart';
 
-// main home screen
+// home screen
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  // builds the main application landing page
+  // builds home screen
   @override
   Widget build(BuildContext context) {
+    final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Colors.black,
-      extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-              children: [
-                // immersive entry banner
-                _buildHero(context),
-                // high-value product showcase
-                const FeaturedCollection(),
-                // philosophical and background content
-                const BehindTheLens(),
-              ],
+      backgroundColor: isDarkMode ? Colors.black : const Color(0xFFF9FBF9),
+      // respects system bars
+      body: SafeArea(
+        bottom: false, // Allow content to flow to the bottom edge
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Column(
+                children: [
+                  // hero section
+                  _buildHero(context),
+                  // featured section
+                  const FeaturedCollection(),
+                  // story section
+                  const BehindTheLens(),
+                ],
+              ),
             ),
-          ),
-          // hardware status overlay (battery & light)
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 10,
-            right: 20,
-            child: const BatteryStatusIndicator(),
-          ),
-        ],
+            // status overlay
+            Positioned(
+              top: 10,
+              right: 20,
+              child: const HardwareStatusRow(),
+            ),
+
+          ],
+        ),
       ),
     );
   }
 
-  // helper widget for the immersive welcome experience
+  // builds hero widget
   Widget _buildHero(BuildContext context) {
     return WildTraceHero(
       imagePath: 'assets/images/heroimageh1.jpg',
@@ -62,7 +68,7 @@ class HomeScreen extends StatelessWidget {
       description: 'Fine-art wildlife photography',
       descriptionFontSize: 16,
       height: MediaQuery.of(context).size.height * 0.9,
-      // initiates shopping navigation
+      // navigates to shop
       footer: CustomButton(
         text: 'EXPLORE COLLECTION',
         onPressed: () =>
@@ -76,7 +82,7 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// Featured Collection Widget
+// featured collection
 class FeaturedCollection extends StatefulWidget {
   const FeaturedCollection({super.key});
 
@@ -85,30 +91,25 @@ class FeaturedCollection extends StatefulWidget {
 }
 
 class _FeaturedCollectionState extends State<FeaturedCollection> {
-  // controllers for product carousel
+  // page controller
   late final PageController _pageController;
   int _currentIndex = 0;
-  Timer? _timer;
 
-  // restricts unauthorized favorite actions
+  // prompts for login
   Future<void> _showLoginRequiredAlert() async {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    QuickAlert.show(
+    AlertService.showCustom(
       context: context,
       type: QuickAlertType.warning,
       title: 'Authentication Required',
       text: 'Please login to add items to your cart or favorites.',
-      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-      titleColor: isDarkMode ? Colors.white : Colors.black,
-      textColor: isDarkMode ? Colors.white70 : Colors.black87,
       showConfirmBtn: false,
-      showCancelBtn: false,
       widget: Column(
         children: [
           const SizedBox(height: 24),
           Row(
             children: [
-              // dismiss feedback
+              // close button
               Expanded(
                 child: CustomButton(
                   text: 'LATER',
@@ -126,7 +127,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
                 ),
               ),
               const SizedBox(width: 12),
-              // primary redirection
+              // login button
               Expanded(
                 child: CustomButton(
                   text: 'LOGIN',
@@ -152,58 +153,38 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
     );
   }
 
-  // initializes the infinite scroll carousel
+  // init state
   @override
   void initState() {
     super.initState();
     _pageController = PageController(viewportFraction: 1.0, initialPage: 1000);
   }
 
-  // manages timer disposal to prevent memory leaks
+  // dispose
   @override
   void dispose() {
-    _timer?.cancel();
     _pageController.dispose();
     super.dispose();
   }
 
-  // manages automated carousel progression
-  void _startAutoPlay(int itemCount) {
-    _timer?.cancel();
-    if (itemCount > 0) {
-      _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
-        if (_pageController.hasClients) {
-          _pageController.nextPage(
-            duration: const Duration(milliseconds: 800),
-            curve: Curves.fastOutSlowIn,
-          );
-        }
-      });
-    }
-  }
 
-  // builds the high-priced product showcase
+
+  // builds featured list
   @override
   Widget build(BuildContext context) {
-    // design tokens based on theme and orientation
+    // theme data
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final bool isLandscape = ResponsiveHelper.isLandscape(context);
     final padding = ResponsiveHelper.getScreenPadding(context);
 
-    // synchronizes with product and authentication state
+    // data providers
     return Consumer3<ProductsController, FavoritesController, AuthController>(
       builder:
           (context, productsProvider, favoritesProvider, authProvider, child) {
-            // selects top-tier products for the showcase
+            // gets top products
             final allProducts = List<Product>.from(productsProvider.products);
             allProducts.sort((a, b) => b.price.compareTo(a.price));
             final featuredItems = allProducts.take(5).toList();
-
-            // triggers autoplay sequence
-            if (_timer == null && featuredItems.isNotEmpty) {
-              _currentIndex = 1000 % featuredItems.length;
-              _startAutoPlay(featuredItems.length);
-            }
 
             if (featuredItems.isEmpty) return const SizedBox();
 
@@ -218,7 +199,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
                   : const Color(0xFFF9FBF9),
               child: Column(
                 children: [
-                  // section branding
+                  // section title
                   Text(
                     'FEATURED COLLECTION',
                     style: GoogleFonts.inter(
@@ -229,7 +210,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  // adaptive heading
+                  // heading
                   Builder(
                     builder: (context) {
                       final isLandscape = ResponsiveHelper.isLandscape(context);
@@ -251,7 +232,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
                     },
                   ),
                   SizedBox(height: isLandscape ? 24 : 40),
-                  // main interaction point
+                  // slideshow
                   _buildSlideshow(
                     featuredItems,
                     isLandscape,
@@ -259,7 +240,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
                     authProvider,
                   ),
                   SizedBox(height: isLandscape ? 20 : 30),
-                  // progression feedback
+                  // indicators
                   _buildIndicators(featuredItems.length),
                 ],
               ),
@@ -268,7 +249,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
     );
   }
 
-  // builds the singular product carousel viewport
+  // builds slideshow
   Widget _buildSlideshow(
     List<Product> items,
     bool isLandscape,
@@ -284,7 +265,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(32)),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(32),
-        // manages interactive flipping of products
+        // page view
         child: PageView.builder(
           controller: _pageController,
           onPageChanged: (index) =>
@@ -301,7 +282,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
               price: '\$${item.price.toStringAsFixed(2)}',
               isLiked: isFavorite,
               onLikeToggle: () {
-                // requires verification for mutation
+                // check auth
                 if (authProvider.token == null) {
                   _showLoginRequiredAlert();
                 } else {
@@ -312,7 +293,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
                 }
               },
               onTap: () {
-                // navigates to deep product detail
+                // navigates to details
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -327,7 +308,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
     );
   }
 
-  // builds visual pagination dots
+  // builds indicators
   Widget _buildIndicators(int count) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -350,7 +331,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
   }
 }
 
-// philosophical and team narrative section
+// story widget
 class BehindTheLens extends StatelessWidget {
   const BehindTheLens({super.key});
 
@@ -358,7 +339,7 @@ class BehindTheLens extends StatelessWidget {
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color backgroundColor = isDarkMode
-        ? const Color(0xFF121212)
+        ? Colors.black
         : const Color(0xFFF9FBF9);
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     const Color accentGreen = Color(0xFF27AE60);
@@ -370,25 +351,25 @@ class BehindTheLens extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // section category header
+          // small header
           _buildSmallHeader(accentGreen),
           const SizedBox(height: 24),
-          // primary section heading
+          // main heading
           _buildMainHeading(textColor),
           const SizedBox(height: 24),
-          // ethical mission statement
+          // description
           _buildDescription(textColor, accentGreen),
           const SizedBox(height: 40),
-          // workforce visual
+          // team image
           _buildTeamImage(),
           const SizedBox(height: 60),
-          // media recognition banner
+          // media banner
           _buildFeaturedBanner(textColor),
           const SizedBox(height: 40),
-          // external validation logos
+          // logos
           _buildLogos(),
           const SizedBox(height: 60),
-          // narrative exit navigation
+          // journey button
           _buildJourneyButton(context, textColor),
           const SizedBox(height: 40),
         ],
@@ -396,7 +377,7 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
-  // builds section title with decorative lines
+  // builds small header
   Widget _buildSmallHeader(Color accentGreen) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -427,7 +408,7 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
-  // builds main artistic heading
+  // builds main heading
   Widget _buildMainHeading(Color textColor) {
     return Builder(
       builder: (context) {
@@ -449,7 +430,7 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
-  // builds ethical and charity related information
+  // builds description
   Widget _buildDescription(Color textColor, Color accentGreen) {
     return RichText(
       textAlign: TextAlign.center,
@@ -474,7 +455,7 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
-  // builds workforce showcase
+  // builds team image
   Widget _buildTeamImage() {
     return Builder(
       builder: (context) {
@@ -491,7 +472,7 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
-  // builds contextual labels for media logos
+  // builds banner
   Widget _buildFeaturedBanner(Color textColor) {
     return Text(
       'OUR PHOTOGRAPHERS ARE FEATURED IN',
@@ -504,7 +485,7 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
-  // builds interactive social validation logos
+  // builds logos
   Widget _buildLogos() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -532,12 +513,12 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
-  // builds a singular external link logo
+  // builds logo
   Widget _buildLogo(String assetPath, double width, double height, String url) {
     return GestureDetector(
       onTap: () async {
         final Uri uri = Uri.parse(url);
-        // navigates to external web reference
+        // launches url
         if (await canLaunchUrl(uri)) await launchUrl(uri);
       },
       child: SizedBox(
@@ -556,11 +537,11 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
-  // builds CTA for philosophical deep dive
+  // builds journey button
   Widget _buildJourneyButton(BuildContext context, Color textColor) {
     return OutlinedButton(
       onPressed: () {
-        // navigates to narrative journey screen
+        // navigates to journey
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const JourneyScreen()),

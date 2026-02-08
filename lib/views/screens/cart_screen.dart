@@ -7,13 +7,13 @@ import '../widgets/cards/card_widgets.dart';
 import 'checkout_screen.dart';
 import '../widgets/common/common_widgets.dart';
 import '../../controllers/navigation_controller.dart';
-import 'package:quickalert/quickalert.dart';
+
+import '../../utilities/alert_service.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
 import '../../main_wrapper.dart';
-import '../../controllers/battery_controller.dart';
 
-// shopping cart screen
+// cart screen
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
 
@@ -22,7 +22,7 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
-  // initializes cart data retrieval
+  // init state
   @override
   void initState() {
     super.initState();
@@ -37,12 +37,12 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
-  // builds the visual representation of the cart
+  // builds cart screen
   @override
   Widget build(BuildContext context) {
     return Consumer<CartController>(
       builder: (context, cartProvider, child) {
-        // determines current theme state
+        // theme data
         final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
         final Color textColor = isDarkMode
             ? Colors.white
@@ -56,18 +56,17 @@ class _CartScreenState extends State<CartScreen> {
             (padding.left > padding.right ? padding.left : padding.right) +
             20.0;
 
-        // returns the scaffold with cart content support
+        // builds scaffold
         return Stack(
           children: [
             Scaffold(
               backgroundColor: isDarkMode
-                  ? const Color(0xFF121212)
+                  ? Colors.black
                   : const Color(0xFFF9FBF9),
               body: SafeArea(
-                left: false,
-                right: false,
+                bottom: false,
                 child: RefreshIndicator(
-                  // enables pull-to-refresh functionality
+                  // refresh indicator
                   onRefresh: () async {
                     final authProvider = Provider.of<AuthController>(
                       context,
@@ -83,7 +82,7 @@ class _CartScreenState extends State<CartScreen> {
                         ? const NeverScrollableScrollPhysics()
                         : const AlwaysScrollableScrollPhysics(),
                     slivers: [
-                      // transparent app bar for consistent spacing
+                      // app bar
                       const SliverAppBar(
                         backgroundColor: Colors.transparent,
                         elevation: 0,
@@ -95,7 +94,7 @@ class _CartScreenState extends State<CartScreen> {
                         toolbarHeight: 40,
                         automaticallyImplyLeading: false,
                       ),
-                      // displays empty state or cart items
+                      // builds content
                       if (cartItems.isEmpty)
                         SliverFillRemaining(
                           hasScrollBody: false,
@@ -114,18 +113,13 @@ class _CartScreenState extends State<CartScreen> {
                 ),
               ),
             ),
-            Positioned(
-              top: MediaQuery.of(context).padding.top + 10,
-              right: 20,
-              child: const BatteryStatusIndicator(),
-            ),
           ],
         );
       },
     );
   }
 
-  // builds the ui for empty cart scenarios
+  // builds empty state
   Widget _buildEmptyState(BuildContext context, CartController cartProvider) {
     final authProvider = Provider.of<AuthController>(context, listen: false);
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -262,33 +256,18 @@ class _CartScreenState extends State<CartScreen> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          const SizedBox(height: 24),
-          TextButton.icon(
-            onPressed: () {
-              if (authProvider.token != null) {
-                cartProvider.fetchCart(authProvider.token!);
-              }
-            },
-            icon: const Icon(Icons.refresh, size: 18),
-            label: const Text('Refresh Cart'),
-            style: TextButton.styleFrom(
-              foregroundColor: const Color(0xFF27AE60),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0),
-            child: SizedBox(
-              width: 220,
-              child: CustomButton(
-                text: 'EXPLORE GALLERY',
-                type: CustomButtonType.secondary,
-                onPressed: () {
-                  Provider.of<NavigationController>(
-                    context,
-                    listen: false,
-                  ).setSelectedIndex(1);
-                },
-              ),
+          const SizedBox(height: 32),
+          SizedBox(
+            width: 220,
+            child: CustomButton(
+              text: 'EXPLORE GALLERY',
+              type: CustomButtonType.secondary,
+              onPressed: () {
+                Provider.of<NavigationController>(
+                  context,
+                  listen: false,
+                ).setSelectedIndex(1);
+              },
             ),
           ),
           const SizedBox(height: 30),
@@ -299,7 +278,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
-  // UI sections for the shopping cart items
+  // builds cart slivers
   List<Widget> _buildCartSlivers(
     BuildContext context,
     CartController cartProvider,
@@ -307,13 +286,13 @@ class _CartScreenState extends State<CartScreen> {
     bool isLandscape,
     double sidePadding,
   ) {
-    // accesses cart items from provider
+    // get items
     final cartItems = cartProvider.items;
 
-    // returns slivers optimized for landscape orientation
+    // landscape slivers
     if (isLandscape) {
       return [
-        // cart header section
+        // header
         SliverToBoxAdapter(
           child: Padding(
             padding: EdgeInsets.only(
@@ -344,14 +323,14 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ),
         ),
-        // cart items and summary side-by-side
+        // content row
         SliverToBoxAdapter(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: sidePadding),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // scrolling list of items
+                // items list
                 Expanded(
                   flex: 3,
                   child: Column(
@@ -375,29 +354,17 @@ class _CartScreenState extends State<CartScreen> {
                             }
                           },
                           onDismissed: () {
-                            // handles item dismissal with feedback
+                            // on dismissed
                             if (item.id != null) {
                               final cartItemId = item.id!;
                               final productName = item.product.title;
                               cartProvider.removeFromCart(cartItemId);
 
-                              final bool isDarkMode =
-                                  Theme.of(context).brightness ==
-                                  Brightness.dark;
-                              QuickAlert.show(
+
+                              AlertService.showSuccess(
                                 context: context,
-                                type: QuickAlertType.info,
                                 title: 'Item Removed',
                                 text: '$productName removed from cart',
-                                backgroundColor: isDarkMode
-                                    ? const Color(0xFF1E1E1E)
-                                    : Colors.white,
-                                titleColor: isDarkMode
-                                    ? Colors.white
-                                    : Colors.black,
-                                textColor: isDarkMode
-                                    ? Colors.white70
-                                    : Colors.black87,
                               );
                             }
                           },
@@ -407,7 +374,7 @@ class _CartScreenState extends State<CartScreen> {
                   ),
                 ),
                 const SizedBox(width: 24),
-                // fixed summary card
+                // summary card
                 Expanded(
                   flex: 2,
                   child: Column(
@@ -421,7 +388,7 @@ class _CartScreenState extends State<CartScreen> {
             ),
           ),
         ),
-        // landscape footer
+        // footer
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.only(bottom: 30.0),
@@ -431,9 +398,9 @@ class _CartScreenState extends State<CartScreen> {
       ];
     }
 
-    // returns slivers optimized for portrait orientation
+    // portrait slivers
     return [
-      // portrait header
+      // header
       SliverToBoxAdapter(
         child: Padding(
           padding: EdgeInsets.only(
@@ -464,7 +431,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
         ),
       ),
-      // vertical list of items
+      // items list
       SliverPadding(
         padding: EdgeInsets.symmetric(horizontal: sidePadding),
         sliver: SliverList(
@@ -488,24 +455,17 @@ class _CartScreenState extends State<CartScreen> {
                 }
               },
               onDismissed: () {
-                // dismisses item in portrait mode
+                // on dismissed
                 if (item.id != null) {
                   final cartItemId = item.id!;
                   final productName = item.product.title;
                   cartProvider.removeFromCart(cartItemId);
 
-                  final bool isDarkMode =
-                      Theme.of(context).brightness == Brightness.dark;
-                  QuickAlert.show(
+
+                  AlertService.showSuccess(
                     context: context,
-                    type: QuickAlertType.info,
                     title: 'Item Removed',
                     text: '$productName removed from cart',
-                    backgroundColor: isDarkMode
-                        ? const Color(0xFF1E1E1E)
-                        : Colors.white,
-                    titleColor: isDarkMode ? Colors.white : Colors.black,
-                    textColor: isDarkMode ? Colors.white70 : Colors.black87,
                   );
                 }
               },
@@ -513,7 +473,7 @@ class _CartScreenState extends State<CartScreen> {
           }, childCount: cartItems.length * 2 - 1),
         ),
       ),
-      // summary section at bottom
+      // summary
       SliverToBoxAdapter(
         child: Padding(
           padding: EdgeInsets.symmetric(
@@ -529,7 +489,7 @@ class _CartScreenState extends State<CartScreen> {
           ),
         ),
       ),
-      // portrait footer
+      // footer
       SliverToBoxAdapter(
         child: Padding(
           padding: const EdgeInsets.only(bottom: 30.0),
@@ -539,18 +499,13 @@ class _CartScreenState extends State<CartScreen> {
     ];
   }
 
-  // builds the summary view with checkout triggers
   Widget _buildSummaryCard(BuildContext context, CartController cartProvider) {
-    final isBatteryLow = context.select<BatteryController, bool>(
-      (p) => p.isBatteryLow,
-    );
-
     return OrderSummaryCard(
       title: 'Cart Summary',
       totalLabel: 'ORDER TOTAL',
       totalValue: '\$${cartProvider.total.toStringAsFixed(0)}',
-      primaryButtonLabel: isBatteryLow ? 'BATTERY LOW' : 'PROCEED TO CHECKOUT',
-      isPrimaryEnabled: !isBatteryLow,
+      primaryButtonLabel: 'PROCEED TO CHECKOUT',
+      isPrimaryEnabled: true,
       primaryButtonOnTap: () {
         Navigator.push(
           context,
@@ -558,12 +513,25 @@ class _CartScreenState extends State<CartScreen> {
         );
       },
       secondaryButtonLabel: 'CLEAR CART',
-      secondaryButtonOnTap: () => cartProvider.clearCart(),
+      secondaryButtonOnTap: () {
+        AlertService.showConfirmation(
+          context: context,
+          title: 'Clear Cart',
+          text: 'Are you sure you want to remove all items?',
+          confirmBtnText: 'YES',
+          cancelBtnText: 'NO',
+          onConfirm: () {
+            Navigator.pop(context);
+            cartProvider.clearCart();
+          },
+          onCancel: () => Navigator.pop(context),
+        );
+      },
       isSecondaryOutlined: true,
     );
   }
 
-  // builds the brand attribution footer
+  // builds footer
   Widget _buildFooter() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,

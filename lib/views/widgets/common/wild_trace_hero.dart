@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// main hero banner component
+// hero component
 class WildTraceHero extends StatelessWidget {
-  // content configuration
+  // content config
   final String imagePath;
   final String? title;
   final String mainText1;
@@ -41,7 +41,7 @@ class WildTraceHero extends StatelessWidget {
     this.alignment = Alignment.center,
   });
 
-  // builds full-screen hero banner with background image and text overlay
+  // builds hero banner
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;

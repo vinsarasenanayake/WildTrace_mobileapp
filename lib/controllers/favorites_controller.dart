@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
-import '../services/api_service.dart';
+import '../services/api/index.dart';
 
-// manages user wishlist
+// favorites controller
 class FavoritesController with ChangeNotifier {
-  final ApiService _apiService = ApiService();
+  final CartApiService _apiService = CartApiService();
   final List<Product> _favorites = [];
   bool _isLoading = false;
   String? _token;
@@ -14,7 +14,7 @@ class FavoritesController with ChangeNotifier {
   bool get isEmpty => _favorites.isEmpty;
   bool get isLoading => _isLoading;
 
-  // handles auth state synchronization
+  // update token
   void updateToken(String? newToken) {
     if (newToken != _token) {
       _token = newToken;
@@ -24,7 +24,7 @@ class FavoritesController with ChangeNotifier {
     }
   }
 
-  // retrieves favorites from api
+  // fetch favorites
   Future<void> fetchFavorites(String token) async {
     _isLoading = true;
     notifyListeners();
@@ -39,7 +39,7 @@ class FavoritesController with ChangeNotifier {
     }
   }
 
-  // toggles likes with api persistence
+  // toggle favorite
   Future<void> toggleFavorite(Product product, {String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;

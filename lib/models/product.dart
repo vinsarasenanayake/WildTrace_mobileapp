@@ -1,4 +1,6 @@
-// product details model
+import '../services/api/base_api_service.dart';
+
+// product model
 class Product {
   final String id;
   final String imageUrl;
@@ -34,7 +36,7 @@ class Product {
     this.options,
   });
 
-  // creates copy with updates
+  // copy with
   Product copyWith({
     String? id,
     String? imageUrl,
@@ -45,7 +47,13 @@ class Product {
     String? description,
     String? location,
     String? year,
+
+    String? authorImage,
+    String? profession,
+    String? quote,
+    String? achievement,
     bool? isFavorite,
+    Map<String, dynamic>? options,
   }) {
     return Product(
       id: id ?? this.id,
@@ -57,11 +65,16 @@ class Product {
       description: description ?? this.description,
       location: location ?? this.location,
       year: year ?? this.year,
+      authorImage: authorImage ?? this.authorImage,
+      profession: profession ?? this.profession,
+      quote: quote ?? this.quote,
+      achievement: achievement ?? this.achievement,
       isFavorite: isFavorite ?? this.isFavorite,
+      options: options ?? this.options,
     );
   }
 
-  // converts to json
+  // to json
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -73,31 +86,54 @@ class Product {
       'description': description,
       'location': location,
       'year': year,
+
+      'authorImage': authorImage,
+      'profession': profession,
+      'quote': quote,
+      'achievement': achievement,
       'isFavorite': isFavorite,
+      'options': options,
     };
   }
 
-  // creates from json
+  // from json
   factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
-      id: (json['id'] ?? '').toString(),
-      imageUrl: (json['imageUrl'] ?? json['image_url'] ?? '').toString(),
-      category: (json['category'] ?? '').toString(),
-      title: (json['title'] ?? '').toString(),
-      author: (json['author'] ?? 
-          (json['photographer'] != null && json['photographer'] is Map ? json['photographer']['name'] : null) ??
-          json['photographer_id'] ?? 
-          'Unknown').toString(),
-      price: (json['price'] != null ? num.tryParse(json['price'].toString())?.toDouble() : 0.0) ?? 0.0,
-      description: json['description']?.toString(),
-      location: json['location']?.toString(),
-      year: (json['year'] ?? (json['created_at'] != null ? DateTime.parse(json['created_at'].toString()).year.toString() : null))?.toString(),
-      authorImage: (json['photographer'] != null && json['photographer'] is Map ? json['photographer']['image'] : json['author_image'])?.toString(),
-      profession: (json['photographer'] != null && json['photographer'] is Map ? json['photographer']['profession'] : null)?.toString(),
-      quote: (json['photographer'] != null && json['photographer'] is Map ? json['photographer']['quote'] : null)?.toString(),
-      achievement: (json['photographer'] != null && json['photographer'] is Map ? json['photographer']['achievement'] : null)?.toString(),
-      isFavorite: (json['isFavorite'] == 1 || json['isFavorite'] == true || json['isFavorite'] == 'true' || json['is_favorite'] == true || json['is_favorite'] == 1),
-      options: json['options'] is Map<String, dynamic> ? json['options'] : null,
-    );
+    try {
+      String? yearValue;
+      if (json['year'] != null) {
+        yearValue = json['year'].toString();
+      } else if (json['created_at'] != null) {
+        try {
+          yearValue = DateTime.parse(json['created_at'].toString()).year.toString();
+        } catch (_) {
+          // extract year
+          final match = RegExp(r'\d{4}').firstMatch(json['created_at'].toString());
+          yearValue = match?.group(0);
+        }
+      }
+
+      return Product(
+        id: (json['id'] ?? '').toString(),
+        imageUrl: BaseApiService.resolveImageUrl((json['imageUrl'] ?? json['image_url'] ?? '').toString()),
+        category: (json['category'] ?? '').toString(),
+        title: (json['title'] ?? '').toString(),
+        author: (json['author'] ?? 
+            (json['photographer'] != null && json['photographer'] is Map ? json['photographer']['name'] : null) ??
+            json['photographer_id'] ?? 
+            'Unknown').toString(),
+        price: (json['price'] != null ? num.tryParse(json['price'].toString())?.toDouble() : 0.0) ?? 0.0,
+        description: json['description']?.toString(),
+        location: json['location']?.toString(),
+        year: yearValue,
+        authorImage: BaseApiService.resolveImageUrl((json['photographer'] != null && json['photographer'] is Map ? json['photographer']['image'] : json['author_image'])?.toString()),
+        profession: (json['photographer'] != null && json['photographer'] is Map ? json['photographer']['profession'] : null)?.toString(),
+        quote: (json['photographer'] != null && json['photographer'] is Map ? json['photographer']['quote'] : null)?.toString(),
+        achievement: (json['photographer'] != null && json['photographer'] is Map ? json['photographer']['achievement'] : null)?.toString(),
+        isFavorite: (json['isFavorite'] == 1 || json['isFavorite'] == true || json['isFavorite'] == 'true' || json['is_favorite'] == true || json['is_favorite'] == 1),
+        options: json['options'] is Map<String, dynamic> ? json['options'] : null,
+      );
+    } catch (e) {
+      rethrow;
+    }
   }
 }

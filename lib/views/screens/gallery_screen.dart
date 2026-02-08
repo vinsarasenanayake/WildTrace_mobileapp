@@ -4,14 +4,15 @@ import 'package:provider/provider.dart';
 import '../../controllers/products_controller.dart';
 import '../../controllers/favorites_controller.dart';
 import '../../controllers/auth_controller.dart';
-import '../../utils/responsive_helper.dart';
+import '../../utilities/responsive_helper.dart';
 import '../widgets/common/common_widgets.dart';
 import '../widgets/cards/card_widgets.dart';
 import 'product_details_screen.dart';
 import 'login_screen.dart';
 import 'package:quickalert/quickalert.dart';
+import '../../utilities/alert_service.dart';
 
-// main product gallery
+// gallery screen
 class GalleryScreen extends StatefulWidget {
   const GalleryScreen({super.key});
 
@@ -20,35 +21,31 @@ class GalleryScreen extends StatefulWidget {
 }
 
 class _GalleryScreenState extends State<GalleryScreen> {
-  // global keys for UI control
+  // ui keys
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _filterKey = GlobalKey();
 
-  // page and layout state
+  // page state
   int _currentPage = 1;
   final int _pageSize = 9;
   bool _showFiltersInLandscape = false;
 
-  // restricts access to member-only interactions
+  // prompts for login
   Future<void> _showLoginRequiredAlert() async {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    QuickAlert.show(
+    AlertService.showCustom(
       context: context,
       type: QuickAlertType.warning,
       title: 'Authentication Required',
       text: 'Please login to add items to your cart or favorites.',
-      backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-      titleColor: isDarkMode ? Colors.white : Colors.black,
-      textColor: isDarkMode ? Colors.white70 : Colors.black87,
       showConfirmBtn: false,
-      showCancelBtn: false,
       widget: Column(
         children: [
           const SizedBox(height: 24),
           Row(
             children: [
-              // rejection option
+              // close button
               Expanded(
                 child: CustomButton(
                   text: 'LATER',
@@ -66,7 +63,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              // authentication redirection
+              // login button
               Expanded(
                 child: CustomButton(
                   text: 'LOGIN',
@@ -92,20 +89,20 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
-  // builds the main gallery interface with state synchronization
+  // builds gallery screen
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    // consumes multiple providers for product and user state
+    // data providers
     return Consumer3<ProductsController, FavoritesController, AuthController>(
       builder:
           (context, productsProvider, favoritesProvider, authProvider, child) {
             final products = productsProvider.filteredProducts;
 
-            // calculates pagination offsets
+            // calculates offsets
             final int start = (_currentPage - 1) * _pageSize;
-            // ensures page index validity after filter changes
+            // validates page index
             if (start >= products.length && _currentPage > 1) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) setState(() => _currentPage = 1);
@@ -132,76 +129,92 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     productsProvider,
                   ),
                   backgroundColor: isDarkMode
-                      ? const Color(0xFF121212)
+                      ? Colors.black
                       : const Color(0xFFF9FBF9),
-                  body: RefreshIndicator(
-                    onRefresh: () async {
-                      await productsProvider.fetchProducts();
-                      if (authProvider.token != null) {
-                        await favoritesProvider.fetchFavorites(
-                          authProvider.token!,
-                        );
-                      }
-                    },
-                    color: const Color(0xFF27AE60),
-                    child: CustomScrollView(
-                      controller: _scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      slivers: [
-                        SliverToBoxAdapter(child: _buildHero()),
-                        SliverToBoxAdapter(
-                          child: Column(
-                            children: [
-                              _buildFilterTrigger(isDarkMode),
-                              if (products.isEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.all(40.0),
-                                  child: Column(
-                                    children: [
-                                      Text(
-                                        'No products found.',
-                                        style: GoogleFonts.inter(
-                                          color: Colors.grey,
+                  body: SafeArea(
+                    bottom: false,
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        await productsProvider.fetchProducts();
+                        if (authProvider.token != null) {
+                          await favoritesProvider.fetchFavorites(
+                            authProvider.token!,
+                          );
+                        }
+                      },
+                      color: const Color(0xFF27AE60),
+                      child: CustomScrollView(
+                        controller: _scrollController,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        slivers: [
+                          SliverToBoxAdapter(child: _buildHero()),
+                          SliverToBoxAdapter(
+                            child: Column(
+                              key: _filterKey,
+                              children: [
+                                _buildFilterTrigger(isDarkMode),
+                                if (products.isEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.all(40.0),
+                                    child: Column(
+                                      children: [
+                                        Text(
+                                          productsProvider.error.isNotEmpty
+                                              ? 'Unable to load gallery. Please verify your connection.'
+                                              : 'No products found.',
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.inter(
+                                            color:
+                                                productsProvider.error.isNotEmpty
+                                                    ? Colors.red
+                                                    : Colors.grey,
+                                          ),
                                         ),
-                                      ),
-                                      const SizedBox(height: 20),
-                                      CustomButton(
-                                        text: 'REFRESH GALLERY',
-                                        onPressed: () =>
-                                            productsProvider.fetchProducts(),
-                                        type: CustomButtonType.secondary,
-                                        isFullWidth: false,
-                                      ),
-                                    ],
+                                        const SizedBox(height: 20),
+                                        CustomButton(
+                                          text:
+                                              productsProvider.error.isNotEmpty
+                                                  ? 'RETRY'
+                                                  : 'REFRESH GALLERY',
+                                          onPressed:
+                                              () =>
+                                                  productsProvider.fetchProducts(),
+                                          type: CustomButtonType.secondary,
+                                          isFullWidth: false,
+                                        ),
+                                      ],
+                                    ),
+                                  )
+                                else
+                                  _buildGrid(pageItems, favoritesProvider),
+                                if (products.isNotEmpty)
+                                  _buildPagination(
+                                    isDarkMode,
+                                    end < products.length,
                                   ),
-                                )
-                              else
-                                _buildGrid(pageItems, favoritesProvider),
-                              if (products.isNotEmpty)
-                                _buildPagination(
-                                  isDarkMode,
-                                  end < products.length,
-                                ),
-                              const SizedBox(height: 20),
-                            ],
+                                const SizedBox(height: 20),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
+                // status overlay
                 Positioned(
                   top: MediaQuery.of(context).padding.top + 10,
                   right: 20,
-                  child: const BatteryStatusIndicator(),
+                  child: const HardwareStatusRow(),
                 ),
+
               ],
             );
           },
     );
   }
 
-  // builds the visual marquee for the gallery
+  // builds hero widget
   Widget _buildHero() {
     return const WildTraceHero(
       imagePath: 'assets/images/heroimagegallery.jpg',
@@ -214,7 +227,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
-  // scrolls the viewport to position filter controls at the top
+  // scrolls to filters
   void _scrollToFilters() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_filterKey.currentContext != null) {
@@ -243,13 +256,13 @@ class _GalleryScreenState extends State<GalleryScreen> {
     });
   }
 
-  // manages the display and interaction of filter entry points
+  // builds filter trigger
   Widget _buildFilterTrigger(bool isDarkMode) {
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
 
     if (isLandscape) {
-      // provides inline horizontal controls for wide screens
+      // landscape filters
       return Consumer<ProductsController>(
         builder: (context, provider, child) {
           final Color txtColor = isDarkMode
@@ -258,7 +271,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
           final Color accentGreen = const Color(0xFF27AE60);
 
           if (_showFiltersInLandscape) {
-            // renders expanded horizontal filter toolbar
+            // expanded toolbar
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
@@ -275,7 +288,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  // photographer selection
+                  // photographer filter
                   Expanded(
                     child: _buildHorizontalFilterItem(
                       'PHOTOGRAPHER',
@@ -290,7 +303,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // theme/category selection
+                  // category filter
                   Expanded(
                     child: _buildHorizontalFilterItem(
                       'CATEGORY',
@@ -305,7 +318,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // sorting configuration
+                  // sort filter
                   Expanded(
                     child: _buildHorizontalFilterItem(
                       'SORT BY',
@@ -322,7 +335,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // reset all modifications
+                  // clear button
                   Expanded(
                     child: InkWell(
                       onTap: () {
@@ -358,9 +371,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
               ),
             );
           } else {
-            // provides concise access button
+            // compact filter button
             return Padding(
-              key: _filterKey,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
               child: InkWell(
                 onTap: () {
@@ -389,9 +401,8 @@ class _GalleryScreenState extends State<GalleryScreen> {
         },
       );
     } else {
-      // provides mobile-optimized drawer trigger
+      // drawer trigger
       return Padding(
-        key: _filterKey,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
         child: InkWell(
           onTap: () => _scaffoldKey.currentState?.openDrawer(),
@@ -419,7 +430,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     }
   }
 
-  // builds a singular horizontal dropdown for landscape filtering
+  // builds dropdown
   Widget _buildHorizontalFilterItem(
     String label,
     String value,
@@ -481,7 +492,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
-  // builds the dedicated drawer for comprehensive filtering in portrait mode
+  // builds filter drawer
   Widget _buildFilterDrawer(
     BuildContext context,
     bool isDarkMode,
@@ -498,7 +509,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // drawer header
+            // header
             Padding(
               padding: const EdgeInsets.all(24),
               child: Text(
@@ -512,7 +523,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
               ),
             ),
             Divider(height: 1, color: txtColor.withAlpha((0.1 * 255).round())),
-            // vertical list of filter options
+            // filter list
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.all(24),
@@ -558,7 +569,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
               ),
             ),
             Divider(height: 1, color: txtColor.withAlpha((0.1 * 255).round())),
-            // reset mechanism
+            // clear button
             Padding(
               padding: const EdgeInsets.all(24),
               child: InkWell(
@@ -594,7 +605,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
-  // builds a vertical filter selector for the side drawer
+  // builds drawer item
   Widget _drawerFilterItem(
     String label,
     String value,
@@ -650,7 +661,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
-  // builds a responsive grid of product cards
+  // builds grid
   Widget _buildGrid(
     List<dynamic> pageItems,
     FavoritesController favoritesProvider,
@@ -687,7 +698,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 price: '\$${p.price.toStringAsFixed(2)}',
                 isLiked: isFavorite,
                 onLikeToggle: () {
-                  // verifies authentication before state mutation
+                  // check auth
                   if (authProvider.token == null) {
                     _showLoginRequiredAlert();
                   } else {
@@ -711,7 +722,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
-  // builds the pagination control toolbar
+  // builds pagination
   Widget _buildPagination(bool isDarkMode, bool hasNext) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 40),
@@ -741,7 +752,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
-  // builds a singular pagination button with active/disabled states
+  // builds page button
   Widget _pageBtn(String label, bool active, VoidCallback onTap) {
     final Color color = Theme.of(context).brightness == Brightness.dark
         ? Colors.white
@@ -770,7 +781,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
-  // cleans up scroll listeners
+  // dispose
   @override
   void dispose() {
     _scrollController.dispose();

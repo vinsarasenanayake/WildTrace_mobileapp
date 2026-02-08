@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../services/api_service.dart';
+import '../common/common_widgets.dart';
 
-// artist profile display card
+// photographer card
 class PhotographerCard extends StatelessWidget {
-  // photographer details
+  // details
   final String imagePath;
   final String name;
   final String role;
   final String quote;
   final String achievement;
   final String? badgeText;
+  final String? fallbackAsset;
 
   const PhotographerCard({
     super.key,
@@ -20,48 +21,53 @@ class PhotographerCard extends StatelessWidget {
     required this.quote,
     required this.achievement,
     this.badgeText,
+    this.fallbackAsset,
   });
 
-  // builds photographer profile card with image and details
+  // builds card
   @override
   Widget build(BuildContext context) {
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
 
-    // card container with background image
+    // card container
     return Container(
       height: isLandscape ? 320 : 520,
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        image: DecorationImage(
-          image:
-              NetworkImage(
-                    imagePath.startsWith('http')
-                        ? imagePath
-                        : '${ApiService.baseHost}/$imagePath',
-                  )
-                  as ImageProvider,
-          fit: BoxFit.cover,
-        ),
       ),
-      // gradient overlay for text readability
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(32),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Colors.transparent,
-              Colors.black.withAlpha((0.9 * 255).round()),
-            ],
-            stops: const [0.4, 1.0],
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          imagePath.startsWith('assets/')
+            ? Image.asset(imagePath, fit: BoxFit.cover)
+            : CachedImage(
+                imageUrl: imagePath,
+                fit: BoxFit.cover,
+                errorWidget: fallbackAsset != null 
+                  ? Image.asset(fallbackAsset!, fit: BoxFit.cover)
+                  : null,
+              ),
+          // gradient overlay
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.black.withAlpha((0.9 * 255).round()),
+                ],
+                stops: const [0.4, 1.0],
+              ),
+            ),
           ),
-        ),
-        padding: EdgeInsets.all(isLandscape ? 16 : 24),
-        child: Stack(
-          children: [
+          Padding(
+            padding: EdgeInsets.all(isLandscape ? 16 : 24),
+            child: Stack(
+              children: [
             if (badgeText != null)
               Positioned(
                 top: 0,
@@ -146,6 +152,8 @@ class PhotographerCard extends StatelessWidget {
           ],
         ),
       ),
+        ],
+      ),
     );
-  }
+}
 }

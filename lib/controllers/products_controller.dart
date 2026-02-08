@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
-import '../services/api_service.dart';
+import '../services/api/index.dart';
 
-// manages product catalog
+// products controller
 class ProductsController with ChangeNotifier {
-  final ApiService _apiService = ApiService();
+  final ProductApiService _apiService = ProductApiService();
   final List<Product> _products = [];
   bool _isLoading = false;
   String _error = '';
@@ -19,30 +19,35 @@ class ProductsController with ChangeNotifier {
   String? get token => _token;
   List<Product> get products => List.unmodifiable(_products);
   
-  // returns featured products
+  // featured products
   List<Product> get topProductsByPrice {
     final list = List<Product>.from(_products);
     list.sort((a, b) => b.price.compareTo(a.price));
     return list.take(5).toList();
   }
   
-  // updates session token
+  // update token
   void updateToken(String? newToken) {
-    if (_token != newToken) {
+    if (_token != newToken || _products.isEmpty) {
       _token = newToken;
       fetchProducts(); 
     }
   }
 
-  // fetches products from api
+  List<Product> _filteredProducts = [];
+
+  List<Product> get filteredProducts => List.unmodifiable(_filteredProducts);
+  
+  // fetch products
   Future<void> fetchProducts() async {
     _isLoading = true;
     _error = '';
-    Future.microtask(() => notifyListeners());
+    notifyListeners();
     try {
       final fetchedProducts = await _apiService.fetchProducts(token: _token);
       _products.clear();
       _products.addAll(fetchedProducts);
+      _applyFilters();
     } catch (e) {
       _error = e.toString();
     } finally {
@@ -56,11 +61,11 @@ class ProductsController with ChangeNotifier {
   String get sortOption => _sortOption;
   String get searchQuery => _searchQuery;
 
-  // handles product filtering and sorting
-  List<Product> get filteredProducts {
+  // filters and sorting
+  void _applyFilters() {
     var filtered = _products.toList();
     if (_selectedCategory != 'All' && _selectedCategory != 'All Collections') {
-      filtered = filtered.where((p) => p.category.toUpperCase() == _selectedCategory.toUpperCase()).toList();
+      filtered = filtered.where((p) => p.category.toLowerCase() == _selectedCategory.toLowerCase()).toList();
     }
     if (_selectedAuthor != 'All Photographers') {
       filtered = filtered.where((p) => p.author == _selectedAuthor).toList();
@@ -85,7 +90,7 @@ class ProductsController with ChangeNotifier {
       default:
         break;
     }
-    return filtered;
+    _filteredProducts = filtered;
   }
 
   Product? getProductById(String id) {
@@ -98,30 +103,35 @@ class ProductsController with ChangeNotifier {
 
   void setCategory(String category) {
     _selectedCategory = category;
+    _applyFilters();
     notifyListeners();
   }
 
   void setAuthor(String author) {
     _selectedAuthor = author;
+    _applyFilters();
     notifyListeners();
   }
 
   void setSortOption(String sortOption) {
     _sortOption = sortOption;
+    _applyFilters();
     notifyListeners();
   }
 
   void setSearchQuery(String query) {
     _searchQuery = query;
+    _applyFilters();
     notifyListeners();
   }
 
-  // resets all filters
+  // clear filters
   void clearFilters() {
     _selectedCategory = 'All Collections';
     _selectedAuthor = 'All Photographers';
     _sortOption = 'Latest Arrivals';
     _searchQuery = '';
+    _applyFilters();
     notifyListeners();
   }
 

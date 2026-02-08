@@ -6,9 +6,10 @@ import '../../controllers/auth_controller.dart';
 import '../widgets/forms/form_widgets.dart';
 import '../widgets/common/common_widgets.dart';
 import 'login_screen.dart';
-import 'package:quickalert/quickalert.dart';
 
-// account registration screen
+import '../../utilities/alert_service.dart';
+
+// register screen
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -17,11 +18,11 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  // UI visibility state
+  // visibility state
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
-  // form data controllers
+  // controllers
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -33,7 +34,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _postalCodeController = TextEditingController();
   final TextEditingController _countryController = TextEditingController();
 
-  // releases all controller resources when screen is removed
+  // dispose
   @override
   void dispose() {
     _nameController.dispose();
@@ -48,63 +49,49 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  // manages the user onboarding workflow
+  // handles registration
   Future<void> _handleRegister(
     AuthController authProvider,
     bool isDarkMode,
   ) async {
-    // Basic field validation
+    // hide keyboard
+    FocusScope.of(context).unfocus();
+
+    // validation
     if (_nameController.text.isEmpty ||
         _emailController.text.isEmpty ||
         _passwordController.text.isEmpty) {
-      QuickAlert.show(
+      AlertService.showWarning(
         context: context,
-        type: QuickAlertType.warning,
         title: 'Missing Info',
         text: 'Please fill in all required fields (Name, Email, Password)',
-        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-        titleColor: isDarkMode ? Colors.white : Colors.black,
-        textColor: isDarkMode ? Colors.white70 : Colors.black87,
       );
       return;
     }
 
-    // Email format validation
+    // email check
     final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
     if (!emailRegex.hasMatch(_emailController.text)) {
-      QuickAlert.show(
+      AlertService.showWarning(
         context: context,
-        type: QuickAlertType.warning,
         title: 'Invalid Email',
         text: 'Please enter a valid email address',
-        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-        titleColor: isDarkMode ? Colors.white : Colors.black,
-        textColor: isDarkMode ? Colors.white70 : Colors.black87,
       );
       return;
     }
 
-    // validates credential consistency
+    // check consistency
     if (_passwordController.text != _confirmPasswordController.text) {
-      QuickAlert.show(
+      AlertService.showWarning(
         context: context,
-        type: QuickAlertType.warning,
         title: 'Mismatch',
         text: 'Passwords do not match',
-        backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-        titleColor: isDarkMode ? Colors.white : Colors.black,
-        confirmBtnText: 'Okay',
-        confirmBtnTextStyle: GoogleFonts.inter(
-          fontSize: 12,
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-        ),
       );
       return;
     }
 
     try {
-      // attempts credential persistence via the provider
+      // attempts registration
       final success = await authProvider.register(
         name: _nameController.text,
         email: _emailController.text,
@@ -115,68 +102,53 @@ class _RegisterScreenState extends State<RegisterScreen> {
         postalCode: _postalCodeController.text,
       );
 
-      // redirects to login page upon successful account creation
+      // success case
       if (success && mounted) {
-        QuickAlert.show(
+        await AlertService.showSuccess(
           context: context,
-          type: QuickAlertType.success,
           title: 'Registration Successful',
           text: 'Account created! Please sign in to continue.',
-          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-          titleColor: isDarkMode ? Colors.white : Colors.black,
-          textColor: isDarkMode ? Colors.white70 : Colors.black87,
           confirmBtnText: 'Go to Login',
-          confirmBtnColor: const Color(0xFF27AE60),
-          onConfirmBtnTap: () {
-            Navigator.pop(context); // Close alert
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
-            );
-          },
         );
+
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          );
+        }
       }
     } catch (e) {
-      // handles registration failures with granular feedback
+      // failure feedback
       if (mounted) {
         String errorMessage = e.toString().replaceAll('Exception: ', '');
-        QuickAlert.show(
+        AlertService.showError(
           context: context,
-          type: QuickAlertType.error,
           title: 'Registration Error',
           text: errorMessage,
-          backgroundColor: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-          titleColor: isDarkMode ? Colors.white : Colors.black,
-          textColor: isDarkMode ? Colors.white70 : Colors.black87,
-          confirmBtnText: 'Okay',
-          confirmBtnTextStyle: GoogleFonts.inter(
-            fontSize: 12,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
         );
       }
     }
   }
 
-  // builds the registration viewport
+  // builds register screen
   @override
   Widget build(BuildContext context) {
-    // theme and layout design tokens
+    // theme data
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
 
     return Scaffold(
       backgroundColor: isDarkMode
-          ? const Color(0xFF121212)
+          ? Colors.black
           : const Color(0xFFF9FBF9),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
-        // entry point navigation exit
+        // back button
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: Container(
@@ -201,7 +173,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 40),
-                  // branded visual anchor
+                  // logo
                   GestureDetector(
                     onTap: () => Navigator.pushAndRemoveUntil(
                       context,
@@ -211,7 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: const WildTraceLogo(),
                   ),
                   const SizedBox(height: 24),
-                  // section identifiers
+                  // heading
                   Text(
                     'Join WildTrace',
                     style: GoogleFonts.playfairDisplay(
@@ -233,7 +205,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  // adaptive form container
+                  // form container
                   Container(
                     width: isLandscape
                         ? MediaQuery.of(context).size.width * 0.7
@@ -255,7 +227,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // modular user information collector
+                        // user form
                         UserForm(
                           isLandscape: isLandscape,
                           nameController: _nameController,
@@ -280,17 +252,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               _handleRegister(authProvider, isDarkMode),
                         ),
                         const SizedBox(height: 32),
-                        // primary submission action with progression feedback
+                        // register button
                         CustomButton(
-                          text: authProvider.isLoading
-                              ? 'CREATING ACCOUNT...'
-                              : 'COMPLETE REGISTRATION',
-                          onPressed: authProvider.isLoading
-                              ? () {}
-                              : () => _handleRegister(authProvider, isDarkMode),
+                          text: 'COMPLETE REGISTRATION',
+                          onPressed: () => _handleRegister(authProvider, isDarkMode),
                         ),
                         const SizedBox(height: 24),
-                        // secondary navigation to alternate onboarding flow
+                        // login link
                         Center(
                           child: TextButton(
                             onPressed: () => Navigator.pushReplacement(
@@ -314,7 +282,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                   const SizedBox(height: 40),
-                  // branded copyright attribution
+                  // footer
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

@@ -9,21 +9,24 @@ import 'order_history_screen.dart';
 import '../widgets/forms/form_widgets.dart';
 import '../widgets/cards/card_widgets.dart';
 import '../widgets/common/common_widgets.dart';
-import '../../services/api_service.dart';
-import 'package:quickalert/quickalert.dart';
-import 'package:intl/intl.dart' as intl;
-import '../../controllers/battery_controller.dart';
+import '../../services/api/index.dart';
 
-// handles checkout process
+import '../../utilities/alert_service.dart';
+import 'package:intl/intl.dart' as intl;
+import '../../models/order.dart';
+
+
+// checkout screen
 class CheckoutScreen extends StatefulWidget {
-  const CheckoutScreen({super.key});
+  final Order? pendingOrder;
+  const CheckoutScreen({super.key, this.pendingOrder});
 
   @override
   State<CheckoutScreen> createState() => _CheckoutScreenState();
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
-  // form field controllers
+  // controllers
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _contactController;
@@ -31,8 +34,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   late TextEditingController _cityController;
   late TextEditingController _postalCodeController;
   late TextEditingController _countryController;
+  bool _isPaying = false;
 
-  // initializes controllers with current user data
+  // init state
   @override
   void initState() {
     super.initState();
@@ -49,7 +53,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     _countryController = TextEditingController(text: user?.country ?? '');
   }
 
-  // releases controller resources
+  // dispose
   @override
   void dispose() {
     _nameController.dispose();
@@ -62,29 +66,27 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     super.dispose();
   }
 
-  // builds the checkout workflow interface
+  // builds checkout screen
   @override
   Widget build(BuildContext context) {
-    // theme and layout detection
+    // theme data
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
 
-    return Stack(
-      children: [
-        Scaffold(
-          backgroundColor: isDarkMode
-              ? const Color(0xFF121212)
-              : const Color(0xFFF9FBF9),
+    return Scaffold(
+      backgroundColor: isDarkMode
+          ? Colors.black
+          : const Color(0xFFF9FBF9),
           appBar: AppBar(
             backgroundColor: isDarkMode
-                ? const Color(0xFF121212)
+                ? Colors.black
                 : const Color(0xFFF9FBF9),
             elevation: 0,
             scrolledUnderElevation: 0,
             surfaceTintColor: Colors.transparent,
-            // back navigation control
+            // back button
             leading: GestureDetector(
               onTap: () => Navigator.pop(context),
               child: Container(
@@ -99,7 +101,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ),
             centerTitle: true,
             title: Text(
-              'Complete Purchase',
+              'Checkout Screen',
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -107,22 +109,29 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
             ),
           ),
-          body: Consumer2<CartController, OrdersController>(
+          body: SafeArea(
+            bottom: false,
+            child: Consumer2<CartController, OrdersController>(
             builder: (context, cartProvider, ordersProvider, child) {
-              final cartItems = cartProvider.items;
-              final totalAmount = cartProvider.total;
+              final isPendingPayment = widget.pendingOrder != null;
+              final List<dynamic> cartItems = isPendingPayment 
+                  ? widget.pendingOrder!.items 
+                  : cartProvider.items;
+              final double totalAmount = isPendingPayment 
+                  ? widget.pendingOrder!.total 
+                  : cartProvider.total;
 
-              // prevents checkout if cart is empty
+              // checks if empty
               if (cartItems.isEmpty) {
                 return Center(
                   child: Text(
-                    "Cart is empty",
+                    "No items to checkout",
                     style: GoogleFonts.inter(color: textColor),
                   ),
                 );
               }
 
-              // defines user information input section
+              // shipping form
               final shippingDetailsWidget = Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -161,10 +170,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ],
               );
 
-              final batteryProvider = Provider.of<BatteryController>(context);
-              final isBatteryLow = batteryProvider.isBatteryLow;
 
-              // defines financial and item summary section
+
+              // order summary
               final orderSummaryWidget = OrderSummaryCard(
                 title: 'Order Review',
                 items: cartItems
@@ -180,11 +188,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     .toList(),
                 totalLabel: 'Total',
                 totalValue: '\$${totalAmount.toStringAsFixed(2)}',
-                primaryButtonLabel: isBatteryLow
-                    ? 'BATTERY LOW'
-                    : 'PROCEED TO PAYMENT',
-                isPrimaryEnabled: !isBatteryLow,
-                // initiates secure payment flow
+                primaryButtonLabel: 'PROCEED TO PAYMENT',
+                isPrimaryEnabled: !_isPaying,
+                // payment flow
                 primaryButtonOnTap: () async {
                   final authProvider = Provider.of<AuthController>(
                     context,
@@ -193,124 +199,181 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   final user = authProvider.currentUser;
                   final token = authProvider.token;
 
-                  // ensures user is authenticated before payment
+                  // check auth
                   if (user == null || token == null) {
-                    final bool isDarkMode =
-                        Theme.of(context).brightness == Brightness.dark;
-                    QuickAlert.show(
+                    AlertService.showWarning(
                       context: context,
-                      type: QuickAlertType.warning,
                       title: 'Authentication Required',
                       text: 'Please login to complete your purchase.',
-                      backgroundColor: isDarkMode
-                          ? const Color(0xFF1E1E1E)
-                          : Colors.white,
-                      titleColor: isDarkMode ? Colors.white : Colors.black,
-                      textColor: isDarkMode ? Colors.white70 : Colors.black87,
                     );
                     return;
                   }
 
-                  // launches stripe payment integration
-                  await StripeService.instance.makePayment(
-                    amount: totalAmount,
-                    currency: 'USD',
-                    context: context,
-                    onSuccess: () async {
-                      // places order after verified payment
-                      final success = await ordersProvider.placeOrder(
-                        userId: user.id,
-                        items: List.from(cartItems),
-                        subtotal: cartProvider.subtotal,
-                        tax: cartProvider.tax,
-                        shipping: cartProvider.shipping,
-                        shippingAddress:
-                            '${_addressController.text}, ${_cityController.text}, ${_postalCodeController.text}',
-                        token: token,
-                        paymentStatus: 'paid',
-                      );
+                  // stripe start
+                  try {
+                    setState(() => _isPaying = true);
+                    await StripeService.instance.makePayment(
+                      amount: totalAmount,
+                      currency: 'USD',
+                      context: context,
+                      onSuccess: () async {
+                        // loading dialog
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => const Center(
+                            child: CircularProgressIndicator(color: Color(0xFF27AE60)),
+                          ),
+                        );
 
-                      // handles order placement result
-                      if (success) {
-                        await cartProvider.resetAfterOrder(token: token);
-                        if (context.mounted) {
-                          final bool isDarkMode =
-                              Theme.of(context).brightness == Brightness.dark;
-                          final estimatedDate = DateTime.now().add(
-                            const Duration(days: 3),
+                        bool success = false;
+
+                        if (isPendingPayment) {
+                          // updates status
+                          success = await ordersProvider.updatePaymentStatus(
+                             widget.pendingOrder!.id, 
+                             'paid'
                           );
-                          final formattedDate = intl.DateFormat(
-                            'MMMM dd, yyyy',
-                          ).format(estimatedDate);
-
-                          // displays success confirmation
-                          QuickAlert.show(
-                            context: context,
-                            type: QuickAlertType.success,
-                            title: 'Order Placed!',
-                            text:
-                                'Order placed successfully! \nEstimated Delivery: $formattedDate',
-                            backgroundColor: isDarkMode
-                                ? const Color(0xFF1E1E1E)
-                                : Colors.white,
-                            titleColor: isDarkMode
-                                ? Colors.white
-                                : Colors.black,
-                            textColor: isDarkMode
-                                ? Colors.white70
-                                : Colors.black87,
-                            confirmBtnText: 'GO TO ORDER HISTORY',
-                            confirmBtnTextStyle: GoogleFonts.inter(
-                              fontSize: 10,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            onConfirmBtnTap: () {
-                              Navigator.pop(context); // Close alert
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const OrderHistoryScreen(),
-                                ),
-                              );
-                            },
+                        } else {
+                          // places order
+                          success = await ordersProvider.placeOrder(
+                            userId: user.id,
+                            items: cartProvider.items,
+                            subtotal: cartProvider.subtotal,
+                            tax: cartProvider.tax,
+                            shipping: cartProvider.shipping,
+                            shippingAddress:
+                                '${_addressController.text}, ${_cityController.text}, ${_postalCodeController.text}',
+                            token: token,
+                            paymentStatus: 'paid',
                           );
                         }
-                      } else {
-                        // reports data persistence failure
+
+                        // closes loading
                         if (context.mounted) {
-                          final bool isDarkMode =
-                              Theme.of(context).brightness == Brightness.dark;
-                          QuickAlert.show(
+                          Navigator.of(context).pop();
+                        }
+
+                        // handles result
+                        if (success) {
+                          if (!isPendingPayment) {
+                             await cartProvider.resetAfterOrder(token: token);
+                          }
+                          
+                          if (context.mounted) {
+
+                            final estimatedDate = DateTime.now().add(
+                              const Duration(days: 3),
+                            );
+                            final formattedDate = intl.DateFormat(
+                              'MMMM dd, yyyy',
+                            ).format(estimatedDate);
+
+                            // success alert
+                            AlertService.showSuccess(
+                              context: context,
+                              title: 'Order Placed!',
+                              text:
+                                  'Order placed successfully! \nEstimated Delivery: $formattedDate',
+                              confirmBtnText: 'GO TO ORDER HISTORY',
+                              onConfirmBtnTap: () {
+                                // close alert
+                                Navigator.of(context).pop();
+                                // nav to history
+                                Navigator.of(context).pushReplacement(
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const OrderHistoryScreen(),
+                                  ),
+                                );
+                              },
+                            );
+                          }
+                        } else {
+                        if (context.mounted) {
+                          AlertService.showError(
                             context: context,
-                            type: QuickAlertType.error,
                             title: 'Order Error',
-                            text:
-                                'Payment was successful, but failed to record order. Please contact support.',
-                            backgroundColor: isDarkMode
-                                ? const Color(0xFF1E1E1E)
-                                : Colors.white,
-                            titleColor: isDarkMode
-                                ? Colors.white
-                                : Colors.black,
-                            textColor: isDarkMode
-                                ? Colors.white70
-                                : Colors.black87,
+                            text: 'Payment successful, but order update failed.',
                           );
+                         }
                         }
-                      }
-                    },
-                  );
+                      },
+                    );
+                  } catch (e) {
+
+                    AlertService.showError(
+                      context: context,
+                      title: 'Payment Error',
+                      text: 'Unable to initialize payment: $e',
+                    );
+                  } finally {
+                    if (mounted) setState(() => _isPaying = false);
+                  }
                 },
-                secondaryButtonLabel: 'CANCEL ORDER',
-                secondaryButtonOnTap: () => Navigator.pop(context),
+                secondaryButtonLabel: isPendingPayment ? 'CANCEL' : 'CANCEL ORDER',
+                secondaryButtonOnTap: () {
+                   if (isPendingPayment) {
+                     Navigator.pop(context);
+                   } else {
+                     AlertService.showConfirmation(
+                      context: context,
+                      title: 'Cancel Order',
+                      text: 'Are you sure? This will save the order as pending and clear your cart.',
+                      confirmBtnText: 'Yes, Cancel',
+                      cancelBtnText: 'No',
+                      onConfirm: () async {
+                        Navigator.pop(context); // Close alert
+
+                        // loading dialog
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => const Center(child: CircularProgressIndicator()),
+                        );
+
+                        final authProvider = Provider.of<AuthController>(context, listen: false);
+                        final user = authProvider.currentUser;
+                        final token = authProvider.token;
+
+                        if (user != null && token != null) {
+                           final success = await ordersProvider.placeOrder(
+                              userId: user.id,
+                              items: cartProvider.items,
+                              subtotal: cartProvider.subtotal,
+                              tax: cartProvider.tax,
+                              shipping: cartProvider.shipping,
+                              shippingAddress: '${_addressController.text}, ${_cityController.text}, ${_postalCodeController.text}',
+                              token: token,
+                              paymentStatus: 'pending',
+                           );
+
+                           if (context.mounted) {
+                             Navigator.pop(context); // closes loading
+                             if (success) {
+                                await cartProvider.clearCart();
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const OrderHistoryScreen()),
+                                );
+                             } else {
+                                AlertService.showError(context: context, title: 'Error', text: 'Failed to create pending order.');
+                             }
+                           }
+                        } else {
+                           if(context.mounted) Navigator.pop(context); // closes loading
+                        }
+                      },
+                      onCancel: () => Navigator.pop(context),
+                     );
+                   }
+                },
                 isSecondaryOutlined: true,
                 footerText:
                     'You will be redirected to Stripe\'s secure payment page to complete your purchase.',
               );
 
-              // assembles the scrollable layout
+              // scroll layout
               return SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24.0,
@@ -318,7 +381,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
                 child: Column(
                   children: [
-                    // header branding section
+                    // header
                     const SectionTitle(
                       title: 'FINAL STEP',
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -335,7 +398,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
                     const SizedBox(height: 40),
 
-                    // adaptive layout for different orientations
+                    // responsive content
                     isLandscape
                         ? Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -353,20 +416,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             ],
                           ),
 
-                    // bottom spacing
+                    // spacing
                     const SizedBox(height: 40),
                   ],
                 ),
               );
             },
+           ),
           ),
-        ),
-        Positioned(
-          top: MediaQuery.of(context).padding.top + 10,
-          right: 20,
-          child: const BatteryStatusIndicator(),
-        ),
-      ],
-    );
-  }
-}
+        );
+      }
+    }

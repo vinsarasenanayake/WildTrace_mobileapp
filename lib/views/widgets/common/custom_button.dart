@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// button style options
+// button types
 enum CustomButtonType { primary, secondary, ghost, destructive }
 
-// generic reusable button
+// custom button
 class CustomButton extends StatelessWidget {
-  // button configuration
+  // config
   final String text;
   final VoidCallback? onPressed;
   final CustomButtonType type;
   final bool isFullWidth;
 
-  // styling options
+  // styles
   final Color? backgroundColor;
   final Color? foregroundColor;
   final double verticalPadding;
@@ -20,7 +20,6 @@ class CustomButton extends StatelessWidget {
   final double borderRadius;
   final IconData? icon;
   final double iconSize;
-  final bool isLoading;
 
   const CustomButton({
     super.key,
@@ -32,22 +31,20 @@ class CustomButton extends StatelessWidget {
     this.foregroundColor,
     this.verticalPadding = 18,
     this.fontSize = 14,
-    this.isLoading = false,
     this.borderRadius = 16,
     this.icon,
     this.iconSize = 20,
   });
 
-  // builds styled button with optional icon and loading state
+  // builds button
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     Color bg;
     Color fg;
     BorderSide border = BorderSide.none;
-    final VoidCallback? effectiveOnPressed = isLoading ? null : onPressed;
 
-    // apply colors based on button type
+    // apply type styles
     switch (type) {
       case CustomButtonType.primary:
         bg =
@@ -82,48 +79,42 @@ class CustomButton extends StatelessWidget {
       ),
       elevation: 0,
       splashFactory: NoSplash.splashFactory,
-      disabledBackgroundColor: bg.withAlpha((0.8 * 255).round()),
-      disabledForegroundColor: fg.withAlpha((0.8 * 255).round()),
-    ).copyWith(overlayColor: WidgetStateProperty.all(Colors.transparent));
+      enableFeedback: false, // Disable feedback/vibrations
+    ).copyWith(
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+      // fix animations
+      animationDuration: Duration.zero,
+    );
 
-    // button content logic
-    Widget child = isLoading
-        ? SizedBox(
-            width: fontSize + 4,
-            height: fontSize + 4,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
-              valueColor: AlwaysStoppedAnimation<Color>(fg),
+    // button content
+    Widget child = Row(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (icon != null) ...[
+          Icon(icon, size: iconSize, color: fg),
+          const SizedBox(width: 8),
+        ],
+        Flexible(
+          child: Text(
+            text,
+            maxLines: 1,
+            softWrap: false,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.inter(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.0,
             ),
-          )
-        : Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (icon != null) ...[
-                Icon(icon, size: iconSize, color: fg),
-                const SizedBox(width: 8),
-              ],
-              Flexible(
-                child: Text(
-                  text,
-                  maxLines: 1,
-                  softWrap: false,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.inter(
-                    fontSize: fontSize,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.0,
-                  ),
-                ),
-              ),
-            ],
-          );
+          ),
+        ),
+      ],
+    );
 
     return SizedBox(
       width: isFullWidth ? double.infinity : null,
       child: ElevatedButton(
-        onPressed: effectiveOnPressed,
+        onPressed: onPressed,
         style: buttonStyle,
         child: child,
       ),

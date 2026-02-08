@@ -1,4 +1,4 @@
-// user profile model
+// user model
 class UserModel {
   final String id;
   final String name;
@@ -22,7 +22,7 @@ class UserModel {
     this.role,
   });
 
-  // creates copy with updates
+  // copy with
   UserModel copyWith({
     String? id,
     String? name,
@@ -47,7 +47,7 @@ class UserModel {
     );
   }
 
-  // converts to json
+  // to json
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -62,7 +62,7 @@ class UserModel {
     };
   }
 
-  // creates from json
+  // from json
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: (json['id'] ?? '').toString(),

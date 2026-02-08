@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../common/common_widgets.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:wild_trace/services/location_service.dart';
-import 'package:quickalert/quickalert.dart';
+import 'package:provider/provider.dart';
+import '../../../../controllers/hardware_controller.dart';
+import '../../../utilities/alert_service.dart';
 
-// user data entry form
+// user form
 class UserForm extends StatefulWidget {
-  // text field controllers
+  // controllers
   final TextEditingController nameController;
   final TextEditingController emailController;
   final TextEditingController contactController;
@@ -18,7 +20,7 @@ class UserForm extends StatefulWidget {
   final TextEditingController? passwordController;
   final TextEditingController? confirmPasswordController;
 
-  // form configuration
+  // form config
   final String addressLabel;
   final String contactLabel;
   final bool isPasswordObscure;
@@ -54,23 +56,15 @@ class UserForm extends StatefulWidget {
 }
 
 class _UserFormState extends State<UserForm> {
-  // location detection state
+  // location state
   Country _selectedCountry = Country.parse('LK');
-  final LocationService _locationService = LocationService();
-  bool _isDetecting = false;
 
-  // detects user location and populates address fields
+  // detects location
   Future<void> _detectLocation() async {
-    setState(() => _isDetecting = true);
+    final hw = Provider.of<HardwareController>(context, listen: false);
 
     try {
-      // Wrap the entire process in a hard 45-second timeout
-      final addressData = await _locationService.getCurrentAddress().timeout(
-        const Duration(seconds: 45),
-        onTimeout: () => throw Exception(
-          'Location request timed out. Please ensure GPS is active and a location point is set in emulator settings.',
-        ),
-      );
+      final addressData = await hw.detectLocation();
 
       if (addressData != null) {
         widget.addressController.text = addressData['address'] ?? '';
@@ -81,27 +75,11 @@ class _UserFormState extends State<UserForm> {
         }
       } else {
         if (mounted) {
-          QuickAlert.show(
+          AlertService.showError(
             context: context,
-            type: QuickAlertType.error,
             title: 'Detection Failed',
             text:
                 'Could not fetch your location. Please check your GPS settings and permissions.',
-            backgroundColor: Theme.of(context).brightness == Brightness.dark
-                ? const Color(0xFF1E1E1E)
-                : Colors.white,
-            titleColor: Theme.of(context).brightness == Brightness.dark
-                ? Colors.white
-                : Colors.black,
-            textColor: Theme.of(context).brightness == Brightness.dark
-                ? Colors.white70
-                : Colors.black87,
-            confirmBtnText: 'Okay',
-            confirmBtnTextStyle: GoogleFonts.inter(
-              fontSize: 12,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
           );
         }
       }
@@ -116,47 +94,27 @@ class _UserFormState extends State<UserForm> {
               'Location detection took too long. Please ensure you have a clear signal and try again.';
         }
 
-        QuickAlert.show(
+        AlertService.showWarning(
           context: context,
-          type: QuickAlertType
-              .warning, // Changed to warning for a less "scary" look
           title: 'Location Unavailable',
           text: errorMsg,
-          backgroundColor: Theme.of(context).brightness == Brightness.dark
-              ? const Color(0xFF1E1E1E)
-              : Colors.white,
-          titleColor: Theme.of(context).brightness == Brightness.dark
-              ? Colors.white
-              : Colors.black,
-          textColor: Theme.of(context).brightness == Brightness.dark
-              ? Colors.white70
-              : Colors.black87,
-          confirmBtnText: 'Okay',
-          confirmBtnTextStyle: GoogleFonts.inter(
-            fontSize: 12,
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
         );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isDetecting = false);
       }
     }
   }
 
-  // --- Build Method ---
+  // builds form
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
-    // Define fields
+    // define fields
     final nameField = CustomTextField(
       label: 'FULL NAME',
       controller: widget.nameController,
       hintText: 'Full Name',
       textInputAction: TextInputAction.next,
+      autofillHints: const [AutofillHints.name],
     );
 
     final emailField = CustomTextField(
@@ -164,6 +122,7 @@ class _UserFormState extends State<UserForm> {
       controller: widget.emailController,
       hintText: 'Enter Your Email Address',
       textInputAction: TextInputAction.next,
+      autofillHints: const [AutofillHints.email],
     );
 
     final contactField = CustomTextField(
@@ -173,6 +132,11 @@ class _UserFormState extends State<UserForm> {
       textInputAction: TextInputAction.next,
       maxLength: 9,
       keyboardType: TextInputType.phone,
+      autofillHints: const [AutofillHints.telephoneNumber],
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(9),
+      ],
       prefix: InkWell(
         onTap: () {
           showCountryPicker(
@@ -251,6 +215,7 @@ class _UserFormState extends State<UserForm> {
         hasToggle: true,
         onToggleVisibility: widget.onPasswordToggle,
         textInputAction: TextInputAction.next,
+        autofillHints: const [AutofillHints.password],
       );
       confirmField = CustomTextField(
         label: 'CONFIRM PASSWORD',
@@ -260,56 +225,62 @@ class _UserFormState extends State<UserForm> {
         hasToggle: true,
         onToggleVisibility: widget.onConfirmPasswordToggle,
         textInputAction: TextInputAction.next,
+        autofillHints: const [AutofillHints.password],
       );
     }
 
-    final addressField = CustomTextField(
-      label: widget.addressLabel,
-      controller: widget.addressController,
-      hintText: 'Street address',
-      textInputAction: TextInputAction.next,
-      suffix: TextButton(
-        onPressed: _isDetecting ? null : _detectLocation,
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          minimumSize: Size.zero,
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    final addressField = Consumer<HardwareController>(
+      builder: (context, hw, _) => CustomTextField(
+        label: widget.addressLabel,
+        controller: widget.addressController,
+        hintText: '',
+        textInputAction: TextInputAction.next,
+        autofillHints: const [AutofillHints.addressCityAndState],
+        suffix: TextButton(
+          onPressed: hw.isDetectingLocation ? null : _detectLocation,
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: hw.isDetectingLocation
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Color(0xFF27AE60),
+                  ),
+                )
+              : Text(
+                  'DETECT',
+                  style: GoogleFonts.inter(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF27AE60),
+                  ),
+                ),
         ),
-        child: _isDetecting
-            ? const SizedBox(
-                width: 16,
-                height: 16,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Color(0xFF27AE60),
-                ),
-              )
-            : Text(
-                'DETECT',
-                style: GoogleFonts.inter(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                  color: const Color(0xFF27AE60),
-                ),
-              ),
       ),
     );
 
     final cityField = CustomTextField(
       label: 'CITY',
       controller: widget.cityController,
-      hintText: 'City',
+      hintText: '',
       textInputAction: TextInputAction.next,
+      autofillHints: const [AutofillHints.addressCity],
     );
 
     final postalField = CustomTextField(
       label: 'POSTAL CODE',
       controller: widget.postalCodeController,
-      hintText: '10100',
+      hintText: '',
       textInputAction: widget.countryController == null
           ? TextInputAction.done
           : TextInputAction.next,
       onSubmitted: widget.countryController == null ? widget.onSubmitted : null,
+      autofillHints: const [AutofillHints.postalCode],
     );
 
     Widget? countryField;
@@ -359,16 +330,17 @@ class _UserFormState extends State<UserForm> {
           child: CustomTextField(
             label: 'COUNTRY',
             controller: widget.countryController!,
-            hintText: 'Select Country',
+            hintText: '',
             suffix: const Icon(Icons.keyboard_arrow_down_rounded),
             textInputAction: TextInputAction.done,
             onSubmitted: widget.onSubmitted,
+            autofillHints: const [AutofillHints.countryName],
           ),
         ),
       );
     }
 
-    // Helper for rows
+    // row helper
     Widget row(Widget a, Widget b) => Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -378,49 +350,51 @@ class _UserFormState extends State<UserForm> {
       ],
     );
 
-    return Column(
-      children: [
-        widget.isLandscape
-            ? row(nameField, emailField)
-            : Column(
-                children: [nameField, const SizedBox(height: 20), emailField],
-              ),
-        const SizedBox(height: 20),
-
-        contactField,
-        const SizedBox(height: 20),
-
-        if (passField != null && confirmField != null) ...[
+    return AutofillGroup(
+      child: Column(
+        children: [
           widget.isLandscape
-              ? row(passField, confirmField)
+              ? row(nameField, emailField)
               : Column(
-                  children: [
-                    passField,
-                    const SizedBox(height: 20),
-                    confirmField,
-                  ],
+                  children: [nameField, const SizedBox(height: 20), emailField],
                 ),
           const SizedBox(height: 20),
+
+          contactField,
+          const SizedBox(height: 20),
+
+          if (passField != null && confirmField != null) ...[
+            widget.isLandscape
+                ? row(passField, confirmField)
+                : Column(
+                    children: [
+                      passField,
+                      const SizedBox(height: 20),
+                      confirmField,
+                    ],
+                  ),
+            const SizedBox(height: 20),
+          ],
+
+          widget.isLandscape
+              ? row(addressField, cityField)
+              : Column(
+                  children: [
+                    addressField,
+                    const SizedBox(height: 20),
+                    row(cityField, postalField),
+                  ],
+                ),
+
+          const SizedBox(height: 20),
+
+          if (widget.isLandscape) ...[
+            row(postalField, countryField ?? const SizedBox()),
+          ] else ...[
+            if (countryField != null) countryField,
+          ],
         ],
-
-        widget.isLandscape
-            ? row(addressField, cityField)
-            : Column(
-                children: [
-                  addressField,
-                  const SizedBox(height: 20),
-                  row(cityField, postalField),
-                ],
-              ),
-
-        const SizedBox(height: 20),
-
-        if (widget.isLandscape) ...[
-          row(postalField, countryField ?? const SizedBox()),
-        ] else ...[
-          if (countryField != null) countryField,
-        ],
-      ],
+      ),
     );
   }
 }

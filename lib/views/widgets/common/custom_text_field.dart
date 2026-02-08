@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// custom styled text field
+// custom text field
 class CustomTextField extends StatelessWidget {
-  // field configuration
+  // config
   final String label;
   final TextEditingController controller;
   final String hintText;
   
-  // password field options
+  // password options
   final bool isObscure;
   final VoidCallback? onToggleVisibility;
   final bool hasToggle;
   
-  // additional options
+  // extra options
   final Widget? prefix;
   final Widget? suffix;
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onSubmitted;
   final int? maxLength;
   final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
+  final Iterable<String>? autofillHints;
 
   const CustomTextField({
     super.key,
@@ -35,6 +38,8 @@ class CustomTextField extends StatelessWidget {
     this.onSubmitted,
     this.maxLength,
     this.keyboardType,
+    this.inputFormatters,
+    this.autofillHints,
   });
 
   @override
@@ -60,9 +65,12 @@ class CustomTextField extends StatelessWidget {
           controller: controller,
           obscureText: isObscure,
           textInputAction: textInputAction,
+
           onSubmitted: onSubmitted,
           maxLength: maxLength,
           keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
+          autofillHints: autofillHints,
           style: GoogleFonts.inter(color: isDarkMode ? Colors.white : Colors.black87),
           decoration: InputDecoration(
             hintText: hintText,
@@ -78,7 +86,7 @@ class CustomTextField extends StatelessWidget {
             suffixIcon: hasToggle 
               ? IconButton(
                   icon: Icon(
-                    isObscure ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                    isObscure ? Icons.visibility_off_outlined : Icons.visibility_outlined,
                     color: Colors.grey[400],
                     size: 20,
                   ),

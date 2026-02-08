@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// quantity adjustment controls
+// quantity selector
 class QuantitySelector extends StatelessWidget {
-  // quantity state and callbacks
+  // state and callbacks
   final int quantity;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
@@ -15,7 +15,7 @@ class QuantitySelector extends StatelessWidget {
     required this.onDecrement,
   });
 
-  // builds quantity selector with increment/decrement buttons
+  // builds selector
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -56,12 +56,16 @@ class QuantitySelector extends StatelessWidget {
     );
   }
 
-  // creates increment or decrement button
+  // builds button
   Widget _buildButton(IconData icon, VoidCallback onTap, bool isDarkMode) {
     return InkWell(
-      onTap: onTap,
+      onTap: ((icon == Icons.remove && quantity <= 1) ? null : onTap),
       borderRadius: BorderRadius.circular(12),
-      child: Container(
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
+      child: Opacity(
+        opacity: (icon == Icons.remove && quantity <= 1) ? 0.3 : 1.0,
+        child: Container(
         width: 32,
         height: 32,
         decoration: BoxDecoration(
@@ -76,6 +80,6 @@ class QuantitySelector extends StatelessWidget {
           color: isDarkMode ? Colors.white70 : Colors.grey.shade600,
         ),
       ),
-    );
+    ));
   }
 }

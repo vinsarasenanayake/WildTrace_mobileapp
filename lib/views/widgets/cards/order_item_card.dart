@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../common/common_widgets.dart';
 
-// individual order item display
+// order item widget
 class OrderItem extends StatelessWidget {
-  // item details
+  // details
   final String image;
   final String title;
   final int quantity;
@@ -19,7 +20,7 @@ class OrderItem extends StatelessWidget {
     this.subtitle,
   });
 
-  // builds order item row with image and details
+  // builds item row
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -29,37 +30,16 @@ class OrderItem extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          // product image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: image.startsWith('http')
-                ? Image.network(
-                    image,
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      width: 60,
-                      height: 60,
-                      color: Colors.grey.shade200,
-                      child: const Icon(Icons.broken_image, color: Colors.grey),
-                    ),
-                  )
-                : Image.asset(
-                    image,
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      width: 60,
-                      height: 60,
-                      color: Colors.grey.shade200,
-                      child: const Icon(Icons.broken_image, color: Colors.grey),
-                    ),
-                  ),
+          // image
+          CachedImage(
+            imageUrl: image,
+            width: 60,
+            height: 60,
+            fit: BoxFit.cover,
+            borderRadius: 12,
           ),
           const SizedBox(width: 16),
-          // product title and quantity info
+          // content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

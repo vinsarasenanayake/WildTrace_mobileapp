@@ -1,4 +1,4 @@
-// Milestones timeline
+// milestone model
 class Milestone {
   final String id;
   final String year;
@@ -12,7 +12,7 @@ class Milestone {
     required this.description,
   });
 
-  // creates from json
+  // from json
   factory Milestone.fromJson(Map<String, dynamic> json) {
     return Milestone(
       id: json['id'].toString(),
