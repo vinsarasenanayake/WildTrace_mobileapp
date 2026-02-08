@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../controllers/navigation_controller.dart';
 import '../../../main_wrapper.dart';
 
 // logo widget
@@ -22,6 +24,8 @@ class WildTraceLogo extends StatelessWidget {
 
     return GestureDetector(
       onTap: onTap ?? () {
+        // go home
+        Provider.of<NavigationController>(context, listen: false).setSelectedIndex(0);
         Navigator.pushAndRemoveUntil(
           context, 
           MaterialPageRoute(builder: (context) => MainWrapper()), 

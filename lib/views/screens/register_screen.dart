@@ -148,6 +148,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         surfaceTintColor: Colors.transparent,
+        title: Text(
+          'Register',
+          style: GoogleFonts.inter(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.0,
+            color: isDarkMode ? Colors.white : const Color(0xFF1B4332),
+          ),
+        ),
+        centerTitle: true,
         // back button
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
@@ -172,39 +182,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 16),
                   // logo
-                  GestureDetector(
-                    onTap: () => Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => MainWrapper()),
-                      (route) => false,
+                  const WildTraceLogo(height: 80),
+                  const SizedBox(height: 48),
+
+                  // header section
+                  Container(
+                    width: isLandscape ? MediaQuery.of(context).size.width * 0.7 : double.infinity,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const SectionTitle(
+                          title: 'NEW ACCOUNT',
+                          mainAxisAlignment: MainAxisAlignment.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Join WildTrace',
+                          style: GoogleFonts.playfairDisplay(
+                            fontSize: 36,
+                            fontWeight: FontWeight.w400,
+                            fontStyle: FontStyle.italic,
+                            color: isDarkMode ? Colors.white : const Color(0xFF1B4332),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Create your account to start your journey.',
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.inter(
+                            fontSize: 12,
+                            color: Colors.grey.shade600,
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
                     ),
-                    child: const WildTraceLogo(),
                   ),
                   const SizedBox(height: 24),
-                  // heading
-                  Text(
-                    'Join WildTrace',
-                    style: GoogleFonts.playfairDisplay(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: isDarkMode
-                          ? Colors.white
-                          : const Color(0xFF1B4332),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'CREATE YOUR ACCOUNT',
-                    style: GoogleFonts.inter(
-                      fontSize: 12,
-                      letterSpacing: 1.5,
-                      fontWeight: FontWeight.w600,
-                      color: isDarkMode ? Colors.white70 : Colors.grey[600],
-                    ),
-                  ),
-                  const SizedBox(height: 40),
                   // form container
                   Container(
                     width: isLandscape
@@ -260,20 +276,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(height: 24),
                         // login link
                         Center(
-                          child: TextButton(
-                            onPressed: () => Navigator.pushReplacement(
+                          child: GestureDetector(
+                            onTap: () => Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => const LoginScreen(),
                               ),
                             ),
-                            child: Text(
-                              'ALREADY REGISTERED? SIGN IN',
-                              style: GoogleFonts.inter(
-                                fontSize: 11,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey[500],
-                                letterSpacing: 0.5,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Text(
+                                'ALREADY REGISTERED? SIGN IN',
+                                style: GoogleFonts.inter(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey[500],
+                                  letterSpacing: 0.5,
+                                ),
                               ),
                             ),
                           ),

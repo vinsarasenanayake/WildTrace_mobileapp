@@ -200,6 +200,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       // logo
                       const SizedBox(height: 16),
                       const WildTraceLogo(height: 80),
+                      const SizedBox(height: 24),
+                      
+                      // header similar to checkout screen
+                       SectionTitle(
+                        title: 'ACCOUNT SETTINGS',
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        color: isDarkMode ? const Color(0xFF27AE60) : const Color(0xFF27AE60),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Edit Profile',
+                        style: GoogleFonts.playfairDisplay(
+                          fontSize: 36,
+                          fontWeight: FontWeight.w400,
+                          fontStyle: FontStyle.italic,
+                          color: textColor,
+                        ),
+                      ),
                       const SizedBox(height: 48),
                       // setting sections
                       _buildProfileSection(
