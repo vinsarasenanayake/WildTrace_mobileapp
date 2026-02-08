@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/favorites_controller.dart';
 import '../../controllers/auth_controller.dart';
+import '../../controllers/sync_controller.dart';
 import '../../utilities/responsive_helper.dart';
 import 'product_details_screen.dart';
 import '../widgets/cards/card_widgets.dart';
@@ -27,6 +28,8 @@ class FavouritesScreen extends StatelessWidget {
           final authProvider = Provider.of<AuthController>(context, listen: false);
           final favoritesProvider = Provider.of<FavoritesController>(context, listen: false);
           if (authProvider.token != null) {
+            await Provider.of<SyncController>(context, listen: false)
+                .syncPendingActions(authProvider.token!);
             await favoritesProvider.fetchFavorites(authProvider.token!);
           }
         },

@@ -11,6 +11,7 @@ import 'controllers/products_controller.dart';
 import 'controllers/orders_controller.dart';
 import 'controllers/content_controller.dart';
 import 'controllers/hardware_controller.dart';
+import 'controllers/sync_controller.dart';
 
 import 'utilities/app_theme.dart';
 import 'views/screens/splash_screen.dart';
@@ -55,6 +56,7 @@ void main() async {
           create: (_) => ContentController()..fetchContent(),
         ),
         ChangeNotifierProvider(create: (_) => HardwareController()),
+        ChangeNotifierProvider(create: (_) => SyncController()),
       ],
       child: const WildTraceApp(),
     ),

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../controllers/products_controller.dart';
 import '../../controllers/favorites_controller.dart';
 import '../../controllers/auth_controller.dart';
+import '../../controllers/sync_controller.dart';
 import '../../utilities/responsive_helper.dart';
 import '../widgets/common/common_widgets.dart';
 import '../widgets/cards/card_widgets.dart';
@@ -125,6 +126,10 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     bottom: false,
                     child: RefreshIndicator(
                       onRefresh: () async {
+                        if (authProvider.token != null) {
+                          await Provider.of<SyncController>(context, listen: false)
+                              .syncPendingActions(authProvider.token!);
+                        }
                         await productsProvider.fetchProducts();
                         if (authProvider.token != null) {
                           await favoritesProvider.fetchFavorites(

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../controllers/cart_controller.dart';
 import '../../controllers/auth_controller.dart';
+import '../../controllers/sync_controller.dart';
 import '../widgets/cards/card_widgets.dart';
 import 'checkout_screen.dart';
 import '../widgets/common/common_widgets.dart';
@@ -67,6 +68,8 @@ class _CartScreenState extends State<CartScreen> {
                       listen: false,
                     );
                     if (authProvider.token != null) {
+                      await Provider.of<SyncController>(context, listen: false)
+                          .syncPendingActions(authProvider.token!);
                       await cartProvider.fetchCart(authProvider.token!);
                     }
                   },

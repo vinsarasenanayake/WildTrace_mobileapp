@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../services/api/index.dart';
+import '../services/database/database_service.dart';
 
 class ProductsController with ChangeNotifier {
   final ProductApiService _apiService = ProductApiService();
+  final DatabaseService _dbService = DatabaseService();
   final List<Product> _products = [];
   bool _isLoading = false;
   String _error = '';
@@ -39,13 +41,36 @@ class ProductsController with ChangeNotifier {
     _isLoading = true;
     _error = '';
     notifyListeners();
+
+    // 1. FAST LOAD: Load data from local SQLite cache first for instant startup
+    try {
+      final cached = await _dbService.getCachedProducts();
+      if (cached.isNotEmpty) {
+        _products.clear();
+        _products.addAll(cached);
+        _applyFilters();
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Cache Load Error: $e');
+    }
+
+    // 2. STALE-WHILE-REVALIDATE: Fetch fresh data from API in the background
     try {
       final fetchedProducts = await _apiService.fetchProducts(token: _token);
       _products.clear();
       _products.addAll(fetchedProducts);
       _applyFilters();
+      _error = ''; 
+      
+      // Update local cache with fresh server data
+      await _dbService.cacheProducts(fetchedProducts);
     } catch (e) {
-      _error = e.toString();
+      debugPrint('API Fetch Error: $e');
+      // SILENT FAIL: Only show a blocking error if we have ZERO cached data to show
+      if (_products.isEmpty) {
+        _error = e.toString();
+      }
     } finally {
       _isLoading = false;
       notifyListeners();

@@ -171,7 +171,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const WildTraceLogo(height: 80),
                   const SizedBox(height: 48),
 
-                  Container(
+                  SizedBox(
                     width: isLandscape ? MediaQuery.of(context).size.width * 0.7 : double.infinity,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,

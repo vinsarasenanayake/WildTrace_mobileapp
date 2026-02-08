@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import '../models/cart_item.dart';
 import '../models/product.dart';
 import '../services/api/index.dart';
+import '../services/database/database_service.dart';
 
 class CartController with ChangeNotifier {
   final CartApiService _apiService = CartApiService();
+  final DatabaseService _dbService = DatabaseService();
   final List<CartItem> _items = [];
   bool _isLoading = false;
   String? _token;
@@ -35,9 +37,21 @@ class CartController with ChangeNotifier {
   Future<void> fetchCart(String token) async {
     _isLoading = true;
     notifyListeners();
+
+    // try loading from cache
+    try {
+      final cached = await _dbService.getCachedCartItems();
+      if (cached.isNotEmpty) {
+        _items.clear();
+        _items.addAll(cached);
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Cart Cache Error: $e');
+    }
+
     try {
       final List<dynamic> data = await _apiService.fetchCart(token);
-      // parse api response to models
       _items.clear();
       for (var item in data) {
          final productData = item['product'] ?? item;
@@ -51,52 +65,97 @@ class CartController with ChangeNotifier {
            ));
          }
       }
+      // update cache
+      await _dbService.cacheCartItems(_items);
     } catch (e) {
       debugPrint('Cart Error: $e');
-      rethrow;
+      if (_items.isEmpty) rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
+
   Future<void> addToCart(Product product, {int quantity = 1, String? size, String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
+    
+    // OPTIMISTIC UPDATE: Update local list and cache immediately for 
+    // instant UI feedback, even if the user is offline.
+    final tempId = 'temp_${DateTime.now().millisecondsSinceEpoch}';
+    _items.add(CartItem(
+      id: tempId,
+      product: product,
+      quantity: quantity,
+      size: size,
+    ));
+    notifyListeners();
+    await _dbService.cacheCartItems(_items);
+
     try {
       await _apiService.addToCart(product.id, quantity, tokenToUse, size: size);
       await fetchCart(tokenToUse);
     } catch (e) {
-      debugPrint('Add to Cart Error: $e');
-      rethrow;
+      debugPrint('Add to Cart API Error: $e');
+      // FAILSILENT OFFLINE: If API fails (e.g. No Internet), save the action 
+      // locally. It will be synced by SyncController once connection returns.
+      await _dbService.addPendingAction('cart_add', {
+        'product_id': product.id,
+        'quantity': quantity,
+        'size': size,
+      });
     }
   }
 
   Future<void> removeFromCart(String cartItemId, {String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
+    
+    // optimistic update
+    _items.removeWhere((item) => item.id == cartItemId);
+    notifyListeners();
+    await _dbService.cacheCartItems(_items);
+
     try {
       await _apiService.removeFromCart(cartItemId, tokenToUse);
       await fetchCart(tokenToUse);
     } catch (e) {
-      debugPrint('Remove from Cart Error: $e');
-      rethrow;
+      debugPrint('Remove from Cart API Error: $e');
+      if (!cartItemId.startsWith('temp_')) {
+        await _dbService.addPendingAction('cart_remove', {'id': cartItemId});
+      }
     }
   }
 
   Future<void> updateQuantity(String cartItemId, int quantity, {String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
+
+    // optimistic update
+    final index = _items.indexWhere((item) => item.id == cartItemId);
+    if (index >= 0) {
+      if (quantity <= 0) {
+        _items.removeAt(index);
+      } else {
+        _items[index] = _items[index].copyWith(quantity: quantity);
+      }
+      notifyListeners();
+      await _dbService.cacheCartItems(_items);
+    }
+
     try {
       if (quantity <= 0) {
-        await removeFromCart(cartItemId, token: tokenToUse);
+        await _apiService.removeFromCart(cartItemId, tokenToUse);
       } else {
         await _apiService.updateCartItem(cartItemId, quantity, tokenToUse);
-        await fetchCart(tokenToUse);
       }
+      await fetchCart(tokenToUse);
     } catch (e) {
-      debugPrint('Update Quantity Error: $e');
-      rethrow;
+      debugPrint('Update Quantity API Error: $e');
+      if (!cartItemId.startsWith('temp_')) {
+        await _dbService.addPendingAction('cart_update', {'id': cartItemId, 'quantity': quantity});
+      }
     }
   }
 

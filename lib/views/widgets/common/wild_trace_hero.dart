@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class WildTraceHero extends StatelessWidget {
   final String imagePath;
@@ -48,11 +49,12 @@ class WildTraceHero extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           imagePath.startsWith('http')
-              ? Image.network(
-                  imagePath,
+              ? CachedNetworkImage(
+                  imageUrl: imagePath,
                   fit: BoxFit.cover,
                   alignment: alignment,
-                  errorBuilder: (context, error, stackTrace) =>
+                  placeholder: (context, url) => Container(color: const Color(0xFF0F1E26)),
+                  errorWidget: (context, url, error) =>
                       Container(color: const Color(0xFF0F1E26)),
                 )
               : Image.asset(

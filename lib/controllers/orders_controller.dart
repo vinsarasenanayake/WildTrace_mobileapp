@@ -3,9 +3,11 @@ import '../models/order.dart';
 import '../models/cart_item.dart';
 import '../models/product.dart';
 import '../services/api/index.dart';
+import '../services/database/database_service.dart';
 
 class OrdersController with ChangeNotifier {
   final OrderApiService _apiService = OrderApiService();
+  final DatabaseService _dbService = DatabaseService();
   final List<Order> _orders = [];
   String? _token;
   bool _isLoading = false;
@@ -123,6 +125,19 @@ class OrdersController with ChangeNotifier {
   Future<void> loadOrders(String userId, String token) async {
     _isLoading = true;
     notifyListeners();
+
+    // try loading from cache
+    try {
+      final cached = await _dbService.getCachedOrders(userId);
+      if (cached.isNotEmpty) {
+        _orders.clear();
+        _orders.addAll(cached);
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Order Cache Load Error: $e');
+    }
+
     try {
       final List<dynamic> data = await _apiService.fetchOrders(token);
       _orders.clear();
@@ -158,6 +173,8 @@ class OrdersController with ChangeNotifier {
            shippingAddress: item['shipping_address'],
          ));
       }
+      // update cache
+      await _dbService.cacheOrders(_orders);
     } catch (e) {
       debugPrint('Load Orders Error: $e');
     } finally {

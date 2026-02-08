@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../services/api/base_api_service.dart';
+import '../common/common_widgets.dart';
 
 class ProductCard extends StatelessWidget {
   final String imageUrl;
@@ -45,24 +45,10 @@ class ProductCard extends StatelessWidget {
           child: Stack(
             fit: StackFit.expand,
             children: [
-              Image.network(
-                BaseApiService.resolveImageUrl(imageUrl),
+              CachedImage(
+                imageUrl: imageUrl,
                 fit: BoxFit.cover,
-                cacheWidth: 800,
-                gaplessPlayback: true,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF2C2C2C),
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: const Center(
-                    child: Icon(
-                      Icons.image_not_supported_outlined,
-                      color: Colors.white24,
-                      size: 32,
-                    ),
-                  ),
-                ),
+                borderRadius: 24,
               ),
               Container(
                 decoration: BoxDecoration(

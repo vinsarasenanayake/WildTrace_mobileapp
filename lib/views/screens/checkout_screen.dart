@@ -280,11 +280,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       },
                     );
                   } catch (e) {
+                    final errorMessage = e.toString();
+                    String userMessage = errorMessage;
+
+                    if (errorMessage.contains('SocketException') || 
+                        errorMessage.contains('Failed host lookup') || 
+                        errorMessage.contains('ClientException')) {
+                      userMessage = 'Connection lost. Please check your internet and try again.';
+                    }
 
                     AlertService.showError(
                       context: context,
                       title: 'Payment Error',
-                      text: 'Unable to initialize payment: $e',
+                      text: userMessage,
                     );
                   } finally {
                     if (mounted) setState(() => _isPaying = false);

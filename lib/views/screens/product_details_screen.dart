@@ -341,15 +341,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(32)),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(32),
-        child: Image.network(
-          BaseApiService.resolveImageUrl(widget.product.imageUrl),
+        child: CachedImage(
+          imageUrl: widget.product.imageUrl,
           fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => Container(
-            color: Colors.grey[900],
-            child: const Center(
-              child: Icon(Icons.broken_image, color: Colors.white24, size: 48),
-            ),
-          ),
+          borderRadius: 32,
         ),
       ),
     );

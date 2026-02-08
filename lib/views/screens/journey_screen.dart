@@ -100,29 +100,53 @@ class JourneyScreen extends StatelessWidget {
 
         final milestones = contentProvider.milestones;
 
+        final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
+        final Color textColor = isDarkMode ? Colors.white : const Color(0xFF1B4332);
+
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
-          child: Stack(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 60),
+          child: Column(
             children: [
-              Positioned(
-                left: 4,
-                top: 20,
-                bottom: 0,
-                child: Container(
-                  width: 1,
-                  color: Colors.grey.withAlpha((0.3 * 255).round()),
-                ),
-              ),
-              Column(
-                children: milestones
-                    .map(
-                      (event) => _buildTimelineItem(
-                        year: event.year,
-                        title: event.title,
-                        description: event.description,
+              const SectionTitle(title: 'MILESTONES'),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      left: 4,
+                      top: 20,
+                      bottom: 0,
+                      child: Container(
+                        width: 1,
+                        color: Colors.grey.withAlpha((0.3 * 255).round()),
                       ),
-                    )
-                    .toList(),
+                    ),
+                    Column(
+                      children: milestones.isEmpty 
+                        ? [
+                            const SizedBox(height: 20),
+                            Text(
+                              'Our journey milestones are being updated.',
+                              style: TextStyle(
+                                color: textColor.withAlpha((0.6 * 255).round()),
+                                fontSize: 13,
+                              ),
+                            ),
+                          ]
+                        : milestones
+                            .map(
+                              (event) => _buildTimelineItem(
+                                year: event.year,
+                                title: event.title,
+                                description: event.description,
+                              ),
+                            )
+                            .toList(),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

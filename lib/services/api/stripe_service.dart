@@ -53,10 +53,19 @@ class StripeService {
       }
     } catch (e) {
       if (context.mounted) {
+        final errorMessage = e.toString();
+        String userMessage = errorMessage;
+        
+        if (errorMessage.contains('SocketException') || 
+            errorMessage.contains('Failed host lookup') || 
+            errorMessage.contains('ClientException')) {
+          userMessage = 'It looks like you\'re offline. Please check your internet connection to complete your payment.';
+        }
+
         AlertService.showError(
           context: context,
-          title: 'Error',
-          text: e.toString(),
+          title: 'Connection Error',
+          text: userMessage,
         );
       }
     }

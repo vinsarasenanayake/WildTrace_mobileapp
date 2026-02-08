@@ -137,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const WildTraceLogo(height: 80),
                   const SizedBox(height: 48),
                   
-                  Container(
+                  SizedBox(
                     width: isLandscape ? MediaQuery.of(context).size.width * 0.6 : double.infinity,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
