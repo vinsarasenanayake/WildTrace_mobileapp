@@ -23,78 +23,70 @@ class BaseApiService {
     final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
     final url = Uri.https(baseHostDomain, '$_apiPath/$cleanEndpoint');
     
-    try {
-      final response = await http.get(
-        url,
-        headers: {
-          'Accept': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
-      ).timeout(const Duration(seconds: 30));
-
-      return _handleResponse(response, endpoint);
-    } catch (_) {
-      rethrow;
-    }
+    return _performRequest(() => http.get(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
+    ), endpoint);
   }
 
   Future<dynamic> post(String endpoint, {dynamic body, String? token}) async {
     final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
     final url = Uri.https(baseHostDomain, '$_apiPath/$cleanEndpoint');
     
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
-        body: json.encode(body),
-      ).timeout(const Duration(seconds: 30));
-
-      return _handleResponse(response, endpoint);
-    } catch (_) {
-      rethrow;
-    }
+    return _performRequest(() => http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
+      body: json.encode(body),
+    ), endpoint);
   }
 
   Future<dynamic> put(String endpoint, {dynamic body, String? token}) async {
     final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
     final url = Uri.https(baseHostDomain, '$_apiPath/$cleanEndpoint');
     
-    try {
-      final response = await http.put(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
-        body: json.encode(body),
-      ).timeout(const Duration(seconds: 30));
-
-      return _handleResponse(response, endpoint);
-    } catch (_) {
-      rethrow;
-    }
+    return _performRequest(() => http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
+      body: json.encode(body),
+    ), endpoint);
   }
 
   Future<dynamic> delete(String endpoint, {String? token}) async {
     final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
     final url = Uri.https(baseHostDomain, '$_apiPath/$cleanEndpoint');
     
-    try {
-      final response = await http.delete(
-        url,
-        headers: {
-          'Accept': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
-        },
-      ).timeout(const Duration(seconds: 30));
+    return _performRequest(() => http.delete(
+      url,
+      headers: {
+        'Accept': 'application/json',
+        if (token != null) 'Authorization': 'Bearer $token',
+      },
+    ), endpoint);
+  }
 
+  Future<dynamic> _performRequest(Future<http.Response> Function() request, String endpoint) async {
+    try {
+      final response = await request().timeout(const Duration(seconds: 30));
       return _handleResponse(response, endpoint);
-    } catch (_) {
+    } catch (e) {
+      String errorStr = e.toString().toLowerCase();
+      if (errorStr.contains('socketexception') || 
+          errorStr.contains('clientexception') ||
+          errorStr.contains('host lookup') ||
+          errorStr.contains('no address associated with hostname')) {
+        throw Exception('Please connect to the internet.');
+      }
       rethrow;
     }
   }
