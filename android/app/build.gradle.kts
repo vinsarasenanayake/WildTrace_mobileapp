@@ -19,6 +19,14 @@ android {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
+    // Suppress deprecation warnings during compilation
+    tasks.withType(JavaCompile::class) {
+        options.compilerArgs.addAll(listOf(
+            "-Xlint:none",
+            "-nowarn"
+        ))
+    }
+
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.example.wild_trace"
