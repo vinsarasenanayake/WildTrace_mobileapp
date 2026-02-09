@@ -26,10 +26,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController _postalCodeController;
   late TextEditingController _countryController;
 
-  final TextEditingController _currPass = TextEditingController();
-  final TextEditingController _newPass = TextEditingController();
-  final TextEditingController _confPass = TextEditingController();
-  bool _obscureCurrent = true, _obscureNew = true, _obscureConfirm = true;
+
 
   @override
   void initState() {
@@ -56,9 +53,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _cityController.dispose();
     _postalCodeController.dispose();
     _countryController.dispose();
-    _currPass.dispose();
-    _newPass.dispose();
-    _confPass.dispose();
+
     super.dispose();
   }
 
@@ -212,8 +207,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         isLandscape,
                       ),
                       const SizedBox(height: 40),
-                      _buildPasswordSection(isDarkMode, authProvider),
-                      const SizedBox(height: 40),
+
                       _buildDeleteAccountSection(isDarkMode, authProvider),
                       const SizedBox(height: 40),
                     ],
@@ -294,134 +288,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildPasswordSection(bool isDarkMode, AuthController authProvider) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Update Password',
-          style: GoogleFonts.inter(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: isDarkMode ? Colors.white : const Color(0xFF1B4332),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Ensure your account is using a long, random password to stay secure.',
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            color: Colors.grey.shade600,
-            height: 1.5,
-          ),
-        ),
-        const SizedBox(height: 24),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: isDarkMode ? const Color(0xFF1E1E1E) : Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha((0.05 * 255).round()),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              CustomTextField(
-                label: 'Current Password',
-                controller: _currPass,
-                hintText: '',
-                isObscure: _obscureCurrent,
-                hasToggle: true,
-                onToggleVisibility: () =>
-                    setState(() => _obscureCurrent = !_obscureCurrent),
-                textInputAction: TextInputAction.next,
-                autofillHints: const [AutofillHints.password],
-              ),
-              const SizedBox(height: 20),
-              CustomTextField(
-                label: 'New Password',
-                controller: _newPass,
-                hintText: '',
-                isObscure: _obscureNew,
-                hasToggle: true,
-                onToggleVisibility: () =>
-                    setState(() => _obscureNew = !_obscureNew),
-                textInputAction: TextInputAction.next,
-                autofillHints: const [AutofillHints.newPassword],
-              ),
-              const SizedBox(height: 20),
-              CustomTextField(
-                label: 'Confirm Password',
-                controller: _confPass,
-                hintText: '',
-                isObscure: _obscureConfirm,
-                hasToggle: true,
-                onToggleVisibility: () =>
-                    setState(() => _obscureConfirm = !_obscureConfirm),
-                textInputAction: TextInputAction.done,
-                autofillHints: const [AutofillHints.password],
-                onSubmitted: (_) {
 
-                  AlertService.showInfo(
-                    context: context,
-                    title: 'Info',
-                    text: 'Password update simulated',
-                  );
-                },
-              ),
-              const SizedBox(height: 24),
-              CustomButton(
-                text: 'SAVE',
-                onPressed: () async {
-                        if (_newPass.text != _confPass.text) {
-
-                          AlertService.showWarning(
-                            context: context,
-                            title: 'Mismatch',
-                            text: 'Passwords do not match',
-                          );
-                          return;
-                        }
-
-                        final success = await authProvider.updatePassword(
-                          _currPass.text,
-                          _newPass.text,
-                        );
-                        if (mounted) {
-
-                          if (success) {
-                            AlertService.showSuccess(
-                              context: context,
-                              title: 'Security Updated',
-                              text: 'Management of your credentials has been secured.',
-                            );
-                          } else {
-                            AlertService.showError(
-                              context: context,
-                              title: 'Update Failed',
-                              text: 'Failed to update credentials.',
-                            );
-                          }
-                          if (success) {
-                            _currPass.clear();
-                            _newPass.clear();
-                            _confPass.clear();
-                          }
-                        }
-                      },
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildDeleteAccountSection(bool isDarkMode, AuthController authProvider) {
     return Column(
