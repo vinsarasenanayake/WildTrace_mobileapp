@@ -119,10 +119,6 @@ class AuthController with ChangeNotifier {
     }
   }
 
-  Future<bool> updatePassword(String currentPassword, String newPassword) async {
-    return true; 
-  }
-
   Future<void> checkAuthStatus() async {
     _isLoading = true;
     notifyListeners();
