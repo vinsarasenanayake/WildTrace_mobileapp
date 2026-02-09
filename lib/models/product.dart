@@ -1,5 +1,6 @@
 import '../services/api/base_api_service.dart';
 
+// Represents a product available for purchase
 class Product {
   final String id;
   final String imageUrl;
@@ -35,6 +36,7 @@ class Product {
     this.options,
   });
 
+  // Create a copy of Product
   Product copyWith({
     String? id,
     String? imageUrl,
@@ -72,6 +74,7 @@ class Product {
     );
   }
 
+  // Convert Product to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -93,6 +96,7 @@ class Product {
     };
   }
 
+  // Create a Product from JSON
   factory Product.fromJson(Map<String, dynamic> json) {
     try {
       String? yearValue;

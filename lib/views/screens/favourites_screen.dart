@@ -13,6 +13,7 @@ import '../../controllers/navigation_controller.dart';
 class FavouritesScreen extends StatelessWidget {
   const FavouritesScreen({super.key});
 
+  // Build ui for favourites screen
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -126,6 +127,7 @@ class FavouritesScreen extends StatelessWidget {
     );
   }
 
+  // Build ui for empty favorites state
   Widget _buildEmptyState(BuildContext context, Color textColor) {
     return Center(
       child: Column(

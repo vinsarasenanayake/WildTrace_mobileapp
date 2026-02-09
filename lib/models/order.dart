@@ -2,6 +2,7 @@ import 'cart_item.dart';
 
 enum OrderStatus { pending, paid, processing, shipped, delivered, cancelled, declined }
 
+// Represents a customer order
 class Order {
   final String id;
   final String userId;
@@ -29,6 +30,7 @@ class Order {
     this.shippingAddress,
   });
 
+  // Create a copy of Order
   Order copyWith({
     String? id,
     String? userId,
@@ -57,6 +59,7 @@ class Order {
     );
   }
 
+  // Convert Order to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -73,6 +76,7 @@ class Order {
     };
   }
 
+  // Create an Order from JSON
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
       id: json['id'] as String,

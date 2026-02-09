@@ -10,6 +10,7 @@ import 'views/widgets/common/common_widgets.dart';
 class MainWrapper extends StatelessWidget {
   const MainWrapper({super.key});
 
+  // Build the main application wrapper with bottom navigation
   @override
   Widget build(BuildContext context) {
     final navProvider = Provider.of<NavigationController>(context);

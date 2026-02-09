@@ -19,6 +19,7 @@ class OrderHistoryScreen extends StatefulWidget {
 }
 
 class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
+  // Initialize state
   @override
   void initState() {
     super.initState();
@@ -27,6 +28,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     });
   }
 
+  // Fetch latest orders from api
   Future<void> _refreshOrders() async {
     final authProvider = Provider.of<AuthController>(context, listen: false);
     final ordersProvider = Provider.of<OrdersController>(context, listen: false);
@@ -36,6 +38,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
   }
 
 
+  // Build ui for order history screen
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -194,6 +197,7 @@ class _OrderHistoryScreenState extends State<OrderHistoryScreen> {
     );
   }
   
+  // Convert order status enum to string
   String _statusToString(OrderStatus status) {
     switch (status) {
       case OrderStatus.pending: return 'PENDING';

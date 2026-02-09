@@ -1,4 +1,3 @@
-// api index
 export 'base_api_service.dart';
 export 'auth_api_service.dart';
 export 'product_api_service.dart';

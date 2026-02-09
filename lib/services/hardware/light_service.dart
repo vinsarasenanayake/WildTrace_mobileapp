@@ -4,6 +4,7 @@ import 'package:light/light.dart';
 class LightService {
   final Light _light = Light();
 
+  // Get current ambient light intensity in lux
   Future<double> getCurrentLight() async {
     try {
       final int lux = await _light.lightSensorStream.first.timeout(

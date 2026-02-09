@@ -1,3 +1,4 @@
+// Represents a milestone in the photographer's career
 class Milestone {
   final String id;
   final String year;
@@ -11,6 +12,7 @@ class Milestone {
     required this.description,
   });
 
+  // Create a Milestone from JSON
   factory Milestone.fromJson(Map<String, dynamic> json) {
     return Milestone(
       id: json['id'].toString(),

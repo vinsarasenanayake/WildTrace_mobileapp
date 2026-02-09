@@ -28,6 +28,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
 
 
+  // Initialize state
   @override
   void initState() {
     super.initState();
@@ -44,6 +45,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _countryController = TextEditingController(text: user?.country ?? '');
   }
 
+  // Dispose controllers
   @override
   void dispose() {
     _nameController.dispose();
@@ -57,6 +59,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
+  // Handle profile update request
   Future<void> _handleUpdateProfile(AuthController authProvider) async {
     FocusScope.of(context).unfocus();
 
@@ -126,6 +129,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  // Build ui for edit profile screen
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -223,6 +227,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
 
 
+  // Build profile information section
   Widget _buildProfileSection(
     bool isDarkMode,
     AuthController authProvider,
@@ -290,6 +295,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
 
 
+  // Build delete account section
   Widget _buildDeleteAccountSection(bool isDarkMode, AuthController authProvider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -343,6 +349,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
+  // Handle account deletion request
   Future<void> _handleDeleteAccount(AuthController authProvider) async {
     final ordersProvider = Provider.of<OrdersController>(context, listen: false);
     

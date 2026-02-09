@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AlertService {
   
+  // Display an error alert
   static void showError({
     required BuildContext context,
     String title = 'Error',
@@ -29,6 +30,7 @@ class AlertService {
     );
   }
 
+  // Display a warning alert
   static void showWarning({
     required BuildContext context,
     String title = 'Warning',
@@ -54,6 +56,7 @@ class AlertService {
     );
   }
 
+  // Display a success alert
   static Future<void> showSuccess({
     required BuildContext context,
     String title = 'Success',
@@ -81,6 +84,7 @@ class AlertService {
     );
   }
 
+  // Display a confirmation alert
   static void showConfirmation({
     required BuildContext context,
     String title = 'Confirm',
@@ -119,6 +123,7 @@ class AlertService {
     );
   }
 
+  // Display an information alert
   static void showInfo({
     required BuildContext context,
     String title = 'Info',
@@ -144,6 +149,7 @@ class AlertService {
     );
   }
   
+  // Display a custom widget in an alert
   static void showCustom({
     required BuildContext context,
     required Widget widget,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-
 import '../../controllers/cart_controller.dart';
 import '../../controllers/orders_controller.dart';
 import '../../controllers/auth_controller.dart';
@@ -10,7 +9,6 @@ import '../widgets/forms/form_widgets.dart';
 import '../widgets/cards/card_widgets.dart';
 import '../widgets/common/common_widgets.dart';
 import '../../services/api/index.dart';
-
 import '../../utilities/alert_service.dart';
 import 'package:intl/intl.dart' as intl;
 import '../../models/order.dart';
@@ -34,6 +32,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   late TextEditingController _countryController;
   bool _isPaying = false;
 
+  // Initialize state
   @override
   void initState() {
     super.initState();
@@ -50,6 +49,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     _countryController = TextEditingController(text: user?.country ?? '');
   }
 
+  // Dispose controllers
   @override
   void dispose() {
     _nameController.dispose();
@@ -62,6 +62,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     super.dispose();
   }
 
+  // Build ui for checkout screen
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;

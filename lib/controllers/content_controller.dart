@@ -7,6 +7,7 @@ import '../services/database/database_service.dart';
 import '../utilities/constants.dart';
 
 class ContentController with ChangeNotifier {
+  // controller to manage photographers and milestones with api and local db
   final ContentApiService _apiService = ContentApiService();
   final DatabaseService _dbService = DatabaseService();
   List<Photographer> _photographers = [];
@@ -17,6 +18,7 @@ class ContentController with ChangeNotifier {
   List<Milestone> get milestones => List.unmodifiable(_milestones);
   bool get isLoading => _isLoading;
 
+  // Synchronize photographers and milestones data with backend api
   Future<void> fetchContent() async {
     _isLoading = true;
     notifyListeners();
@@ -35,12 +37,17 @@ class ContentController with ChangeNotifier {
     }
 
     try {
+      // get content data from backend
       final photographersData = await _apiService.fetchPhotographers();
-      _photographers = photographersData.map((data) => Photographer.fromJson(data)).toList();
+      _photographers = photographersData
+          .map((data) => Photographer.fromJson(data))
+          .toList();
       await _dbService.cachePhotographers(_photographers);
-      
+
       final milestonesData = await _apiService.fetchMilestones();
-      _milestones = milestonesData.map((data) => Milestone.fromJson(data)).toList();
+      _milestones = milestonesData
+          .map((data) => Milestone.fromJson(data))
+          .toList();
       await _dbService.cacheMilestones(_milestones);
     } catch (e) {
       if (_milestones.isEmpty) {

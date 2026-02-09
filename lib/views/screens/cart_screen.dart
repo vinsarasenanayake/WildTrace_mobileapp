@@ -8,7 +8,6 @@ import '../widgets/cards/card_widgets.dart';
 import 'checkout_screen.dart';
 import '../widgets/common/common_widgets.dart';
 import '../../controllers/navigation_controller.dart';
-
 import '../../utilities/alert_service.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
@@ -22,6 +21,7 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
+  // Initialize state and fetch cart data
   @override
   void initState() {
     super.initState();
@@ -36,6 +36,7 @@ class _CartScreenState extends State<CartScreen> {
     });
   }
 
+  // Build ui for cart screen
   @override
   Widget build(BuildContext context) {
     return Consumer<CartController>(
@@ -114,6 +115,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  // Build UI for empty cart or unauthenticated state
   Widget _buildEmptyState(BuildContext context, CartController cartProvider) {
     final authProvider = Provider.of<AuthController>(context, listen: false);
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -272,6 +274,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  // Build sliver widgets for the cart item list
   List<Widget> _buildCartSlivers(
     BuildContext context,
     CartController cartProvider,
@@ -478,6 +481,7 @@ class _CartScreenState extends State<CartScreen> {
     ];
   }
 
+  // Build the order summary and action buttons
   Widget _buildSummaryCard(BuildContext context, CartController cartProvider) {
     return OrderSummaryCard(
       title: 'Cart Summary',
@@ -510,6 +514,7 @@ class _CartScreenState extends State<CartScreen> {
     );
   }
 
+  // Build the copyright footer
   Widget _buildFooter() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,

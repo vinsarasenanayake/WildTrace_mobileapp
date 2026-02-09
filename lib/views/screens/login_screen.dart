@@ -21,6 +21,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  // Handle user login request
   Future<void> _handleLogin(
     AuthController authProvider,
     bool isDarkMode,
@@ -78,6 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // Build ui for login screen
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;

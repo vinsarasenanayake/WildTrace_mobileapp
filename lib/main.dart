@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-
 import 'controllers/navigation_controller.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/cart_controller.dart';
@@ -12,10 +11,10 @@ import 'controllers/orders_controller.dart';
 import 'controllers/content_controller.dart';
 import 'controllers/hardware_controller.dart';
 import 'controllers/sync_controller.dart';
-
 import 'utilities/app_theme.dart';
 import 'views/screens/splash_screen.dart';
 
+// Entry point of the application
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -63,9 +62,11 @@ void main() async {
   );
 }
 
+// Main application widget that sets up terminal theme and providers
 class WildTraceApp extends StatelessWidget {
   const WildTraceApp({super.key});
 
+  // Build the root material application
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

@@ -2,11 +2,13 @@ import 'base_api_service.dart';
 import '../../models/product.dart';
 
 class ProductApiService extends BaseApiService {
+  // Fetch products from backend
   Future<List<Product>> fetchProducts({String? token}) async {
     final data = await get('/products', token: token);
     return _parseProductList(data);
   }
 
+  // Fetch details for a specific product
   Future<Product?> fetchProductDetails(String productId, {String? token}) async {
     final data = await get('/products/$productId', token: token);
     if (data != null) {
@@ -29,7 +31,6 @@ class ProductApiService extends BaseApiService {
         try {
           products.add(Product.fromJson(item));
         } catch (e) {
-          // skip errors
         }
       }
     }

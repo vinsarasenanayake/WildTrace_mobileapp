@@ -4,6 +4,7 @@ import '../services/api/index.dart';
 import '../services/database/database_service.dart';
 
 class FavoritesController with ChangeNotifier {
+  // controller to manage favorite products with api and local db
   final CartApiService _apiService = CartApiService();
   final DatabaseService _dbService = DatabaseService();
   final List<Product> _favorites = [];
@@ -15,6 +16,7 @@ class FavoritesController with ChangeNotifier {
   bool get isEmpty => _favorites.isEmpty;
   bool get isLoading => _isLoading;
 
+  // Update session token and refresh favorites list
   void updateToken(String? newToken) {
     if (newToken != _token) {
       _token = newToken;
@@ -24,6 +26,7 @@ class FavoritesController with ChangeNotifier {
     }
   }
 
+  // Retrieve favorited products and synchronize with local cache
   Future<void> fetchFavorites(String token) async {
     _isLoading = true;
     notifyListeners();
@@ -32,8 +35,10 @@ class FavoritesController with ChangeNotifier {
     try {
       final cachedIds = await _dbService.getCachedFavorites();
       final allCachedProducts = await _dbService.getCachedProducts();
-      final cachedFavs = allCachedProducts.where((p) => cachedIds.contains(p.id)).toList();
-      
+      final cachedFavs = allCachedProducts
+          .where((p) => cachedIds.contains(p.id))
+          .toList();
+
       if (cachedFavs.isNotEmpty) {
         _favorites.clear();
         _favorites.addAll(cachedFavs.map((p) => p.copyWith(isFavorite: true)));
@@ -44,13 +49,16 @@ class FavoritesController with ChangeNotifier {
     }
 
     try {
-      final List<Product> fetchedFavorites = await _apiService.fetchFavorites(token);
+      // get favorite products data from backend
+      final List<Product> fetchedFavorites = await _apiService.fetchFavorites(
+        token,
+      );
       _favorites.clear();
-      _favorites.addAll(fetchedFavorites.map((p) => p.copyWith(isFavorite: true)));
-      
-      // update cache
+      _favorites.addAll(
+        fetchedFavorites.map((p) => p.copyWith(isFavorite: true)),
+      );
+
       await _dbService.cacheFavorites(_favorites.map((p) => p.id).toList());
-      // ensure these products are archived in products table too
       await _dbService.cacheProducts(_favorites);
     } catch (_) {
     } finally {
@@ -59,15 +67,15 @@ class FavoritesController with ChangeNotifier {
     }
   }
 
-
+  // Add or remove a product from favorites and update backend
   Future<void> toggleFavorite(Product product, {String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
     try {
       final index = _favorites.indexWhere((p) => p.id == product.id);
       final isNowFavorite = index < 0;
-      
-      // OPTIMISTIC UPDATE: Reflection change in UI immediately
+
+      // immediately update UI
       if (!isNowFavorite) {
         _favorites.removeAt(index);
       } else {
@@ -75,20 +83,21 @@ class FavoritesController with ChangeNotifier {
       }
       notifyListeners();
 
-      // Ensure local database reflect this change immediately for consistency
+      // Ensure local database so local db is consistent
       await _dbService.toggleFavoriteLocal(product.id, isNowFavorite);
-      
+
       await _apiService.toggleFavorite(product.id, tokenToUse);
       fetchFavorites(tokenToUse);
     } catch (e) {
       debugPrint('Toggle Favorite API Error: $e');
-      // On failure (likely offline), queue the action to retry later
       await _dbService.addPendingAction('favorite_toggle', {'id': product.id});
     }
   }
 
+  // Check if a specific product is marked as favorite
   bool isFavorite(String productId) => _favorites.any((p) => p.id == productId);
 
+  // Reset all favorites on user logout
   void clearFavorites() {
     for (var product in _favorites) {
       product.isFavorite = false;

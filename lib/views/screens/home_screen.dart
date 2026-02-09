@@ -20,6 +20,7 @@ import '../widgets/cards/card_widgets.dart';
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+  // Build ui for home screen
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -50,6 +51,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  // Build home hero section
   Widget _buildHero(BuildContext context) {
     return WildTraceHero(
       imagePath: 'assets/images/heroimageh1.jpg',
@@ -139,12 +141,14 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
     );
   }
 
+  // Initialize state
   @override
   void initState() {
     super.initState();
     _pageController = PageController(viewportFraction: 1.0, initialPage: 1000);
   }
 
+  // Dispose controllers
   @override
   void dispose() {
     _pageController.dispose();
@@ -153,6 +157,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
 
 
 
+  // Build featured collection section
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -225,6 +230,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
     );
   }
 
+  // Build product slideshow
   Widget _buildSlideshow(
     List<Product> items,
     bool isLandscape,
@@ -280,6 +286,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
     );
   }
 
+  // Build slideshow indicators
   Widget _buildIndicators(int count) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -305,6 +312,7 @@ class _FeaturedCollectionState extends State<FeaturedCollection> {
 class BehindTheLens extends StatelessWidget {
   const BehindTheLens({super.key});
 
+  // Build behind the lens section
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -340,6 +348,7 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
+  // Build small section header
   Widget _buildSmallHeader(Color accentGreen) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -370,6 +379,7 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
+  // Build main section heading
   Widget _buildMainHeading(Color textColor) {
     return Builder(
       builder: (context) {
@@ -391,6 +401,7 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
+  // Build section description
   Widget _buildDescription(Color textColor, Color accentGreen) {
     return RichText(
       textAlign: TextAlign.center,
@@ -415,6 +426,7 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
+  // Build team group image
   Widget _buildTeamImage() {
     return Builder(
       builder: (context) {
@@ -431,6 +443,7 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
+  // Build featured in banner
   Widget _buildFeaturedBanner(Color textColor) {
     return Text(
       'OUR PHOTOGRAPHERS ARE FEATURED IN',
@@ -443,6 +456,7 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
+  // Build partner logos
   Widget _buildLogos() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -470,6 +484,7 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
+  // Build individual partner logo
   Widget _buildLogo(String assetPath, double width, double height, String url) {
     return GestureDetector(
       onTap: () async {
@@ -492,6 +507,7 @@ class BehindTheLens extends StatelessWidget {
     );
   }
 
+  // Build journey navigation button
   Widget _buildJourneyButton(BuildContext context, Color textColor) {
     return OutlinedButton(
       onPressed: () {

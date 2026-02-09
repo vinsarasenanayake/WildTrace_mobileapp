@@ -9,6 +9,7 @@ import '../widgets/cards/card_widgets.dart';
 class JourneyScreen extends StatelessWidget {
   const JourneyScreen({super.key});
 
+  // Build ui for journey screen
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -63,6 +64,7 @@ class JourneyScreen extends StatelessWidget {
     );
   }
 
+  // Build journey hero section
   Widget _buildHeroSection() {
     return Builder(
       builder: (context) {
@@ -86,6 +88,7 @@ class JourneyScreen extends StatelessWidget {
     );
   }
 
+  // Build history timeline section
   Widget _buildTimelineSection() {
     return Consumer<ContentController>(
       builder: (context, contentProvider, child) {
@@ -155,6 +158,7 @@ class JourneyScreen extends StatelessWidget {
     );
   }
 
+  // Build individual timeline milestone
   Widget _buildTimelineItem({
     required String year,
     required String title,
@@ -187,6 +191,7 @@ class JourneyScreen extends StatelessWidget {
     );
   }
 
+  // Build photographers team section
   Widget _buildTeamSection() {
     return Container(
       width: double.infinity,
@@ -293,6 +298,7 @@ class JourneyScreen extends StatelessWidget {
     );
   }
 
+  // Build community impact section
   Widget _buildImpactSection() {
     return Builder(
       builder: (context) {
@@ -378,6 +384,7 @@ class JourneyScreen extends StatelessWidget {
     );
   }
 
+  // Build individual impact detail card
   Widget _buildImpactCard(String text, bool isLandscape) {
     return Container(
       padding: EdgeInsets.symmetric(

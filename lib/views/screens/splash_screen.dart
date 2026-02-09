@@ -14,12 +14,14 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  // Initialize state and start navigation timer
   @override
   void initState() {
     super.initState();
     _navigateToHome();
   }
 
+  // Preload data and navigate to main application
   void _navigateToHome() async {
     try {
       final authProvider = Provider.of<AuthController>(context, listen: false);
@@ -61,6 +63,7 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
+  // Build ui for splash screen
   @override
   Widget build(BuildContext context) {
     return Scaffold(

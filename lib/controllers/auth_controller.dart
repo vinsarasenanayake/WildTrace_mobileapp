@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user.dart';
 import '../services/api/index.dart';
 
+//authentication controller
 class AuthController with ChangeNotifier {
   final AuthApiService _apiService = AuthApiService();
   UserModel? _currentUser;
@@ -20,9 +21,11 @@ class AuthController with ChangeNotifier {
     checkAuthStatus();
   }
 
+  //save data in local storage
   static const String _tokenKey = 'auth_token';
   static const String _userKey = 'user_data';
 
+  // Authenticate user credentials with the backend api
   Future<bool> login(String email, String password) async {
     _isLoading = true;
     notifyListeners();
@@ -45,6 +48,7 @@ class AuthController with ChangeNotifier {
     }
   }
 
+  // Register a new user account with the provided details
   Future<bool> register({
     required String name,
     required String email,
@@ -69,6 +73,7 @@ class AuthController with ChangeNotifier {
         'postal_code': postalCode,
         'country': country,
       };
+      // send registration data to backend
       await _apiService.register(userData);
       _isLoading = false;
       notifyListeners();
@@ -80,6 +85,7 @@ class AuthController with ChangeNotifier {
     }
   }
 
+  // Clear all user session data and remove local authentication storage
   Future<void> logout() async {
     _currentUser = null;
     _token = null;
@@ -90,6 +96,7 @@ class AuthController with ChangeNotifier {
     notifyListeners();
   }
 
+  // Update existing user profile information with backend api
   Future<bool> updateProfile(UserModel updatedUser) async {
     if (_token == null) return false;
     _isLoading = true;
@@ -104,10 +111,14 @@ class AuthController with ChangeNotifier {
         'postal_code': updatedUser.postalCode,
         'country': updatedUser.country,
       };
-      final response = await _apiService.updateUserProfile(profileData, _token!);
+      // send updated profile data to backend
+      final response = await _apiService.updateUserProfile(
+        profileData,
+        _token!,
+      );
       if (response['user'] != null) {
-         _currentUser = UserModel.fromJson(response['user']);
-         await _saveAuthData();
+        _currentUser = UserModel.fromJson(response['user']);
+        await _saveAuthData();
       }
       _isLoading = false;
       notifyListeners();
@@ -119,10 +130,12 @@ class AuthController with ChangeNotifier {
     }
   }
 
+  // Check for existing user session data in local terminal storage
   Future<void> checkAuthStatus() async {
     _isLoading = true;
     notifyListeners();
     try {
+      // Load saved authentication data from local storage
       final prefs = await SharedPreferences.getInstance();
       final savedToken = prefs.getString(_tokenKey);
       final savedUserJson = prefs.getString(_userKey);

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTheme {
   static const Color primaryGreen = Color(0xFF1B4332);
 
+  // Define light theme settings
   static ThemeData get lightTheme => ThemeData(
         useMaterial3: true,
         splashColor: Colors.transparent,
@@ -22,6 +23,7 @@ class AppTheme {
         iconButtonTheme: _iconButtonTheme,
       );
 
+  // Define dark theme settings
   static ThemeData get darkTheme => ThemeData(
         useMaterial3: true,
         splashColor: Colors.transparent,

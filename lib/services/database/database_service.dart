@@ -7,6 +7,7 @@ import '../../models/order.dart';
 import '../../models/photographer.dart';
 import '../../models/milestone.dart';
 
+// Handles local SQLite database operations for offline caching
 class DatabaseService {
   static final DatabaseService _instance = DatabaseService._internal();
   static Database? _database;
@@ -32,23 +33,20 @@ class DatabaseService {
         if (oldVersion < 2) {
           await _dropAllTables(db);
           await _createTables(db);
-          return; // V2 was a full reset, no need for further checks
+          return; 
         }
         
         if (oldVersion < 3) {
-          // Add table for offline sync
-          await _createTables(db); // Will only create new tables due to IF NOT EXISTS
+          await _createTables(db);
         }
         
         if (oldVersion < 4) {
-          // V4: Simplify schema by storing full JSON and removing redundant columns
           await db.execute('DROP TABLE IF EXISTS products');
           await db.execute('DROP TABLE IF EXISTS cart_items');
           await _createTables(db);
         }
 
         if (oldVersion < 5) {
-          // V5: Add display_order column to keep product list order consistent with API
           await db.execute('ALTER TABLE products ADD COLUMN display_order INTEGER');
         }
       },
@@ -68,7 +66,6 @@ class DatabaseService {
   }
 
   Future<void> _createTables(Database db) async {
-    // Stores full product JSON to ensure all nested data is available offline
     await db.execute('''
       CREATE TABLE IF NOT EXISTS products (
         id TEXT PRIMARY KEY,
@@ -78,7 +75,6 @@ class DatabaseService {
       )
     ''');
 
-    // Cart items linked to product details via JSON
     await db.execute('''
       CREATE TABLE IF NOT EXISTS cart_items (
         id TEXT PRIMARY KEY,
@@ -89,7 +85,6 @@ class DatabaseService {
       )
     ''');
 
-    // orders table
     await db.execute('''
       CREATE TABLE IF NOT EXISTS orders (
         id TEXT PRIMARY KEY,
@@ -106,14 +101,12 @@ class DatabaseService {
       )
     ''');
 
-    // favorites table
     await db.execute('''
       CREATE TABLE IF NOT EXISTS favorites (
         product_id TEXT PRIMARY KEY
       )
     ''');
 
-    // photographers table
     await db.execute('''
       CREATE TABLE IF NOT EXISTS photographers (
         id TEXT PRIMARY KEY,
@@ -126,7 +119,6 @@ class DatabaseService {
       )
     ''');
 
-    // milestones table
     await db.execute('''
       CREATE TABLE IF NOT EXISTS milestones (
         id TEXT PRIMARY KEY,
@@ -136,7 +128,6 @@ class DatabaseService {
       )
     ''');
     
-    // pending actions table
     await db.execute('''
       CREATE TABLE IF NOT EXISTS pending_actions (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -147,7 +138,7 @@ class DatabaseService {
     ''');
   }
 
-  // Stores actions performed while offline to be synced later
+  // Add a pending action to local storage
   Future<void> addPendingAction(String type, Map<String, dynamic> data) async {
     final db = await database;
     await db.insert('pending_actions', {
@@ -157,20 +148,21 @@ class DatabaseService {
     });
   }
 
+  // Get all pending actions
   Future<List<Map<String, dynamic>>> getPendingActions() async {
     final db = await database;
     return await db.query('pending_actions', orderBy: 'created_at ASC');
   }
 
+  // Delete a pending action
   Future<void> deletePendingAction(int id) async {
     final db = await database;
     await db.delete('pending_actions', where: 'id = ?', whereArgs: [id]);
   }
 
-  // product operations
   Future<void> cacheProducts(List<Product> products) async {
     final db = await database;
-    final batch = db.batch(); // Batch insert for performance
+    final batch = db.batch(); 
     for (int i = 0; i < products.length; i++) {
       final product = products[i];
       batch.insert(
@@ -195,7 +187,6 @@ class DatabaseService {
     );
     return maps.map((map) {
       if (map['product_json'] != null) {
-        // Hydrate model from the stored JSON string
         final productMap = jsonDecode(map['product_json'] as String);
         return Product.fromJson(productMap);
       }
@@ -203,11 +194,10 @@ class DatabaseService {
     }).toList();
   }
 
-  // cart operations
   Future<void> cacheCartItems(List<CartItem> items) async {
     final db = await database;
     await db.transaction((txn) async {
-      await txn.delete('cart_items'); // Refresh cart cache
+      await txn.delete('cart_items');
       for (var item in items) {
         await txn.insert('cart_items', {
           'id': item.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
@@ -234,7 +224,6 @@ class DatabaseService {
     }).toList();
   }
 
-  // order operations
   Future<void> cacheOrders(List<Order> orders) async {
     final db = await database;
     final batch = db.batch();
@@ -293,7 +282,6 @@ class DatabaseService {
     }).toList();
   }
 
-  // favorites operations
   Future<void> cacheFavorites(List<String> productIds) async {
     final db = await database;
     await db.transaction((txn) async {
@@ -310,6 +298,7 @@ class DatabaseService {
     return maps.map((map) => map['product_id'] as String).toList();
   }
 
+  // Toggle favorite status locally
   Future<void> toggleFavoriteLocal(String productId, bool isFavorite) async {
     final db = await database;
     if (isFavorite) {
@@ -318,10 +307,8 @@ class DatabaseService {
       await db.delete('favorites', where: 'product_id = ?', whereArgs: [productId]);
     }
     
-    // also update products table if exists
     await db.update('products', {'isFavorite': isFavorite ? 1 : 0}, where: 'id = ?', whereArgs: [productId]);
     
-    // update product_json if it exists to keep isFavorite in sync
     final productMaps = await db.query('products', where: 'id = ?', whereArgs: [productId]);
     if (productMaps.isNotEmpty && productMaps.first['product_json'] != null) {
       final productMap = jsonDecode(productMaps.first['product_json'] as String);
@@ -330,7 +317,6 @@ class DatabaseService {
     }
   }
 
-  // photographers operations
   Future<void> cachePhotographers(List<Photographer> photographers) async {
     final db = await database;
     final batch = db.batch();
@@ -366,7 +352,6 @@ class DatabaseService {
     )).toList();
   }
 
-  // milestones operations
   Future<void> cacheMilestones(List<Milestone> milestones) async {
     final db = await database;
     final batch = db.batch();

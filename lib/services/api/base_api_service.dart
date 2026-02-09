@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+// Core class for making API requests
 class BaseApiService {
   static const String baseHostDomain = 'wildtrace-production.up.railway.app';
   static const String _apiPath = '/api';
@@ -11,77 +12,108 @@ class BaseApiService {
   static String get storageUrl => 'https://$baseHostDomain$_storagePath';
   static String get baseHostUrl => 'https://$baseHostDomain$_rootPath';
 
+  // Resolve image URL from various formats
   static String resolveImageUrl(String? path) {
     if (path == null || path.isEmpty) return '';
     if (path.startsWith('http')) return path;
     String cleanPath = path.startsWith('/') ? path.substring(1) : path;
-    if (cleanPath.startsWith('storage/')) return 'https://$baseHostDomain/$cleanPath';
+    if (cleanPath.startsWith('storage/')) {
+      return 'https://$baseHostDomain/$cleanPath';
+    }
     return '$baseHostUrl$cleanPath';
   }
 
+  // Send a GET request
   Future<dynamic> get(String endpoint, {String? token}) async {
-    final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+    final cleanEndpoint = endpoint.startsWith('/')
+        ? endpoint.substring(1)
+        : endpoint;
     final url = Uri.https(baseHostDomain, '$_apiPath/$cleanEndpoint');
-    
-    return _performRequest(() => http.get(
-      url,
-      headers: {
-        'Accept': 'application/json',
-        if (token != null) 'Authorization': 'Bearer $token',
-      },
-    ), endpoint);
+
+    return _performRequest(
+      () => http.get(
+        url,
+        headers: {
+          'Accept': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      ),
+      endpoint,
+    );
   }
 
+  // Send a POST request
   Future<dynamic> post(String endpoint, {dynamic body, String? token}) async {
-    final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+    final cleanEndpoint = endpoint.startsWith('/')
+        ? endpoint.substring(1)
+        : endpoint;
     final url = Uri.https(baseHostDomain, '$_apiPath/$cleanEndpoint');
-    
-    return _performRequest(() => http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        if (token != null) 'Authorization': 'Bearer $token',
-      },
-      body: json.encode(body),
-    ), endpoint);
+
+    return _performRequest(
+      () => http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: json.encode(body),
+      ),
+      endpoint,
+    );
   }
 
+  // Send a PUT request
   Future<dynamic> put(String endpoint, {dynamic body, String? token}) async {
-    final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+    final cleanEndpoint = endpoint.startsWith('/')
+        ? endpoint.substring(1)
+        : endpoint;
     final url = Uri.https(baseHostDomain, '$_apiPath/$cleanEndpoint');
-    
-    return _performRequest(() => http.put(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        if (token != null) 'Authorization': 'Bearer $token',
-      },
-      body: json.encode(body),
-    ), endpoint);
+
+    return _performRequest(
+      () => http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+        body: json.encode(body),
+      ),
+      endpoint,
+    );
   }
 
+  // Send a DELETE request
   Future<dynamic> delete(String endpoint, {String? token}) async {
-    final cleanEndpoint = endpoint.startsWith('/') ? endpoint.substring(1) : endpoint;
+    final cleanEndpoint = endpoint.startsWith('/')
+        ? endpoint.substring(1)
+        : endpoint;
     final url = Uri.https(baseHostDomain, '$_apiPath/$cleanEndpoint');
-    
-    return _performRequest(() => http.delete(
-      url,
-      headers: {
-        'Accept': 'application/json',
-        if (token != null) 'Authorization': 'Bearer $token',
-      },
-    ), endpoint);
+
+    return _performRequest(
+      () => http.delete(
+        url,
+        headers: {
+          'Accept': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      ),
+      endpoint,
+    );
   }
 
-  Future<dynamic> _performRequest(Future<http.Response> Function() request, String endpoint) async {
+  // Logic to execute the request with timeout and error handling
+  Future<dynamic> _performRequest(
+    Future<http.Response> Function() request,
+    String endpoint,
+  ) async {
     try {
       final response = await request().timeout(const Duration(seconds: 30));
       return _handleResponse(response, endpoint);
     } catch (e) {
       String errorStr = e.toString().toLowerCase();
-      if (errorStr.contains('socketexception') || 
+      if (errorStr.contains('socketexception') ||
           errorStr.contains('clientexception') ||
           errorStr.contains('host lookup') ||
           errorStr.contains('no address associated with hostname')) {
@@ -91,24 +123,26 @@ class BaseApiService {
     }
   }
 
+  // Handle the HTTP response
   dynamic _handleResponse(http.Response response, String endpoint) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (response.body.isEmpty) return {};
-      
+
       String body = response.body.trim();
-      
+
       if (!body.startsWith('{') && !body.startsWith('[')) {
         int firstBrace = body.indexOf('{');
         int firstBracket = body.indexOf('[');
         int start = -1;
-        if (firstBrace != -1 && (firstBracket == -1 || firstBrace < firstBracket)) {
+        if (firstBrace != -1 &&
+            (firstBracket == -1 || firstBrace < firstBracket)) {
           start = firstBrace;
         } else if (firstBracket != -1) {
           start = firstBracket;
         }
         if (start != -1) body = body.substring(start);
       }
-      
+
       if (!body.endsWith('}') && !body.endsWith(']')) {
         int lastBrace = body.lastIndexOf('}');
         int lastBracket = body.lastIndexOf(']');
@@ -135,11 +169,20 @@ class BaseApiService {
 
       if (errorMessage == null) {
         switch (response.statusCode) {
-          case 401: errorMessage = 'Session expired. Please login again.'; break;
-          case 403: errorMessage = 'Permission denied.'; break;
-          case 404: errorMessage = 'Server route not found.'; break;
-          case 500: errorMessage = 'Internal server error.'; break;
-          default: errorMessage = 'Unexpected error (Status ${response.statusCode})';
+          case 401:
+            errorMessage = 'Session expired. Please login again.';
+            break;
+          case 403:
+            errorMessage = 'Permission denied.';
+            break;
+          case 404:
+            errorMessage = 'Server route not found.';
+            break;
+          case 500:
+            errorMessage = 'Internal server error.';
+            break;
+          default:
+            errorMessage = 'Unexpected error (Status ${response.statusCode})';
         }
       }
       throw Exception(errorMessage);

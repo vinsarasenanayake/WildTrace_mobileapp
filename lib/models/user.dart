@@ -1,3 +1,4 @@
+// Represents a user within the application
 class UserModel {
   final String id;
   final String name;
@@ -21,6 +22,7 @@ class UserModel {
     this.role,
   });
 
+  // Create a copy of UserModel
   UserModel copyWith({
     String? id,
     String? name,
@@ -45,6 +47,7 @@ class UserModel {
     );
   }
 
+  // Convert UserModel to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -59,6 +62,7 @@ class UserModel {
     };
   }
 
+  // Create a UserModel from JSON
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: (json['id'] ?? '').toString(),

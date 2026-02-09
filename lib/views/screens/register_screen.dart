@@ -6,7 +6,6 @@ import '../../controllers/auth_controller.dart';
 import '../widgets/forms/form_widgets.dart';
 import '../widgets/common/common_widgets.dart';
 import 'login_screen.dart';
-
 import '../../utilities/alert_service.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -31,6 +30,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _postalCodeController = TextEditingController();
   final TextEditingController _countryController = TextEditingController();
 
+  // Dispose controllers
   @override
   void dispose() {
     _nameController.dispose();
@@ -45,6 +45,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
+  // Handle user registration request
   Future<void> _handleRegister(
     AuthController authProvider,
     bool isDarkMode,
@@ -119,6 +120,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
+  // Build ui for register screen
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;

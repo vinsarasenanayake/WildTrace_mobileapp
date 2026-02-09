@@ -6,7 +6,6 @@ import '../services/hardware/location_service.dart';
 import '../services/hardware/light_service.dart';
 
 class HardwareController extends ChangeNotifier {
-
   static const int batteryHigh = 80;
   static const int batteryMedium = 60;
   static const int batteryLow = 40;
@@ -17,10 +16,12 @@ class HardwareController extends ChangeNotifier {
   static const double lightTwilight = 10;
   static const double lightDark = 500;
 
+  // provide access device hardware info
   final BatteryService _batteryService = BatteryService();
   final LocationService _locationService = LocationService();
   final LightService _lightService = LightService();
 
+  // store current hardware info and status
   int _batteryLevel = -1;
   BatteryState _batteryState = BatteryState.unknown;
   bool _isDetectingLocation = false;
@@ -28,7 +29,6 @@ class HardwareController extends ChangeNotifier {
 
   StreamSubscription<BatteryState>? _batterySubscription;
   StreamSubscription<double>? _lightSubscription;
-
 
   int get batteryLevel => _batteryLevel;
   BatteryState get batteryState => _batteryState;
@@ -64,9 +64,9 @@ class HardwareController extends ChangeNotifier {
     return Colors.lightBlueAccent;
   }
 
-
   HardwareController();
 
+  // Initialize hardware listeners for battery and light sensors
   void initHardware() async {
     try {
       await updateBattery();
@@ -95,6 +95,7 @@ class HardwareController extends ChangeNotifier {
     );
   }
 
+  // Force refresh of current battery level and state
   Future<void> updateBattery() async {
     try {
       final info = await _batteryService.getBatteryInfo();
@@ -104,10 +105,11 @@ class HardwareController extends ChangeNotifier {
     } catch (_) {}
   }
 
+  // Request current geographical coordinates and address
   Future<Map<String, String>?> detectLocation() async {
     _isDetectingLocation = true;
     notifyListeners();
-    
+
     try {
       final addressData = await _locationService.getCurrentAddress().timeout(
         const Duration(seconds: 45),

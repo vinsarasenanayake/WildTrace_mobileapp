@@ -2,6 +2,7 @@ import 'base_api_service.dart';
 import '../../models/product.dart';
 
 class CartApiService extends BaseApiService {
+  // Fetch cart items from backend
   Future<List<dynamic>> fetchCart(String token) async {
     final data = await get('/cart', token: token);
     return _parseList(data);
@@ -32,6 +33,7 @@ class CartApiService extends BaseApiService {
      return _parseProductList(data);
   }
 
+  // Toggle favorite status for a product
   Future<Map<String, dynamic>> toggleFavorite(String productId, String token) async {
      return await post('/favorites/toggle', body: {'product_id': productId}, token: token);
   }

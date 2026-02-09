@@ -1,5 +1,6 @@
 import 'product.dart';
 
+// Shows an item in the shopping cart
 class CartItem {
   final String? id;
   final Product product;
@@ -17,6 +18,7 @@ class CartItem {
 
   double get totalPrice => (price ?? product.price) * quantity;
 
+  // Create a copy of CartItem
   CartItem copyWith({
     String? id,
     Product? product,
@@ -33,6 +35,7 @@ class CartItem {
     );
   }
 
+  // Convert CartItem to JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -43,13 +46,18 @@ class CartItem {
     };
   }
 
+  // Create a CartItem from JSON
   factory CartItem.fromJson(Map<String, dynamic> json) {
     return CartItem(
       id: json['id']?.toString(),
       product: Product.fromJson(json['product'] as Map<String, dynamic>),
-      quantity: (json['quantity'] is int) ? json['quantity'] : int.tryParse(json['quantity'].toString()) ?? 1,
+      quantity: (json['quantity'] is int)
+          ? json['quantity']
+          : int.tryParse(json['quantity'].toString()) ?? 1,
       size: json['size']?.toString(),
-      price: json['price'] != null ? double.tryParse(json['price'].toString()) : null,
+      price: json['price'] != null
+          ? double.tryParse(json['price'].toString())
+          : null,
     );
   }
 }

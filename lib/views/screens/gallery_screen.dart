@@ -29,6 +29,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
   final int _pageSize = 9;
   bool _showFiltersInLandscape = false;
 
+  // Show alert for unauthorized actions
   Future<void> _showLoginRequiredAlert() async {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     AlertService.showCustom(
@@ -84,6 +85,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
+  // Build ui for gallery screen
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -208,6 +210,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
+  // Build gallery hero section
   Widget _buildHero() {
     return const WildTraceHero(
       imagePath: 'assets/images/heroimagegallery.jpg',
@@ -220,6 +223,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
+  // Scroll view to filter section
   void _scrollToFilters() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_filterKey.currentContext != null) {
@@ -248,6 +252,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     });
   }
 
+  // Build filter toggle button
   Widget _buildFilterTrigger(bool isDarkMode) {
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
@@ -413,6 +418,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     }
   }
 
+  // Build individual filter dropdown
   Widget _buildHorizontalFilterItem(
     String label,
     String value,
@@ -474,6 +480,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
+  // Build filter sidebar drawer
   Widget _buildFilterDrawer(
     BuildContext context,
     bool isDarkMode,
@@ -638,6 +645,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
+  // Build product display grid
   Widget _buildGrid(
     List<dynamic> pageItems,
     FavoritesController favoritesProvider,
@@ -697,6 +705,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
+  // Build gallery pagination controls
   Widget _buildPagination(bool isDarkMode, bool hasNext) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 40),
@@ -726,6 +735,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
+  // Build pagination button
   Widget _pageBtn(String label, bool active, VoidCallback onTap) {
     final Color color = Theme.of(context).brightness == Brightness.dark
         ? Colors.white
@@ -754,6 +764,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     );
   }
 
+  // Dispose controllers
   @override
   void dispose() {
     _scrollController.dispose();

@@ -5,6 +5,7 @@ import '../services/api/index.dart';
 import '../services/database/database_service.dart';
 
 class CartController with ChangeNotifier {
+  // cart controller to manage cart with api and local db
   final CartApiService _apiService = CartApiService();
   final DatabaseService _dbService = DatabaseService();
   final List<CartItem> _items = [];
@@ -21,10 +22,13 @@ class CartController with ChangeNotifier {
   bool get isEmpty => _items.isEmpty;
   bool get isLoading => _isLoading;
 
+  // Clear cart contents and reset state after a successful order
   Future<void> resetAfterOrder({String? token}) async {
     await clearCart(token: token);
   }
 
+  // update token when user log in or out, and get cart data if logged in
+  // Update authentication token and synchronize cart data
   void updateToken(String? newToken) {
     if (newToken != _token) {
       _token = newToken;
@@ -34,6 +38,7 @@ class CartController with ChangeNotifier {
     }
   }
 
+  // Synchronize local cart data with the backend database
   Future<void> fetchCart(String token) async {
     _isLoading = true;
     notifyListeners();
@@ -51,19 +56,28 @@ class CartController with ChangeNotifier {
     }
 
     try {
+      // get cart data from backend
       final List<dynamic> data = await _apiService.fetchCart(token);
       _items.clear();
       for (var item in data) {
-         final productData = item['product'] ?? item;
-         if (productData != null) {
-           _items.add(CartItem(
-             id: item['id']?.toString(), 
-             product: Product.fromJson(productData),
-             quantity: (item['quantity'] != null ? num.tryParse(item['quantity'].toString())?.toInt() : 1) ?? 1,
-             size: item['size']?.toString(),
-             price: item['price'] != null ? double.tryParse(item['price'].toString()) : null,
-           ));
-         }
+        final productData = item['product'] ?? item;
+        if (productData != null) {
+          _items.add(
+            CartItem(
+              id: item['id']?.toString(),
+              product: Product.fromJson(productData),
+              quantity:
+                  (item['quantity'] != null
+                      ? num.tryParse(item['quantity'].toString())?.toInt()
+                      : 1) ??
+                  1,
+              size: item['size']?.toString(),
+              price: item['price'] != null
+                  ? double.tryParse(item['price'].toString())
+                  : null,
+            ),
+          );
+        }
       }
       // update cache
       await _dbService.cacheCartItems(_items);
@@ -76,21 +90,23 @@ class CartController with ChangeNotifier {
     }
   }
 
-
-  Future<void> addToCart(Product product, {int quantity = 1, String? size, String? token}) async {
+  // Add a new product to the shopping cart and update backend
+  Future<void> addToCart(
+    Product product, {
+    int quantity = 1,
+    String? size,
+    String? token,
+  }) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
-    
-    // OPTIMISTIC UPDATE: Update local list and cache immediately for 
-    // instant UI feedback, even if the user is offline.
+
+    // add to local cart immediately for better ui
     final tempId = 'temp_${DateTime.now().millisecondsSinceEpoch}';
-    _items.add(CartItem(
-      id: tempId,
-      product: product,
-      quantity: quantity,
-      size: size,
-    ));
+    _items.add(
+      CartItem(id: tempId, product: product, quantity: quantity, size: size),
+    );
     notifyListeners();
+    // save the cart to local db if app is closed before backend call
     await _dbService.cacheCartItems(_items);
 
     try {
@@ -98,8 +114,6 @@ class CartController with ChangeNotifier {
       await fetchCart(tokenToUse);
     } catch (e) {
       debugPrint('Add to Cart API Error: $e');
-      // FAILSILENT OFFLINE: If API fails (e.g. No Internet), save the action 
-      // locally. It will be synced by SyncController once connection returns.
       await _dbService.addPendingAction('cart_add', {
         'product_id': product.id,
         'quantity': quantity,
@@ -108,11 +122,12 @@ class CartController with ChangeNotifier {
     }
   }
 
+  // Remove a specific item from the shopping cart and update backend
   Future<void> removeFromCart(String cartItemId, {String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
-    
-    // optimistic update
+
+    // remove from local cart immediately for better ui
     _items.removeWhere((item) => item.id == cartItemId);
     notifyListeners();
     await _dbService.cacheCartItems(_items);
@@ -128,11 +143,15 @@ class CartController with ChangeNotifier {
     }
   }
 
-  Future<void> updateQuantity(String cartItemId, int quantity, {String? token}) async {
+  // Adjust the quantity of a specific item in the shopping cart
+  Future<void> updateQuantity(
+    String cartItemId,
+    int quantity, {
+    String? token,
+  }) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
 
-    // optimistic update
     final index = _items.indexWhere((item) => item.id == cartItemId);
     if (index >= 0) {
       if (quantity <= 0) {
@@ -154,15 +173,22 @@ class CartController with ChangeNotifier {
     } catch (e) {
       debugPrint('Update Quantity API Error: $e');
       if (!cartItemId.startsWith('temp_')) {
-        await _dbService.addPendingAction('cart_update', {'id': cartItemId, 'quantity': quantity});
+        await _dbService.addPendingAction('cart_update', {
+          'id': cartItemId,
+          'quantity': quantity,
+        });
       }
     }
   }
 
+  // Increase item quantity by one
   Future<void> incrementQuantity(CartItem item, {String? token}) async {
-    if (item.id != null) await updateQuantity(item.id!, item.quantity + 1, token: token);
+    if (item.id != null) {
+      await updateQuantity(item.id!, item.quantity + 1, token: token);
+    }
   }
 
+  // Decrease item quantity by one or remove if zero
   Future<void> decrementQuantity(CartItem item, {String? token}) async {
     if (item.id != null) {
       if (item.quantity > 1) {
@@ -173,6 +199,7 @@ class CartController with ChangeNotifier {
     }
   }
 
+  // Remove all items from the shopping cart
   Future<void> clearCart({String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
@@ -185,8 +212,11 @@ class CartController with ChangeNotifier {
     }
   }
 
-  bool isInCart(String productId) => _items.any((item) => item.product.id == productId);
+  // Check if a specific product exists in the shopping cart
+  bool isInCart(String productId) =>
+      _items.any((item) => item.product.id == productId);
 
+  // Retrieve current quantity of a specific product in cart
   int getQuantity(String productId) {
     final index = _items.indexWhere((item) => item.product.id == productId);
     return index >= 0 ? _items[index].quantity : 0;

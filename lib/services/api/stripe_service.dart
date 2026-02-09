@@ -35,7 +35,6 @@ class StripeService {
 
       await _displayPaymentSheet(onSuccess);
     } on StripeException catch (e) {
-      // handle stripe errors
       if (context.mounted) {
         if (e.error.code == FailureCode.Canceled) {
           AlertService.showInfo(
@@ -76,7 +75,7 @@ class StripeService {
     await onSuccess();
   }
 
-  // api request for payment intent
+  // Create a payment intent with Stripe API
   Future<Map<String, dynamic>> _createPaymentIntent(
     String amount,
     String currency,

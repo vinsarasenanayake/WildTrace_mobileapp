@@ -14,6 +14,7 @@ import '../../main_wrapper.dart';
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  // Build ui for profile screen
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -98,6 +99,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // Build user profile header with avatar
   Widget _buildHeader(
     Color textColor,
     Color accentGreen,
@@ -151,6 +153,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // Build profile actions dashboard
   Widget _buildDashboard(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,6 +201,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // Build logout action button
   Widget _buildLogoutButton(BuildContext context, AuthController authProvider) {
     return CustomButton(
       text: 'LOGOUT',
@@ -217,6 +221,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // Build copyright footer
   Widget _buildFooter(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -248,6 +253,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // Build ui for unauthenticated users
   Widget _buildGuestView(BuildContext context, Color textColor) {
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;

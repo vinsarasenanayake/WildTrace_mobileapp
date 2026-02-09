@@ -33,6 +33,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   final List<String> _sizes = [];
   final ProductApiService _apiService = ProductApiService();
 
+  // Initialize state and setup product options
   @override
   void initState() {
     super.initState();
@@ -60,6 +61,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     _fetchFullDetails();
   }
 
+  // Fetch extended product details from api
   Future<void> _fetchFullDetails() async {
     try {
       final authProvider = Provider.of<AuthController>(context, listen: false);
@@ -76,6 +78,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     }
   }
 
+  // Show alert for unauthorized actions
   Future<void> _showLoginRequiredAlert() async {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final isLandscape =
@@ -133,6 +136,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
+  // Calculate price based on local product data
   double? _calculateLocalPrice(String size) {
     if (widget.product.options != null &&
         widget.product.options!['frames'] != null) {
@@ -153,6 +157,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   // update price on size change
+  // Fetch updated price for selected size
   Future<void> _fetchPrice(String size) async {
     setState(() => _isPriceLoading = true);
 
@@ -189,6 +194,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     }
   }
 
+  // Build ui for product details screen
   @override
   Widget build(BuildContext context) {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -282,6 +288,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
+  // Build product title and category section
   Widget _buildHeading(Color textColor, [bool isLandscape = false]) {
     return Column(
       children: [
@@ -325,6 +332,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
+  // Build small metadata text widget
   Widget _meta(String text) => Text(
     text,
     style: GoogleFonts.inter(
@@ -335,6 +343,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     ),
   );
 
+  // Build primary product image view
   Widget _buildMainImage([bool isLandscape = false]) {
     return Container(
       height: 400,
@@ -350,6 +359,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
+  // Build size selection and cart controls
   Widget _buildPurchaseOptions(
     bool isDarkMode,
     Color textColor, [
@@ -573,6 +583,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
+  // Build individual size selection button
   Widget _sizeBtn(String size, bool isDarkMode, [bool isSmall = false]) {
     final bool sel = size == _selectedSize;
     return InkWell(
@@ -611,6 +622,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
+  // Build favorite toggle button
   Widget _favBtn() {
     return Consumer2<FavoritesController, AuthController>(
       builder: (context, favoritesProvider, authProvider, child) {
@@ -642,6 +654,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
+  // Build product description and camera stats
   Widget _buildStory(Color textColor, [bool isLandscape = false]) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -699,6 +712,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     );
   }
 
+  // Build individual camera statistic widget
   Widget _stat(String l, String v, Color c) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -722,6 +736,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
     ],
   );
 
+  // Build photographer information card
   Widget _buildPhotographerProfile() {
     final product = _fullProduct ?? widget.product;
     return PhotographerCard(
@@ -740,6 +755,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   // recommendation logic
+  // Build recommended products grid
   Widget _buildSimilarWorks(Color textColor, [bool isLandscape = false]) {
     return Consumer2<ProductsController, FavoritesController>(
       builder: (context, productsProvider, favoritesProvider, child) {
