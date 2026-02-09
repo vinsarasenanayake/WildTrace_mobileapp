@@ -53,6 +53,9 @@ class SyncController with ChangeNotifier {
           } else if (type == 'favorite_toggle') {
             await _cartApiService.toggleFavorite(data['id'], token);
             success = true;
+          } else if (type == 'cart_clear') {
+            await _cartApiService.clearCart(token);
+            success = true;
           }
 
           if (success) {

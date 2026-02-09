@@ -137,6 +137,8 @@ class CartController with ChangeNotifier {
           if (index >= 0) {
             _items[index] = _items[index].copyWith(quantity: actionData['quantity']);
           }
+        } else if (action['action_type'] == 'cart_clear') {
+          _items.clear();
         }
       }
 
@@ -272,14 +274,23 @@ class CartController with ChangeNotifier {
   Future<void> clearCart({String? token}) async {
     final tokenToUse = token ?? _token;
     if (tokenToUse == null) return;
+    
+    // clear local cart immediately for better ui
+    _items.clear();
+    notifyListeners();
+    await _dbService.cacheCartItems([]);
+
     try {
       await _apiService.clearCart(tokenToUse);
       await fetchCart(tokenToUse);
     } catch (e) {
       if (!e.toString().contains('connect to the internet')) {
         debugPrint('Clear Cart Error: $e');
+      } else {
+        // queue pending action if offline
+        await _dbService.addPendingAction('cart_clear', {});
       }
-      rethrow;
+      // Do not rethrow network errors to avoid crashing the UI
     }
   }
 
