@@ -10,8 +10,29 @@ import '../widgets/cards/card_widgets.dart';
 import '../widgets/common/common_widgets.dart';
 import '../../controllers/navigation_controller.dart';
 
-class FavouritesScreen extends StatelessWidget {
+class FavouritesScreen extends StatefulWidget {
   const FavouritesScreen({super.key});
+
+  @override
+  State<FavouritesScreen> createState() => _FavouritesScreenState();
+}
+
+class _FavouritesScreenState extends State<FavouritesScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final authProvider = Provider.of<AuthController>(context, listen: false);
+      if (authProvider.token != null) {
+        await Provider.of<SyncController>(context, listen: false)
+            .syncPendingActions(authProvider.token!);
+        if (mounted) {
+          Provider.of<FavoritesController>(context, listen: false)
+              .fetchFavorites(authProvider.token!);
+        }
+      }
+    });
+  }
 
   // Build ui for favourites screen
   @override

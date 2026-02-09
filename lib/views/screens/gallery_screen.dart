@@ -29,6 +29,18 @@ class _GalleryScreenState extends State<GalleryScreen> {
   final int _pageSize = 9;
   bool _showFiltersInLandscape = false;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final authProvider = Provider.of<AuthController>(context, listen: false);
+      if (authProvider.token != null) {
+        await Provider.of<SyncController>(context, listen: false)
+            .syncPendingActions(authProvider.token!);
+      }
+    });
+  }
+
   // Show alert for unauthorized actions
   Future<void> _showLoginRequiredAlert() async {
     final bool isDarkMode = Theme.of(context).brightness == Brightness.dark;

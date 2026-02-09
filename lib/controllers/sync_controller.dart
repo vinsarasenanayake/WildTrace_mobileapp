@@ -12,7 +12,6 @@ class SyncController with ChangeNotifier {
   bool get isSyncing => _isSyncing;
 
   // sync pending actions to backend
-  // Process queued offline actions and synchronize with backend
   Future<void> syncPendingActions(String token) async {
     if (_isSyncing) return;
     _isSyncing = true;
@@ -32,6 +31,7 @@ class SyncController with ChangeNotifier {
         final data = jsonDecode(action['data']);
 
         try {
+          bool success = false;
           if (type == 'cart_add') {
             await _cartApiService.addToCart(
               data['product_id'],
@@ -39,28 +39,34 @@ class SyncController with ChangeNotifier {
               token,
               size: data['size'],
             );
+            success = true;
           } else if (type == 'cart_remove') {
             await _cartApiService.removeFromCart(data['id'], token);
+            success = true;
           } else if (type == 'cart_update') {
             await _cartApiService.updateCartItem(
               data['id'],
               data['quantity'],
               token,
             );
+            success = true;
           } else if (type == 'favorite_toggle') {
             await _cartApiService.toggleFavorite(data['id'], token);
+            success = true;
           }
 
-          // if successful, remove from pending
-          await _dbService.deletePendingAction(id);
-        } catch (e) {
-          debugPrint('Sync individual action error: $e');
-
-          if (e.toString().contains('SocketException') ||
-              e.toString().contains('TimeoutException')) {
-            break;
-          } else {
+          if (success) {
             await _dbService.deletePendingAction(id);
+          }
+        } catch (e) {
+          if (!e.toString().contains('connect to the internet')) {
+            debugPrint('Sync individual action error: $e');
+          }
+          if (e.toString().contains('SocketException') ||
+              e.toString().contains('TimeoutException') ||
+              e.toString().contains('Connection failed') ||
+              e.toString().contains('connect to the internet')) {
+            break;
           }
         }
       }

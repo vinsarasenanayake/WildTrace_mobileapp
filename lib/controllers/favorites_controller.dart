@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../models/product.dart';
 import '../services/api/index.dart';
@@ -31,36 +32,66 @@ class FavoritesController with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    // try loading cached product IDs and matching with cached products
-    try {
-      final cachedIds = await _dbService.getCachedFavorites();
-      final allCachedProducts = await _dbService.getCachedProducts();
-      final cachedFavs = allCachedProducts
-          .where((p) => cachedIds.contains(p.id))
-          .toList();
+    // try loading cached product IDs and matching with cached products if empty
+    if (_favorites.isEmpty) {
+      try {
+        final cachedIds = await _dbService.getCachedFavorites();
+        final allCachedProducts = await _dbService.getCachedProducts();
+        final cachedFavs = allCachedProducts
+            .where((p) => cachedIds.contains(p.id))
+            .toList();
 
-      if (cachedFavs.isNotEmpty) {
-        _favorites.clear();
-        _favorites.addAll(cachedFavs.map((p) => p.copyWith(isFavorite: true)));
-        notifyListeners();
+        if (cachedFavs.isNotEmpty) {
+          _favorites.clear();
+          _favorites.addAll(cachedFavs.map((p) => p.copyWith(isFavorite: true)));
+          notifyListeners();
+        }
+      } catch (e) {
+        debugPrint('Favorites Cache Error: $e');
       }
-    } catch (e) {
-      debugPrint('Favorites Cache Error: $e');
     }
 
     try {
       // get favorite products data from backend
-      final List<Product> fetchedFavorites = await _apiService.fetchFavorites(
-        token,
-      );
+      final List<Product> fetchedFavorites = await _apiService.fetchFavorites(token);
+      
+      // Update our list with the backend data
       _favorites.clear();
-      _favorites.addAll(
-        fetchedFavorites.map((p) => p.copyWith(isFavorite: true)),
-      );
+      _favorites.addAll(fetchedFavorites.map((p) => p.copyWith(isFavorite: true)));
+
+      // Merge pending actions
+      final pending = await _dbService.getPendingActions();
+      for (var action in pending) {
+        if (action['action_type'] == 'favorite_toggle') {
+          final actionData = action['data'] is String ? jsonDecode(action['data']) : action['data'];
+          final productId = actionData['id'];
+          
+          final index = _favorites.indexWhere((p) => p.id == productId);
+          if (index >= 0) {
+            _favorites.removeAt(index);
+          } else {
+            try {
+              Product? product;
+              if (actionData['product_json'] != null) {
+                product = Product.fromJson(jsonDecode(actionData['product_json']));
+              } else {
+                final products = await _dbService.getCachedProducts();
+                product = products.firstWhere((p) => p.id == productId);
+              }
+              _favorites.add(product.copyWith(isFavorite: true));
+            } catch (e) {
+              debugPrint('Could not restore pending favorite: $e');
+            }
+          }
+        }
+      }
 
       await _dbService.cacheFavorites(_favorites.map((p) => p.id).toList());
       await _dbService.cacheProducts(_favorites);
-    } catch (_) {
+    } catch (e) {
+      if (!e.toString().contains('connect to the internet')) {
+        debugPrint('Favorites API Error: $e');
+      }
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -89,8 +120,13 @@ class FavoritesController with ChangeNotifier {
       await _apiService.toggleFavorite(product.id, tokenToUse);
       fetchFavorites(tokenToUse);
     } catch (e) {
-      debugPrint('Toggle Favorite API Error: $e');
-      await _dbService.addPendingAction('favorite_toggle', {'id': product.id});
+      if (!e.toString().contains('connect to the internet')) {
+        debugPrint('Toggle Favorite API Error: $e');
+      }
+      await _dbService.addPendingAction('favorite_toggle', {
+        'id': product.id,
+        'product_json': jsonEncode(product.toJson()),
+      });
     }
   }
 

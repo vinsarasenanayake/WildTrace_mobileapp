@@ -29,7 +29,6 @@ class ProductsController with ChangeNotifier {
   }
 
   // refresh products when token changes
-  // Update session token and force product list refresh
   void updateToken(String? newToken) {
     if (_token != newToken || _products.isEmpty) {
       _token = newToken;
@@ -71,7 +70,9 @@ class ProductsController with ChangeNotifier {
       // update cache
       await _dbService.cacheProducts(fetchedProducts);
     } catch (e) {
-      debugPrint('API Fetch Error: $e');
+      if (!e.toString().contains('connect to the internet')) {
+        debugPrint('API Fetch Error: $e');
+      }
       if (_products.isEmpty) {
         _error = e.toString();
       }

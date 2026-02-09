@@ -25,13 +25,19 @@ class _CartScreenState extends State<CartScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final authProvider = Provider.of<AuthController>(context, listen: false);
       if (authProvider.token != null) {
-        Provider.of<CartController>(
-          context,
-          listen: false,
-        ).fetchCart(authProvider.token!);
+        // Sync pending actions first if we are back online
+        await Provider.of<SyncController>(context, listen: false)
+            .syncPendingActions(authProvider.token!);
+            
+        if (mounted) {
+          Provider.of<CartController>(
+            context,
+            listen: false,
+          ).fetchCart(authProvider.token!);
+        }
       }
     });
   }

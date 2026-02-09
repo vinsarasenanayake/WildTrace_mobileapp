@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../models/cart_item.dart';
 import '../models/product.dart';
@@ -28,7 +29,6 @@ class CartController with ChangeNotifier {
   }
 
   // update token when user log in or out, and get cart data if logged in
-  // Update authentication token and synchronize cart data
   void updateToken(String? newToken) {
     if (newToken != _token) {
       _token = newToken;
@@ -43,34 +43,39 @@ class CartController with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    // try loading from cache
-    try {
-      final cached = await _dbService.getCachedCartItems();
-      if (cached.isNotEmpty) {
-        _items.clear();
-        _items.addAll(cached);
-        notifyListeners();
+    // try loading from cache only if items are currently empty
+    if (_items.isEmpty) {
+      try {
+        final cached = await _dbService.getCachedCartItems();
+        if (cached.isNotEmpty) {
+          _items.clear();
+          _items.addAll(cached);
+          notifyListeners();
+        }
+      } catch (e) {
+        debugPrint('Cart Cache Error: $e');
       }
-    } catch (e) {
-      debugPrint('Cart Cache Error: $e');
     }
+
+    // Keep track of locally added items that haven't been synced yet
+    final List<CartItem> localTempItems = _items.where((item) => item.id?.startsWith('temp_') ?? false).toList();
 
     try {
       // get cart data from backend
       final List<dynamic> data = await _apiService.fetchCart(token);
-      _items.clear();
+      
+      // Temporary list for new server data
+      final List<CartItem> serverItems = [];
       for (var item in data) {
         final productData = item['product'] ?? item;
         if (productData != null) {
-          _items.add(
+          serverItems.add(
             CartItem(
               id: item['id']?.toString(),
               product: Product.fromJson(productData),
-              quantity:
-                  (item['quantity'] != null
+              quantity: (item['quantity'] != null
                       ? num.tryParse(item['quantity'].toString())?.toInt()
-                      : 1) ??
-                  1,
+                      : 1) ?? 1,
               size: item['size']?.toString(),
               price: item['price'] != null
                   ? double.tryParse(item['price'].toString())
@@ -79,11 +84,68 @@ class CartController with ChangeNotifier {
           );
         }
       }
-      // update cache
+
+      _items.clear();
+      _items.addAll(serverItems);
+
+      for (var tempItem in localTempItems) {
+        bool alreadyOnServer = serverItems.any((si) => 
+          si.product.id == tempItem.product.id && 
+          si.size == tempItem.size
+        );
+        if (!alreadyOnServer) {
+          _items.add(tempItem);
+        }
+      }
+
+      // merge pending actions
+      final pending = await _dbService.getPendingActions();
+      for (var action in pending) {
+        if (action['action_type'] == 'cart_add') {
+          final actionData = action['data'] is String 
+              ? jsonDecode(action['data']) 
+              : action['data'];
+          final productId = actionData['product_id'];
+          final size = actionData['size'];
+          
+          if (!_items.any((i) => i.product.id == productId && i.size == size)) {
+            try {
+              Product? product;
+              if (actionData['product_json'] != null) {
+                product = Product.fromJson(jsonDecode(actionData['product_json']));
+              } else {
+                final products = await _dbService.getCachedProducts();
+                product = products.firstWhere((p) => p.id == productId);
+              }
+              
+              _items.add(CartItem(
+                id: 'temp_pending_${action['id']}',
+                product: product,
+                quantity: actionData['quantity'] ?? 1,
+                size: size,
+              ));
+            } catch (e) {
+              debugPrint('Could not restore pending cart item: $e');
+            }
+          }
+        } else if (action['action_type'] == 'cart_remove') {
+          final actionData = action['data'] is String ? jsonDecode(action['data']) : action['data'];
+          _items.removeWhere((i) => i.id == actionData['id'].toString());
+        } else if (action['action_type'] == 'cart_update') {
+          final actionData = action['data'] is String ? jsonDecode(action['data']) : action['data'];
+          final index = _items.indexWhere((i) => i.id == actionData['id'].toString());
+          if (index >= 0) {
+            _items[index] = _items[index].copyWith(quantity: actionData['quantity']);
+          }
+        }
+      }
+
+      // cache update
       await _dbService.cacheCartItems(_items);
     } catch (e) {
-      debugPrint('Cart Error: $e');
-      if (_items.isEmpty) rethrow;
+      if (!e.toString().contains('connect to the internet')) {
+        debugPrint('Cart API Fetch Error: $e');
+      }
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -106,16 +168,19 @@ class CartController with ChangeNotifier {
       CartItem(id: tempId, product: product, quantity: quantity, size: size),
     );
     notifyListeners();
-    // save the cart to local db if app is closed before backend call
+    // save the cart to local db immediately
     await _dbService.cacheCartItems(_items);
 
     try {
       await _apiService.addToCart(product.id, quantity, tokenToUse, size: size);
       await fetchCart(tokenToUse);
     } catch (e) {
-      debugPrint('Add to Cart API Error: $e');
+      if (!e.toString().contains('connect to the internet')) {
+        debugPrint('Add to Cart API Error: $e');
+      }
       await _dbService.addPendingAction('cart_add', {
         'product_id': product.id,
+        'product_json': jsonEncode(product.toJson()),
         'quantity': quantity,
         'size': size,
       });
@@ -136,7 +201,9 @@ class CartController with ChangeNotifier {
       await _apiService.removeFromCart(cartItemId, tokenToUse);
       await fetchCart(tokenToUse);
     } catch (e) {
-      debugPrint('Remove from Cart API Error: $e');
+      if (!e.toString().contains('connect to the internet')) {
+        debugPrint('Remove from Cart API Error: $e');
+      }
       if (!cartItemId.startsWith('temp_')) {
         await _dbService.addPendingAction('cart_remove', {'id': cartItemId});
       }
@@ -171,7 +238,9 @@ class CartController with ChangeNotifier {
       }
       await fetchCart(tokenToUse);
     } catch (e) {
-      debugPrint('Update Quantity API Error: $e');
+      if (!e.toString().contains('connect to the internet')) {
+        debugPrint('Update Quantity API Error: $e');
+      }
       if (!cartItemId.startsWith('temp_')) {
         await _dbService.addPendingAction('cart_update', {
           'id': cartItemId,
@@ -207,7 +276,9 @@ class CartController with ChangeNotifier {
       await _apiService.clearCart(tokenToUse);
       await fetchCart(tokenToUse);
     } catch (e) {
-      debugPrint('Clear Cart Error: $e');
+      if (!e.toString().contains('connect to the internet')) {
+        debugPrint('Clear Cart Error: $e');
+      }
       rethrow;
     }
   }
