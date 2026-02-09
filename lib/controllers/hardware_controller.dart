@@ -112,7 +112,7 @@ class HardwareController extends ChangeNotifier {
 
     try {
       final addressData = await _locationService.getCurrentAddress().timeout(
-        const Duration(seconds: 45),
+        const Duration(seconds: 30),
         onTimeout: () => throw Exception('Location request timed out'),
       );
       return addressData;

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 
@@ -28,12 +29,27 @@ class LocationService {
 
     Position position = await Geolocator.getCurrentPosition(
       locationSettings: locationSettings,
-    );
+    ).timeout(const Duration(seconds: 15));
+
+    // Reverse geocoding requires internet
+    bool isOffline = false;
+    try {
+      final result = await InternetAddress.lookup('google.com').timeout(const Duration(seconds: 5));
+      if (result.isEmpty || result[0].rawAddress.isEmpty) {
+        isOffline = true;
+      }
+    } catch (_) {
+      isOffline = true;
+    }
+
+    if (isOffline) {
+      throw Exception('InternetConnectionError');
+    }
 
     List<Placemark> placemarks = await placemarkFromCoordinates(
       position.latitude,
       position.longitude,
-    );
+    ).timeout(const Duration(seconds: 10));
 
     if (placemarks.isNotEmpty) {
       Placemark place = placemarks.first;

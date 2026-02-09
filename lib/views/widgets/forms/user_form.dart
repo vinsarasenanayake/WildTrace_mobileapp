@@ -80,6 +80,15 @@ class _UserFormState extends State<UserForm> {
       }
     } catch (e) {
       if (mounted) {
+        if (e.toString().contains('InternetConnectionError')) {
+          AlertService.showError(
+            context: context,
+            title: 'No Connection',
+            text: 'Please connect to the internet to detect your address.',
+          );
+          return;
+        }
+
         String errorMsg =
             'We couldn\'t detect your location. Please make sure your GPS is turned on and try again.';
 
